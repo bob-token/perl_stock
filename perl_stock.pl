@@ -233,7 +233,7 @@ sub main{
 		-cde: create  database for stock daily exchange
 		-cre: drop stock daily excange database
 		-ude[year1 [year2...]]: update stock daily excange
-		-fc:{code} from code
+		-ufc:{code} from code
 END
 	}
 		#update sotck code
