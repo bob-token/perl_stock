@@ -48,6 +48,33 @@ sub _get_turnover{
     }
     return 0;
 }
+
+# calculate moving average
+sub _MA{
+	my @v_days=shift;
+	my $total=0;
+	for $tmp(@v_days){
+		$total+=$tmp;
+	}
+	return $total/@v_days;
+}
+
+# calculate exponential moving average
+#EMA=P今天*K+EMA昨天*(1-K)
+#其中K=2/N+1
+#N=EMA的天数(由交易都决定)
+#EMA昨天=昨天的EMA
+sub _EMA{
+	my $code=shift;
+	my $day_start=shift;
+	my $day=shift;
+	my $days=shift;
+	my @days;
+	my $v_K=2/($days+1);
+	my $v_ma=_MA($code,@days);
+	my $P;
+	return $P*$v_K+_EMA($code,$day-1,$days)*(1-$v_K);
+}
 sub _turnover_get_codes{
 	    my $datefrom=shift;
 	    my $dateto=shift;

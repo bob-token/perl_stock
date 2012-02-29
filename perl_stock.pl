@@ -202,7 +202,7 @@ sub _update_stocks_exchange{
 		foreach my $code (<IN>) {
 			chop $code;
 			if(!$start){
-				next if(index($fromcode,$code)==-1);
+				next if(index($fromcode,$code)==-3);
 				$start=1;
 			}
 			if(index (uc($tablesname),uc($code)) < 0){
@@ -248,7 +248,7 @@ END
 		$opt =~ /-cde/ && _create_stock_db($StockExDb)&&print "create stock exchange database:$StockExDb success\n";
 		#drop stock daily excange database
 		$opt =~ /-cre/ && _clear_stock_db($StockExDb)&& print "$StockExDb cleared!\n";
-		#update from the code 
+		#update from the code
 		if($opt =~ /-ufc/){
 			$fromcode=shift @ARGV;
 		}
