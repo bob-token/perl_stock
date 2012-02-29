@@ -53,7 +53,7 @@ sub _get_turnover{
 sub _MA{
 	my @v_days=shift;
 	my $total=0;
-	for $tmp(@v_days){
+	for my $tmp(@v_days){
 		$total+=$tmp;
 	}
 	return $total/@v_days;
