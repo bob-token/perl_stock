@@ -35,20 +35,6 @@ sub _is_valid_code{
     my $code =shift;
     return $code =~/s[hz]\d{6}/;
 }
-sub _get_turnover{
-    my $date=shift;
-    my $code=shift;
-    my $deh=shift;
-    my $dih=shift;
-    my $condition="DATE=\"$date\"";
-    my @liutogu=MSH_GetValue($dih,$code,"LIUTONGGU");
-    my @jiaoyigushu=MSH_GetValue($deh,$code,"JIAOYIGUSHU",$condition);
-    if(defined $jiaoyigushu[0] and defined $liutogu[0]){
-	return $jiaoyigushu[0]/$liutogu[0];	
-    }
-    return 0;
-}
-
 # calculate moving average
 sub _MA{
 	my @v_days=shift;
@@ -66,6 +52,7 @@ sub _MA{
 #EMA×òÌì=×òÌìµÄEMA
 sub _EMA{
 	my $code=shift;
+	my $dhe=shift;
 	my $day_start=shift;
 	my $day=shift;
 	my $days=shift;
@@ -74,6 +61,19 @@ sub _EMA{
 	my $v_ma=_MA($code,@days);
 	my $P;
 	return $P*$v_K+_EMA($code,$day-1,$days)*(1-$v_K);
+}
+sub _get_turnover{
+    my $date=shift;
+    my $code=shift;
+    my $deh=shift;
+    my $dih=shift;
+    my $condition="DATE=\"$date\"";
+    my @liutogu=MSH_GetValue($dih,$code,"LIUTONGGU");
+    my @jiaoyigushu=MSH_GetValue($deh,$code,"JIAOYIGUSHU",$condition);
+    if(defined $jiaoyigushu[0] and defined $liutogu[0]){
+	return $jiaoyigushu[0]/$liutogu[0];	
+    }
+    return 0;
 }
 sub _turnover_get_codes{
 	    my $datefrom=shift;

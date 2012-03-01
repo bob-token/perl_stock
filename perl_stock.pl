@@ -202,7 +202,7 @@ sub _update_stocks_exchange{
 		foreach my $code (<IN>) {
 			chop $code;
 			if(!$start){
-				next if(index($fromcode,$code)==-3);
+				next if(index($fromcode,$code)==-1);
 				$start=1;
 			}
 			if(index (uc($tablesname),uc($code)) < 0){
