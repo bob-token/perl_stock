@@ -9,6 +9,8 @@ our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
 our $StockCodeFile="stock_code.txt";
 our $fromcode;
+
+$|=1;
 sub _update_stock_code{
 	my $browser = LWP::UserAgent->new;
 	my $i=1;
@@ -131,6 +133,7 @@ sub _update_stock_base_info{
 		
 		$sql=sprintf("INSERT IGNORE INTO  %s VALUES (%s) ;",$tbl_name,$str_info);
 		print "$str_info\n";
+		print "$sql\n";
 		$dbh->do($sql) or print $!;			
 	}
 }
@@ -202,7 +205,7 @@ sub _update_stocks_exchange{
 		foreach my $code (<IN>) {
 			chop $code;
 			if(!$start){
-				next if(index($fromcode,$code)==-3);
+				next if(index($fromcode,$code)==-1);
 				$start=1;
 			}
 			if(index (uc($tablesname),uc($code)) < 0){

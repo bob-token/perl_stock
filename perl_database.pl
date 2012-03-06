@@ -35,6 +35,18 @@ sub MSH_GetValue{
 	}
 	return @value;
 }
+sub MSH_GetValueFirst{
+	my $dhe=shift;
+	my $table=shift;
+	my $column=shift;
+	my $condition=shift;
+	
+	my @result=MSH_GetValue($dbh,$table,$column,$condition);
+	if(defined @result){
+		return @result[0];
+	}
+	return undef;
+}
 sub MSH_GetAllTablesName1{
 	my $dbh=shift;
 	#show tables

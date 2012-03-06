@@ -3,11 +3,14 @@ use strict;
 use warnings;
 use LWP;
 use DBI;
+use DateTime;
+use DateTime::Event::Recurrence;
 require "perl_database.pl";
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
 our $StockCodeFile="stock_code.txt";
 our $monitor_code="monitor_stock_code.txt";
+$|=1;
 sub _get_cur_stock_exchange_info{
     my $code = shift;
     my $url=sprintf("http://hq.sinajs.cn/?_=1314426110204&list=%s",$code);
@@ -35,6 +38,65 @@ sub _is_valid_code{
     my $code =shift;
     return $code =~/s[hz]\d{6}/;
 }
+# calculate moving average
+sub _MA{
+	my @v_days=shift;
+	my $total=0;
+	for my $tmp(@v_days){
+		$total+=$tmp;
+	}
+	return $total/@v_days;
+}
+sub _get_closing_price{
+	my $code=shift;
+	my $date=shift;
+	my $dhe=shift;
+    my $condition="DATE=\"$date\"";
+	return MSH_GetValueFirst($dhe,$code,"SHOUPANJIA",$condition); 
+}
+sub _get_next_date{
+	my $date=shift;
+	my $mydate=DateTime->new($date);
+	my $daily_set = DateTime::Event::Recurrence->daily;
+	my $dt_next = $daily_set->next( $dt );
+	return $dt_next; 
+}
+sub _get_next_date_closing_price{
+	my @value;
+	my $code=shift;
+	my $date=shift;
+	my $dhe=shift;
+    my $condition="DATE>\"$date\" LIMIT 1";
+	return MSH_GetValueFirst($dhe,$code,"DATE,SHOUPANJIA",$condition); 
+	
+}
+# calculate exponential moving average
+#EMA=P今天*K+EMA昨天*(1-K)
+#其中K=2/N+1
+#N=EMA的天数(由交易者决定)
+#EMA昨天=昨天的EMA
+sub _EMA{
+	my $code=shift;
+	my $dhe=shift;
+	my $day_exchange_start=shift;
+	my $ema_day=shift;
+	my $day_cnt=shift;
+	my $v_K=2/($day_cnt+1);
+	my $v_ma=_MA($code,@days);
+	my $P=_get_closing_price($code,$date,$dhe);
+#计算开始$date天的平均值
+	my $first_ema;
+	for(my $i=0;$i<$day_cnt;$i++){
+		my @day_price=_get_next_date_closing_price($code,$day_exchange_start,$dhe);
+		if(!defined @day_price){
+			return $first_ema/$i;	
+		}
+		$first_ema+=@day_price[1];
+		$code=@day_price[0];
+	}		
+	return $P*$v_K+_EMA($code,$day-1,$days)*(1-$v_K);
+}
+
 sub _get_turnover{
     my $date=shift;
     my $code=shift;
@@ -47,33 +109,6 @@ sub _get_turnover{
 	return $jiaoyigushu[0]/$liutogu[0];	
     }
     return 0;
-}
-
-# calculate moving average
-sub _MA{
-	my @v_days=shift;
-	my $total=0;
-	for my $tmp(@v_days){
-		$total+=$tmp;
-	}
-	return $total/@v_days;
-}
-
-# calculate exponential moving average
-#EMA=P今天*K+EMA昨天*(1-K)
-#其中K=2/N+1
-#N=EMA的天数(由交易都决定)
-#EMA昨天=昨天的EMA
-sub _EMA{
-	my $code=shift;
-	my $day_start=shift;
-	my $day=shift;
-	my $days=shift;
-	my @days;
-	my $v_K=2/($days+1);
-	my $v_ma=_MA($code,@days);
-	my $P;
-	return $P*$v_K+_EMA($code,$day-1,$days)*(1-$v_K);
 }
 sub _turnover_get_codes{
 	    my $datefrom=shift;
