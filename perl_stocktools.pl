@@ -222,6 +222,7 @@ sub main{
         -ami[ code[ code[ ...]]]: add monitor stock ,save to file
         -mcp[ code[ code[ ...]]]: monitor stock;if omit code ,read in file
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
+		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 END
 	}
 		#help info
@@ -242,9 +243,8 @@ END
 		 	my $code=shift @ARGV ;
 		    my $dhe=MSH_OpenDB($StockExDb);
 			my $day_exchange_start=shift @ARGV;
-			my $ema_day=shift @ARGV;
-		 	my $macd=_MACD(12,26,9,$code,$dhe,$day_exchange_start,$ema_day);	
-
+			my $macd_day=shift @ARGV;
+		 	my $macd=_MACD(12,26,9,$code,$dhe,$day_exchange_start,$macd_day);	
 			print $code," macd:",$macd,"\n";
 		 }
 		 if($opt =~ /-ema/){
