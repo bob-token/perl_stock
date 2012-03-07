@@ -57,7 +57,7 @@ sub _get_next_date_closing_price{
 	my $code=shift;
 	my $date=shift;
 	my $dhe=shift;
-    my $condition="DATE>\"$date\" LIMIT 1";
+    my $condition="DATE>\"$date\" ORDER BY DATE ASC LIMIT 1";
 	return MSH_GetValue($dhe,$code,"DATE,SHOUPANJIA",$condition); 
 	
 }
@@ -85,39 +85,50 @@ sub _is_same_day{
 	}	
 	return 0;
 }
-sub _DEA{
-	my $code=shift;
-	my $dhe=shift;
-	my $day_exchange_start=shift;
-	my $dea_day=shift;
-	my $dea_day_cnt=shift;
-	
-}
 sub _DIFF{
 	my $diff_s_day=shift;
 	my $diff_l_day=shift;
 	my $code=shift;
 	my $dhe=shift;
 	my $day_exchange_start=shift;
-	my $ema_day=shift;
-	my $ema_s=_EMA($code,$dhe,$day_exchange_start,$ema_day,$diff_s_day);
-	my $ema_l=_EMA($code,$dhe,$day_exchange_start,$ema_day,$diff_l_day);
+	my $diff_day=shift;
+	my $ema_s=_EMA($code,$dhe,$day_exchange_start,$diff_day,$diff_s_day);
+	my $ema_l=_EMA($code,$dhe,$day_exchange_start,$diff_day,$diff_l_day);
 	my $diff=$ema_s-$ema_l;
 	return $diff;
+}
+sub _DEA{
+	my $diff_s_day=shift;
+	my $diff_l_day=shift;
+	my $code=shift;
+	my $dhe=shift;
+	my $day_exchange_start=shift;
+	my $dea_day=shift;
+	my $dea_day_cnt=shift;
+    my $condition="DATE<=\"$dea_day\" ORDER BY DATE DESC LIMIT $dea_day_cnt";
+	#获取需要计算diff的日期
+	my @diff_days=MSH_GetValue($dhe,$code,"DATE",$condition); 
+	my $sum_diff;
+	foreach my $diff_date(@diff_days){
+		$sum_diff+=_DIFF($diff_s_day,$diff_l_day,$code,$dhe,$day_exchange_start,$diff_date);
+	}
+	my $dea=$sum_diff/@diff_days;
+	return $dea;
 }
 #diff=ema(12)-ema(26)
 #dea =ema(9)
 #macd=diff-dea;
 sub _MACD{
-	my $diff_s_day=shift;
-	my $diff_l_day=shift;
-	my $dea_day=shift;
+	my $diff_s_day_cnt=shift;
+	my $diff_l_day_cnt=shift;
+	my $dea_day_cnt=shift;
 	my $code=shift;
 	my $dhe=shift;
 	my $day_exchange_start=shift;
 	my $ema_day=shift;
-	my $diff=_DIFF($diff_s_day,$diff_l_day,$code,$dhe,$day_exchange_start,$ema_day);
-	my $dea=_EMA($code,$dhe,$day_exchange_start,$ema_day,$dea_day);
+	my $diff=_DIFF($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day);
+	my $dea=_DEA($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day,$dea_day_cnt);
+	print "Diff($diff_s_day_cnt,$diff_l_day_cnt):$diff,DEA($dea_day_cnt):$dea","\n";
 	return $diff-$dea; 
 }
 # calculate exponential moving average
