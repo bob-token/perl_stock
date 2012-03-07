@@ -85,7 +85,41 @@ sub _is_same_day{
 	}	
 	return 0;
 }
-
+sub _DEA{
+	my $code=shift;
+	my $dhe=shift;
+	my $day_exchange_start=shift;
+	my $dea_day=shift;
+	my $dea_day_cnt=shift;
+	
+}
+sub _DIFF{
+	my $diff_s_day=shift;
+	my $diff_l_day=shift;
+	my $code=shift;
+	my $dhe=shift;
+	my $day_exchange_start=shift;
+	my $ema_day=shift;
+	my $ema_s=_EMA($code,$dhe,$day_exchange_start,$ema_day,$diff_s_day);
+	my $ema_l=_EMA($code,$dhe,$day_exchange_start,$ema_day,$diff_l_day);
+	my $diff=$ema_s-$ema_l;
+	return $diff;
+}
+#diff=ema(12)-ema(26)
+#dea =ema(9)
+#macd=diff-dea;
+sub _MACD{
+	my $diff_s_day=shift;
+	my $diff_l_day=shift;
+	my $dea_day=shift;
+	my $code=shift;
+	my $dhe=shift;
+	my $day_exchange_start=shift;
+	my $ema_day=shift;
+	my $diff=_DIFF($diff_s_day,$diff_l_day,$code,$dhe,$day_exchange_start,$ema_day);
+	my $dea=_EMA($code,$dhe,$day_exchange_start,$ema_day,$dea_day);
+	return $diff-$dea; 
+}
 # calculate exponential moving average
 #EMA=P今天*K+EMA昨天*(1-K)
 #其中K=2/N+1
@@ -109,6 +143,7 @@ sub _EMA{
 		$first_ema+=$day_price[1];
 		$day_exchange_start=$day_price[0];
 	}		
+	$first_ema = $first_ema/$day_cnt;
 #计算后续的EMA
 	while(@P=_get_next_date_closing_price($code,$day_exchange_start,$dhe)){
 		if(_is_earlier_than($P[0],$ema_day)){	
@@ -170,11 +205,12 @@ sub main{
 		#help infomation
 		if ($opt =~ /-h/){			 
 		print <<"END";
-		-p:  pause before exit;
-                -scp[ code[ code[ ...]]]: show current stock exchange price
-                -dmi[ code[ code[ ...]]]: delete monitor stock from file
-                -ami[ code[ code[ ...]]]: add monitor stock ,save to file
-                -mcp[ code[ code[ ...]]]: monitor stock;if omit code ,read in file
+		-p(windows system only):pause before exit
+        -scp[ code[ code[ ...]]]: show current stock exchange price
+        -dmi[ code[ code[ ...]]]: delete monitor stock from file
+        -ami[ code[ code[ ...]]]: add monitor stock ,save to file
+        -mcp[ code[ code[ ...]]]: monitor stock;if omit code ,read in file
+		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 END
 	}
 		#help info
@@ -191,6 +227,15 @@ END
                     my $num=shift @ARGV;
                     _turnover_get_codes($datefrom,$dateto,$min,$max,$daytotal,$num);
                 }
+		 if($opt =~ /-macd/){
+		 	my $code=shift @ARGV ;
+		    my $dhe=MSH_OpenDB($StockExDb);
+			my $day_exchange_start=shift @ARGV;
+			my $ema_day=shift @ARGV;
+		 	my $macd=_MACD(12,26,9,$code,$dhe,$day_exchange_start,$ema_day);	
+
+			print $code," macd:",$macd,"\n";
+		 }
 		 if($opt =~ /-ema/){
 		 	my $code=shift @ARGV ;
 		    my $dhe=MSH_OpenDB($StockExDb);
@@ -198,7 +243,7 @@ END
 			my $ema_day=shift @ARGV;
 			my $day_cnt=shift @ARGV;
 		 	my $ema=_EMA($code,$dhe,$day_exchange_start,$ema_day,$day_cnt);	
-			print $ema,"\n";
+			print $code,$ema_day,$ema,"\n";
 		 }
 		 if($opt =~ /-cdtor/){
 		    my $code=shift @ARGV;
