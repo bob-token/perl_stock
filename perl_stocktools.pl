@@ -3,8 +3,6 @@ use strict;
 use warnings;
 use LWP;
 use DBI;
-use DateTime;
-use DateTime::Event::Recurrence;
 require "perl_database.pl";
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
@@ -54,22 +52,40 @@ sub _get_closing_price{
     my $condition="DATE=\"$date\"";
 	return MSH_GetValueFirst($dhe,$code,"SHOUPANJIA",$condition); 
 }
-sub _get_next_date{
-	my $date=shift;
-	my $mydate=DateTime->new($date);
-	my $daily_set = DateTime::Event::Recurrence->daily;
-	my $dt_next = $daily_set->next( $dt );
-	return $dt_next; 
-}
 sub _get_next_date_closing_price{
 	my @value;
 	my $code=shift;
 	my $date=shift;
 	my $dhe=shift;
     my $condition="DATE>\"$date\" LIMIT 1";
-	return MSH_GetValueFirst($dhe,$code,"DATE,SHOUPANJIA",$condition); 
+	return MSH_GetValue($dhe,$code,"DATE,SHOUPANJIA",$condition); 
 	
 }
+sub _is_earlier_than{
+	my $dest=shift;
+	my $src=shift;
+	if(defined $dest && defined $src){
+		my @ddate=split('-',$dest);
+		my @sdate=split('-',$src);
+		if($ddate[0]<$sdate[0] || $ddate[1]<$sdate[1]||$ddate[2]<$sdate[2]){		
+			return 1;	
+		}
+	}	
+	return 0;
+}
+sub _is_same_day{
+	my $dest=shift;
+	my $src=shift;
+	if(defined $dest && defined $src){
+		my @ddate=split('-',$dest);
+		my @sdate=split('-',$src);
+		if($ddate[0]==$sdate[0] && $ddate[1]==$sdate[1]&&$ddate[2]==$sdate[2]){		
+			return 1;	
+		}
+	}	
+	return 0;
+}
+
 # calculate exponential moving average
 #EMA=P今天*K+EMA昨天*(1-K)
 #其中K=2/N+1
@@ -82,19 +98,30 @@ sub _EMA{
 	my $ema_day=shift;
 	my $day_cnt=shift;
 	my $v_K=2/($day_cnt+1);
-	my $v_ma=_MA($code,@days);
-	my $P=_get_closing_price($code,$date,$dhe);
+	my @P;
 #计算开始$date天的平均值
-	my $first_ema;
-	for(my $i=0;$i<$day_cnt;$i++){
+	my $first_ema=0;
+	for(my $i=1;$i<$day_cnt+1;$i++){
 		my @day_price=_get_next_date_closing_price($code,$day_exchange_start,$dhe);
-		if(!defined @day_price){
+		if(!@day_price){
 			return $first_ema/$i;	
 		}
-		$first_ema+=@day_price[1];
-		$code=@day_price[0];
+		$first_ema+=$day_price[1];
+		$day_exchange_start=$day_price[0];
 	}		
-	return $P*$v_K+_EMA($code,$day-1,$days)*(1-$v_K);
+#计算后续的EMA
+	while(@P=_get_next_date_closing_price($code,$day_exchange_start,$dhe)){
+		if(_is_earlier_than($P[0],$ema_day)){	
+			$first_ema=$P[1]*$v_K+$first_ema*(1-$v_K);
+			$day_exchange_start=$P[0];
+			next;
+		}
+		if(_is_same_day($P[0],$ema_day)){
+			return $P[1]*$v_K+$first_ema*(1-$v_K);
+		}
+		return $first_ema;
+	}
+	return undef;
 }
 
 sub _get_turnover{
@@ -164,15 +191,24 @@ END
                     my $num=shift @ARGV;
                     _turnover_get_codes($datefrom,$dateto,$min,$max,$daytotal,$num);
                 }
+		 if($opt =~ /-ema/){
+		 	my $code=shift @ARGV ;
+		    my $dhe=MSH_OpenDB($StockExDb);
+			my $day_exchange_start=shift @ARGV;
+			my $ema_day=shift @ARGV;
+			my $day_cnt=shift @ARGV;
+		 	my $ema=_EMA($code,$dhe,$day_exchange_start,$ema_day,$day_cnt);	
+			print $ema,"\n";
+		 }
 		 if($opt =~ /-cdtor/){
 		    my $code=shift @ARGV;
-                    my $date=shift @ARGV;
+            my $date=shift @ARGV;
 		    my $deh=MSH_OpenDB($StockExDb);
 		    my $dih=MSH_OpenDB($StockInfoDb);
 		    print _get_turnover($date,$code,$deh,$dih);
 		    $deh->disconnect;
 		    $dih->disconnect;
-                }
+          }
 		#show current stock exchange price
 		if($opt =~ /-scp/){
 			my $code;
@@ -199,7 +235,7 @@ END
                         my $codes=join(' ',@oldcodea);
                         while(@oldcodea and $code=shift @ARGV and _is_valid_code($code)){
                             push @codea,$code;
-			}
+						}
                         my $codea =join(' ',@codea);
                         foreach my $tmp(@oldcodea){
                             chomp $tmp;

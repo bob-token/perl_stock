@@ -30,20 +30,20 @@ sub MSH_GetValue{
 	my $sth =$dbh->prepare($sql);
 	$sth->execute();
 	my @value=();
-	while(my $code=$sth->fetchrow_array){
-		push @value,$code;
+	while(my @code=$sth->fetchrow_array){
+		push @value,@code;
 	}
 	return @value;
 }
 sub MSH_GetValueFirst{
-	my $dhe=shift;
+	my $dh=shift;
 	my $table=shift;
 	my $column=shift;
 	my $condition=shift;
 	
-	my @result=MSH_GetValue($dbh,$table,$column,$condition);
-	if(defined @result){
-		return @result[0];
+	my @result=MSH_GetValue($dh,$table,$column,$condition);
+	if(@result){
+		return $result[0];
 	}
 	return undef;
 }
