@@ -132,7 +132,7 @@ sub _MACD{
 	my $ema_day=shift;
 	my $diff=_DIFF($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day);
 	my $dea=_DEA($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day,$dea_day_cnt);
-#	print "$code:Diff($diff_s_day_cnt,$diff_l_day_cnt):$diff,DEA($dea_day_cnt):$dea","\n";
+	print "$code:Diff($diff_s_day_cnt,$diff_l_day_cnt):$diff,DEA($dea_day_cnt):$dea","\n";
 	return $diff-$dea; 
 }
 # calculate exponential moving average
@@ -149,14 +149,21 @@ sub _EMA{
 	my $v_K=2/($day_cnt+1);
 	my @P;
 #计算开始$date天的平均值
-	my $first_ema=0;
-	for(my $i=1;$i<$day_cnt+1;$i++){
+	my $first_ema;
+	my $i=1;
+	if($first_ema=_get_closing_price($code,$day_exchange_start,$dhe)){
+		$i=2;	
+	}
+	for(;$i<$day_cnt+1;$i++){
 		my @day_price=_get_next_date_closing_price($code,$day_exchange_start,$dhe);
-		if(!@day_price){
+		if(!@day_price ){
 			return $first_ema/$i;	
 		}
 		$first_ema+=$day_price[1];
 		$day_exchange_start=$day_price[0];
+		if( _is_same_day($day_price[0],$ema_day)){
+			return $first_ema/$i;
+		}
 	}		
 	$first_ema = $first_ema/$day_cnt;
 #计算后续的EMA
