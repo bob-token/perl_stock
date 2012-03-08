@@ -228,20 +228,21 @@ sub _select_codes{
 	my @codes;
 	my $code;
 	my $dhe=MSH_OpenDB($StockExDb);
-	my $date="2012-03-05";
+	my $date="2012-01-06";
 	open(IN,"<",$StockCodeFile);
 	while(<IN> ){
 		$code=$_;
 		chomp $code;
 		if($gflag_selectcode_macd){
-			my $macd=_MACD(12,26,9,$code,$dhe,"2012-01-01",$date);
+			my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
 			print $code,":$date:MACD:$macd","\n";
-			next if($macd < 1);
+			next if($macd < 0.2);
 		}
 		push @codes,$code;
-		last if(@codes < $stock_cnt);
+		last if(@codes >= $stock_cnt);
 	}
 	$dhe->disconnect;
+	close IN;
 	return @codes;
 }
 sub main{
@@ -258,6 +259,7 @@ sub main{
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
+		-select [macd] [turnover]:select stock by some flag
 END
 	}
 		#help info
@@ -279,9 +281,9 @@ END
 				unshift @ARGV,$tmp;
 				last;
 			}
-			my $total=1;
+			my $total=2;
 			my @codes=_select_codes($StockCodeFile,$total);
-			print split("\n",@codes);
+			print join("\n",@codes);
 		}
         #turnover rate
         if($opt =~ /-tor/){
