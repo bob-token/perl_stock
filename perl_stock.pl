@@ -221,7 +221,44 @@ sub _update_stocks_exchange{
 	$dbh->disconnect;
 	return 1;	
 }
-
+sub _UCYE{
+	my ($code,@years)=@_;
+	my $dbh=MSH_OpenDB($StockExDb);
+	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
+	my $year;
+	my $csec;
+	my $cmin;
+	my $chour;
+	my $cday;
+	my $cmon;
+	my $cyear;
+	my $cwday;
+	my $cyday;
+	my $cisdst;
+	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
+	$cyear=$cyear+1900;
+	foreach $year(@years){
+		if($cyear >= $year){
+			my $total=4;
+			my $start=1;
+			if($cyear == $year){
+				$total=$cmon;
+			}
+			if($code){
+				chomp $code;
+				if(index (uc($tablesname),uc($code)) < 0){
+					#create tables;
+					my $table_p="DATE DATE,KAIPANJIA FLOAT,ZUIGAOJIA FLOAT,SHOUPANJIA FLOAT,ZUIDIJIA FLOAT,JIAOYIGUSHU BIGINT,JIAOYIJINE BIGINT";
+					MSH_CreateTableIfNotExist($dbh,$code,$table_p);
+					MSH_SetUniqueKey($dbh,$code,"DATE");
+				}
+				_update_stock_exchange($dbh,$code,$year,'1',$total);
+			}
+		}
+	}
+	$dbh->disconnect;
+	return 1;	
+}
 sub main{
 	my @years;
 	my $flag_ude=0;
@@ -236,32 +273,45 @@ sub main{
 		-cde: create  database for stock daily exchange
 		-cre: drop stock daily excange database
 		-ude[year1 [year2...]]: update stock daily excange
+		-ucye code [year1 [year2...]]: update stock daily excange
 		-ufc:{code} from code
 END
 	}
 		#update sotck code
-		$opt =~ /-uc/ && _update_stock_code($StockCodeFile)&&print "update socks code success\n";
+		$opt =~ /-uc\b/ && _update_stock_code($StockCodeFile)&&print "update socks code success\n";
 		#create  database for stock base info
-		$opt =~ /-cdi/ && _create_stock_db($StockInfoDb)&&print "create stock exchange database:$StockExDb success\n";
+		$opt =~ /-cdi\b/ && _create_stock_db($StockInfoDb)&&print "create stock exchange database:$StockExDb success\n";
 		#drop stock base info database
-		$opt =~ /-cri/ && _clear_stock_db($StockInfoDb)&& print "$StockInfoDb cleared!\n";
+		$opt =~ /-cri\b/ && _clear_stock_db($StockInfoDb)&& print "$StockInfoDb cleared!\n";
 		#update stock base info
-		$opt =~ /-udi/ && _update_stocks_base_info($StockCodeFile) && print "update stock info success\n";
+		$opt =~ /-udi\b/ && _update_stocks_base_info($StockCodeFile) && print "update stock info success\n";
 		#create  database for stock daily exchange
-		$opt =~ /-cde/ && _create_stock_db($StockExDb)&&print "create stock exchange database:$StockExDb success\n";
+		$opt =~ /-cde\b/ && _create_stock_db($StockExDb)&&print "create stock exchange database:$StockExDb success\n";
 		#drop stock daily excange database
-		$opt =~ /-cre/ && _clear_stock_db($StockExDb)&& print "$StockExDb cleared!\n";
+		$opt =~ /-cre\b/ && _clear_stock_db($StockExDb)&& print "$StockExDb cleared!\n";
 		#update from the code
-		if($opt =~ /-ufc/){
+		if($opt =~ /-ufc\b/){
 			$fromcode=shift @ARGV;
 		}
+		#-ucye code [year1 [year2...]]: update stock daily excange
+		if($opt =~ /-ucye\b/){
+			my $year;
+			my $code=shift @ARGV;
+			while($year=shift @ARGV and $year =~ /\b\d{4}\b/){
+				push @years,$year;
+			}
+			if(defined $year){
+				unshift(@ARGV,$year);
+			}
+			_UCYE($code,@years);
+			print $code." ",join(":",@years)," exchange data update success !","\n";
+		}
 		#update stock daily excange
-		if($opt =~ /-ude/){
+		if($opt =~ /-ude\b/){
 			my $year;
 			$flag_ude=1;
 			while($year=shift @ARGV and $year =~ /\b\d{4}\b/){
 				push @years,$year;
-				
 			}
 			if(defined $year){
 				unshift(@ARGV,$year);

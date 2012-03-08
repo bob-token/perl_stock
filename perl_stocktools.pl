@@ -8,6 +8,10 @@ our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
 our $StockCodeFile="stock_code.txt";
 our $monitor_code="monitor_stock_code.txt";
+#选择股票代码的技术指标开关
+our $gflag_selectcode_macd=0;
+our $gflag_selectcode_turnover=0;
+
 $|=1;
 sub _get_cur_stock_exchange_info{
     my $code = shift;
@@ -128,7 +132,7 @@ sub _MACD{
 	my $ema_day=shift;
 	my $diff=_DIFF($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day);
 	my $dea=_DEA($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day,$dea_day_cnt);
-	print "Diff($diff_s_day_cnt,$diff_l_day_cnt):$diff,DEA($dea_day_cnt):$dea","\n";
+#	print "$code:Diff($diff_s_day_cnt,$diff_l_day_cnt):$diff,DEA($dea_day_cnt):$dea","\n";
 	return $diff-$dea; 
 }
 # calculate exponential moving average
@@ -194,21 +198,44 @@ sub _turnover_get_codes{
 	    my $dih=MSH_OpenDB($StockInfoDb);
 	    my $condition="DATE>=\"$datefrom\" && DATE<=\"$dateto\" ";
 	    my @code =MSH_GetAllTablesName1($deh);
+		my @codes;
 	    foreach my $code(@code){
-		my @date=MSH_GetValue($deh,$code,"DATE",$condition);
-		my $total=0;
-    		foreach my $date(@date){
-		    my $turnover=_get_turnover($date,$code,$deh,$dih);
- #   		    print $code," $date,"," $turnover\n";
-		    if($turnover >= $min && $turnover <= $max){
-			if(++$total >= $daymin){
-			    print $code."\n";
-			}
-		    }		
-		}	
+			my @date=MSH_GetValue($deh,$code,"DATE",$condition);
+			my $total=0;
+   			foreach my $date(@date){
+		    	my $turnover=_get_turnover($date,$code,$deh,$dih);
+		    	if($turnover >= $min && $turnover <= $max){
+					if(++$total >= $daymin){
+						push @codes,$code;
+					}
+		    	}		
+			}	
 	    }
 	    $deh->disconnect;
 	    $dih->disconnect;
+	return @codes;
+}
+sub _select_codes{
+	my $stockcodefile=shift;
+	my $stock_cnt=shift;
+	my @codes;
+	my $code;
+	my $dhe=MSH_OpenDB($StockExDb);
+	my $date="2012-03-05";
+	open(IN,"<",$StockCodeFile);
+	while(<IN> ){
+		$code=$_;
+		chomp $code;
+		if($gflag_selectcode_macd){
+			my $macd=_MACD(12,26,9,$code,$dhe,"2012-01-01",$date);
+			print $code,":$date:MACD:$macd","\n";
+			next if($macd < 1);
+		}
+		push @codes,$code;
+		last if(@codes < $stock_cnt);
+	}
+	$dhe->disconnect;
+	return @codes;
 }
 sub main{
     my $pause=0;
@@ -223,22 +250,43 @@ sub main{
         -mcp[ code[ code[ ...]]]: monitor stock;if omit code ,read in file
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
+		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
 END
 	}
 		#help info
 		if ($opt =~ /-p\b/){
-                    $pause=1;
-                }
-                #turnover rate
-                if($opt =~ /-tor/){
-                    my $datefrom=shift @ARGV;
-                    my $dateto=shift @ARGV;
-                    my $min=shift @ARGV;
-                    my $max=shift @ARGV;
-                    my $daytotal=shift @ARGV;
-                    my $num=shift @ARGV;
-                    _turnover_get_codes($datefrom,$dateto,$min,$max,$daytotal,$num);
-                }
+           $pause=1;
+        }
+		#select codes for exchange
+		if ($opt =~ /-select/){
+			my $tmp;
+			while($tmp=shift @ARGV){
+				if($tmp =~ /macd/){
+					$gflag_selectcode_macd=1;
+					next;
+				}
+				if($tmp =~ /turnover/){
+					$gflag_selectcode_turnover=1;
+					next;
+				}
+				unshift @ARGV,$tmp;
+				last;
+			}
+			my $total=1;
+			my @codes=_select_codes($StockCodeFile,$total);
+			print split("\n",@codes);
+		}
+        #turnover rate
+        if($opt =~ /-tor/){
+	        my $datefrom=shift @ARGV;
+   		    my $dateto=shift @ARGV;
+       		my $min=shift @ARGV;
+        	my $max=shift @ARGV;
+        	my $daytotal=shift @ARGV;
+        	my $num=shift @ARGV;
+       		my @codes = _turnover_get_codes($datefrom,$dateto,$min,$max,$daytotal,$num);
+			print split("\n",@codes); 
+         }
 		 if($opt =~ /-macd/){
 		 	my $code=shift @ARGV ;
 		    my $dhe=MSH_OpenDB($StockExDb);
