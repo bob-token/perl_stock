@@ -1,2 +1,0 @@
-[SRC]=G:\360_cloud\perl_script\perl_stock.pl;[DEST]=G:\360_cloud\360тфел\prj\perl_stock.pl.7z;
-[SRC]=G:\360_cloud\perl_script;[DEST]=G:\360_cloud\360тфел\prj\perl_script.7z;
