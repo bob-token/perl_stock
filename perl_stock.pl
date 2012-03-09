@@ -77,22 +77,20 @@ sub _get_stock_exchange{
 		if($response->is_success and 'null' ne $response->content){
 			my @date=($response->content =~ /(?<=date=)(\d{4}.*)(?='>)/g);
 			my @exchangeinfo=($response->content =~ /(?<=center">)(\d{1,7}.*)(?=<\/div>)/g);
-#			while(($response->content =~ /.a/g)){
-#				my $matchs = $&;
-#				print $matchs;
-#			}
 			for( my $idd=0;$idd<(@date);$idd++){
 				my $start=$idd*6;
 				my $info=join(',',join('"','',$date[$idd],''),$exchangeinfo[$start+0],$exchangeinfo[$start+1],$exchangeinfo[$start+2],$exchangeinfo[$start+3],$exchangeinfo[$start+4],$exchangeinfo[$start+5]);
 				$info=sprintf("%s$info%s",'(',')');
 				push (@stock,$info);
 			}
-#			return  sort @stock;
 			return  @stock;
 		}
 		if ($times < 10){
 			++$times;
 			sleep 1;			
+			if(!$times%3){
+				$browser = LWP::UserAgent->new;
+			}
 		}else {
 			last;
 		}
@@ -176,7 +174,68 @@ sub _update_stock_exchange{
 		}
 	}
 }
-
+sub _get_season_exchage_days{
+	my ($dhe,$code,$year,$season)=@_;
+	if($dhe && $code && $year && defined $season){
+		my @exchange_days;
+		my $season_start=$year.'-'.($season*3+1).'-01';
+		my $season_end=$year.'-'.($season*3+3).'-31';;
+		my $condition="DATE<=\"$season_end\" && DATE>=\"$season_start\"";
+		@exchange_days=MSH_GetValue($dhe,$code,"DATE",$condition);
+		return @exchange_days;
+	}
+	return undef;
+}
+sub _smart_update_stocks_exchange{
+	my $dbh=_open_stock_db();
+	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
+	open(IN,shift);
+	my $year=shift;
+	my $csec;
+	my $cmin;
+	my $chour;
+	my $cday;
+	my $cmon;
+	my $cyear;
+	my $cwday;
+	my $cyday;
+	my $cisdst;
+	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
+	$cyear=$cyear+1900;
+	if($cyear >= $year){
+		my $total=4;
+		my $start=1;
+		if($cyear == $year){
+			$total=$cmon;
+		}
+		if(defined $fromcode){
+			$start=0;	
+		}
+		foreach my $code (<IN>) {
+			chop $code;
+			if(!$start){
+				next if(index($fromcode,$code)==-1);
+				$start=1;
+			}
+			if(index (uc($tablesname),uc($code)) < 0){
+				#create tables;
+				my $table_p="DATE DATE,KAIPANJIA FLOAT,ZUIGAOJIA FLOAT,SHOUPANJIA FLOAT,ZUIDIJIA FLOAT,JIAOYIGUSHU BIGINT,JIAOYIJINE BIGINT";
+				MSH_CreateTableIfNotExist($dbh,$code,$table_p);
+				MSH_SetUniqueKey($dbh,$code,"DATE");
+				_update_stock_exchange($dbh,$code,$year,'1',$total);
+			}else{
+				for(my $season=0;$season<$total;$season++){
+					if(!_get_season_exchage_days($dbh,$code,$year,$season)){
+						_update_stock_exchange($dbh,$code,$year,$season+1,1);
+					}
+				}
+			}
+		}
+	}
+	close(IN);
+	$dbh->disconnect;
+	return 1;	
+}
 sub _update_stocks_exchange{
 	my $dbh=_open_stock_db();
 	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
@@ -262,6 +321,7 @@ sub _UCYE{
 sub main{
 	my @years;
 	my $flag_ude=0;
+	my $flag_sude=0;
 	while(my $opt=shift @ARGV){
 		#help infomation
 		if ($opt =~ /-h/){			 
@@ -273,6 +333,7 @@ sub main{
 		-cde: create  database for stock daily exchange
 		-cre: drop stock daily excange database
 		-ude[year1 [year2...]]: update stock daily excange
+		-sude[year1 [year2...]]: smart update stock daily excange,before get data from internet ,query database;
 		-ucye code [year1 [year2...]]: update stock daily excange
 		-ufc:{code} from code
 END
@@ -306,6 +367,17 @@ END
 			_UCYE($code,@years);
 			print $code." ",join(":",@years)," exchange data update success !","\n";
 		}
+		#start update stock daily excange
+		if($opt =~ /-sude\b/){
+			my $year;
+			$flag_sude=1;
+			while($year=shift @ARGV and $year =~ /\b\d{4}\b/){
+				push @years,$year;
+			}
+			if(defined $year){
+				unshift(@ARGV,$year);
+			}
+		};
 		#update stock daily excange
 		if($opt =~ /-ude\b/){
 			my $year;
@@ -319,10 +391,14 @@ END
 		};
 
 	}
+	if($flag_sude){
+		foreach my $year(@years){
+			_smart_update_stocks_exchange($StockCodeFile,$year)&&print "smart update $year socks info success\n";
+		}
+	}
 	if($flag_ude){
 		foreach my $year(@years){
 			_update_stocks_exchange($StockCodeFile,$year)&&print "update $year socks info success\n";
-
 		}
 	}
 	print "\nbye bye!\n";
