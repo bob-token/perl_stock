@@ -227,6 +227,8 @@ sub _select_codes{
 }
 sub main{
     my $pause=0;
+	#传引用
+	COM_filter_param(\@ARGV);
 	while(my $opt=shift @ARGV){
 		#help infomation
 		if ($opt =~ /-h/){			 
@@ -246,8 +248,6 @@ END
 		if ($opt =~ /-p\b/){
            $pause=1;
         }
-		#传引用
-		COM_filter_param(\@ARGV);
 		#select codes for exchange
 		if ($opt =~ /-select/){
 			my $tmp;

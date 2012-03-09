@@ -36,7 +36,7 @@ sub COM_filter_param{
 		}
 		unshift @others,$opt;
 	}
-		unshift @$param,@others;
+		unshift @$param,reverse(@others);
 }
 sub COM_is_earlier_than{
 	my $dest=shift;
