@@ -3,7 +3,9 @@ use strict;
 use warnings;
 use LWP;
 use DBI;
+require "perl_common.pl";
 require "perl_database.pl";
+require "perl_database_tools.pl";
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
 our $StockCodeFile="stock_code.txt";
@@ -56,39 +58,6 @@ sub _get_closing_price{
     my $condition="DATE=\"$date\"";
 	return MSH_GetValueFirst($dhe,$code,"SHOUPANJIA",$condition); 
 }
-sub _get_next_date_closing_price{
-	my @value;
-	my $code=shift;
-	my $date=shift;
-	my $dhe=shift;
-    my $condition="DATE>\"$date\" ORDER BY DATE ASC LIMIT 1";
-	return MSH_GetValue($dhe,$code,"DATE,SHOUPANJIA",$condition); 
-	
-}
-sub _is_earlier_than{
-	my $dest=shift;
-	my $src=shift;
-	if(defined $dest && defined $src){
-		my @ddate=split('-',$dest);
-		my @sdate=split('-',$src);
-		if($ddate[0]<$sdate[0] || $ddate[1]<$sdate[1]||$ddate[2]<$sdate[2]){		
-			return 1;	
-		}
-	}	
-	return 0;
-}
-sub _is_same_day{
-	my $dest=shift;
-	my $src=shift;
-	if(defined $dest && defined $src){
-		my @ddate=split('-',$dest);
-		my @sdate=split('-',$src);
-		if($ddate[0]==$sdate[0] && $ddate[1]==$sdate[1]&&$ddate[2]==$sdate[2]){		
-			return 1;	
-		}
-	}	
-	return 0;
-}
 sub _DIFF{
 	my $diff_s_day=shift;
 	my $diff_l_day=shift;
@@ -111,7 +80,8 @@ sub _DEA{
 	my $dea_day_cnt=shift;
     my $condition="DATE<=\"$dea_day\" ORDER BY DATE DESC LIMIT $dea_day_cnt";
 	#获取需要计算diff的日期
-	my @diff_days=MSH_GetValue($dhe,$code,"DATE",$condition); 
+	my @diff_days= _get_earlier_exchange_days_from_db($dhe,$code,$dea_day,$dea_day_cnt);
+#	my @diff_days=MSH_GetValue($dhe,$code,"DATE",$condition); 
 	my $sum_diff;
 	foreach my $diff_date(@diff_days){
 		$sum_diff+=_DIFF($diff_s_day,$diff_l_day,$code,$dhe,$day_exchange_start,$diff_date);
@@ -155,25 +125,25 @@ sub _EMA{
 		$i=2;	
 	}
 	for(;$i<$day_cnt+1;$i++){
-		my @day_price=_get_next_date_closing_price($code,$day_exchange_start,$dhe);
+		my @day_price=DBT_get_next_date_closing_price($code,$day_exchange_start,$dhe);
 		if(!@day_price ){
 			return $first_ema/$i;	
 		}
 		$first_ema+=$day_price[1];
 		$day_exchange_start=$day_price[0];
-		if( _is_same_day($day_price[0],$ema_day)){
+		if( COM_is_same_day($day_price[0],$ema_day)){
 			return $first_ema/$i;
 		}
 	}		
 	$first_ema = $first_ema/$day_cnt;
 #计算后续的EMA
-	while(@P=_get_next_date_closing_price($code,$day_exchange_start,$dhe)){
-		if(_is_earlier_than($P[0],$ema_day)){	
+	while(@P=DBT_get_next_date_closing_price($code,$day_exchange_start,$dhe)){
+		if(COM_is_earlier_than($P[0],$ema_day)){	
 			$first_ema=$P[1]*$v_K+$first_ema*(1-$v_K);
 			$day_exchange_start=$P[0];
 			next;
 		}
-		if(_is_same_day($P[0],$ema_day)){
+		if(COM_is_same_day($P[0],$ema_day)){
 			return $P[1]*$v_K+$first_ema*(1-$v_K);
 		}
 		return $first_ema;
@@ -228,17 +198,19 @@ sub _select_codes{
 	my @codes;
 	my $code;
 	my $dhe=MSH_OpenDB($StockExDb);
-	my $date="2012-01-06";
 	open(IN,"<",$StockCodeFile);
 	while(<IN> ){
 		$code=$_;
 		chomp $code;
+		my $date="2012-04-05";
+		my @last_exchange_data_day=_get_earlier_exchange_days_from_db($dhe,$code,$date,1);
+		$date=$last_exchange_data_day[0];
 		if($gflag_selectcode_macd){
 			my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
 			print $code,":$date:MACD:$macd","\n";
 			next if($macd < 0.2);
+			push @codes,join(":",$code,$date,$macd);
 		}
-		push @codes,$code;
 		last if(@codes >= $stock_cnt);
 	}
 	$dhe->disconnect;

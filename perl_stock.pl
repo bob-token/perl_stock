@@ -3,7 +3,9 @@ use strict;
 use LWP;
 use Encode;
 use DBI;
+require "perl_common.pl";
 require "perl_database.pl";
+require "perl_database_tools.pl";
 
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
@@ -41,7 +43,8 @@ sub _update_stock_code{
 }
 
 sub _open_stock_db{
-	return DBI->connect("DBI:mysql:database=mysql;host=localhost", "root", "1983410", {'RaiseError' => 1});
+	#return DBI->connect("DBI:mysql:database=mysql;host=localhost", "root", "1983410", {'RaiseError' => 1});
+	return MSH_OpenDB("mysql");
 }
 
 sub _create_stock_db{
@@ -174,18 +177,6 @@ sub _update_stock_exchange{
 		}
 	}
 }
-sub _get_season_exchage_days{
-	my ($dhe,$code,$year,$season)=@_;
-	if($dhe && $code && $year && defined $season){
-		my @exchange_days;
-		my $season_start=$year.'-'.($season*3+1).'-01';
-		my $season_end=$year.'-'.($season*3+3).'-31';;
-		my $condition="DATE<=\"$season_end\" && DATE>=\"$season_start\"";
-		@exchange_days=MSH_GetValue($dhe,$code,"DATE",$condition);
-		return @exchange_days;
-	}
-	return undef;
-}
 sub _smart_update_stocks_exchange{
 	my $dbh=_open_stock_db();
 	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
@@ -202,11 +193,13 @@ sub _smart_update_stocks_exchange{
 	my $cisdst;
 	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
 	$cyear=$cyear+1900;
+	$cmon+=1;
+	my $today=$cyear."-$cmon"."-$cday";
 	if($cyear >= $year){
 		my $total=4;
 		my $start=1;
 		if($cyear == $year){
-			$total=$cmon;
+			$total=int(($cmon-1)/3)+1;
 		}
 		if(defined $fromcode){
 			$start=0;	
@@ -225,7 +218,10 @@ sub _smart_update_stocks_exchange{
 				_update_stock_exchange($dbh,$code,$year,'1',$total);
 			}else{
 				for(my $season=0;$season<$total;$season++){
-					if(!_get_season_exchage_days($dbh,$code,$year,$season)){
+					my @days=DBT_get_season_exchage_days($dbh,$code,$year,$season);
+					if(!@days){
+						_update_stock_exchange($dbh,$code,$year,$season+1,1);
+					}elsif($year==$cyear && $season+1==$total){
 						_update_stock_exchange($dbh,$code,$year,$season+1,1);
 					}
 				}
@@ -252,11 +248,12 @@ sub _update_stocks_exchange{
 	my $cisdst;
 	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
 	$cyear=$cyear+1900;
+	$cmon+=1;
 	if($cyear >= $year){
 		my $total=4;
 		my $start=1;
 		if($cyear == $year){
-			$total=$cmon;
+			$total=int(($cmon-1)/3)+1;
 		}
 		if(defined $fromcode){
 			$start=0;	
