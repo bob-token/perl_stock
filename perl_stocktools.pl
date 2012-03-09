@@ -92,6 +92,25 @@ sub _DEA{
 #diff=ema(12)-ema(26)
 #dea =ema(9)
 #macd=diff-dea;
+sub _MACD_DIFFLITTLETHANZERO{
+	my $diff_s_day_cnt=shift;
+	my $diff_l_day_cnt=shift;
+	my $dea_day_cnt=shift;
+	my $code=shift;
+	my $dhe=shift;
+	my $day_exchange_start=shift;
+	my $ema_day=shift;
+	my $diff=_DIFF($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day);
+	my $dea=_DEA($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day,$dea_day_cnt);
+	print "$code:Diff($diff_s_day_cnt,$diff_l_day_cnt):$diff,DEA($dea_day_cnt):$dea","\n";
+	if($diff < 0){
+		return $diff-$dea; 
+	}
+	return undef;
+}
+#diff=ema(12)-ema(26)
+#dea =ema(9)
+#macd=diff-dea;
 sub _MACD{
 	my $diff_s_day_cnt=shift;
 	my $diff_l_day_cnt=shift;
@@ -211,12 +230,17 @@ sub _select_codes{
 			$start=1;
 		}
 		my $date="2012-04-05";
-		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,1);
+		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
 		if($gflag_selectcode_macd){
-			my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
+			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
+			my $macd=_MACD_DIFFLITTLETHANZERO(12,26,9,$code,$dhe,"2011-01-01",$date);
+			next if(!$macd);
+			my $macd1=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[1]);
+			next if($macd < 0.03 || $macd <$macd1 );
+			my $macd2=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[2]);
+			next if($macd1<$macd2);
 			print $code,":$date:MACD:$macd","\n";
-			next if($macd < 0.2);
 			push @codes,join(":",$code,$date,$macd);
 		}
 		last if(@codes >= $stock_cnt);
