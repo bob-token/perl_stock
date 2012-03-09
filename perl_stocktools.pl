@@ -80,7 +80,7 @@ sub _DEA{
 	my $dea_day_cnt=shift;
     my $condition="DATE<=\"$dea_day\" ORDER BY DATE DESC LIMIT $dea_day_cnt";
 	#获取需要计算diff的日期
-	my @diff_days= _get_earlier_exchange_days_from_db($dhe,$code,$dea_day,$dea_day_cnt);
+	my @diff_days= DBT_get_earlier_exchange_days($dhe,$code,$dea_day,$dea_day_cnt);
 #	my @diff_days=MSH_GetValue($dhe,$code,"DATE",$condition); 
 	my $sum_diff;
 	foreach my $diff_date(@diff_days){
@@ -203,7 +203,7 @@ sub _select_codes{
 		$code=$_;
 		chomp $code;
 		my $date="2012-04-05";
-		my @last_exchange_data_day=_get_earlier_exchange_days_from_db($dhe,$code,$date,1);
+		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,1);
 		$date=$last_exchange_data_day[0];
 		if($gflag_selectcode_macd){
 			my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
