@@ -13,7 +13,7 @@ our $monitor_code="monitor_stock_code.txt";
 #选择股票代码的技术指标开关
 our $gflag_selectcode_macd=0;
 our $gflag_selectcode_turnover=0;
-
+our $g_fromcode;
 $|=1;
 sub _get_cur_stock_exchange_info{
     my $code = shift;
@@ -197,11 +197,19 @@ sub _select_codes{
 	my $stock_cnt=shift;
 	my @codes;
 	my $code;
+	my $start=1;
 	my $dhe=MSH_OpenDB($StockExDb);
 	open(IN,"<",$StockCodeFile);
+	if(COM_get_fromcode()){
+		$start=0;
+	}
 	while(<IN> ){
 		$code=$_;
 		chomp $code;
+		if(!$start){
+			next if(index(COM_get_fromcode(),$code)==-1);
+			$start=1;
+		}
 		my $date="2012-04-05";
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,1);
 		$date=$last_exchange_data_day[0];
@@ -224,20 +232,22 @@ sub main{
 		if ($opt =~ /-h/){			 
 		print <<"END";
 		-p(windows system only):pause before exit
-        -scp[ code[ code[ ...]]]: show current stock exchange price
-        -dmi[ code[ code[ ...]]]: delete monitor stock from file
+        -scp[ code[ code[ ...]]]: show current stock exchange price -dmi[ code[ code[ ...]]]: delete monitor stock from file
         -ami[ code[ code[ ...]]]: add monitor stock ,save to file
         -mcp[ code[ code[ ...]]]: monitor stock;if omit code ,read in file
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
 		-select [macd] [turnover]:select stock by some flag
+		-ufc:{code} from code
 END
 	}
 		#help info
 		if ($opt =~ /-p\b/){
            $pause=1;
         }
+		#传引用
+		COM_filter_param(\@ARGV);
 		#select codes for exchange
 		if ($opt =~ /-select/){
 			my $tmp;

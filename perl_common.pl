@@ -20,9 +20,24 @@
 
 use strict;
 use warnings;
-
+our $g_fromcode;
 
 $|=1;
+sub COM_get_fromcode{
+	return $g_fromcode;
+}
+sub COM_filter_param{
+	my ($param)=@_;
+	my @others;
+	while(my $opt=shift @$param){
+		if($opt =~ /-ufc\b/){
+			$g_fromcode=shift @$param;
+			next;
+		}
+		unshift @others,$opt;
+	}
+		unshift @$param,@others;
+}
 sub COM_is_earlier_than{
 	my $dest=shift;
 	my $src=shift;
