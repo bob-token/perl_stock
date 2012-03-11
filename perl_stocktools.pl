@@ -8,6 +8,7 @@ require "perl_database.pl";
 require "perl_database_tools.pl";
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
+our $BuyStockCode="buy_stock_code.txt";
 our $StockCodeFile="stock_code.txt";
 our $monitor_code="monitor_stock_code.txt";
 #选择股票代码的技术指标开关
@@ -88,6 +89,25 @@ sub _DEA{
 	}
 	my $dea=$sum_diff/@diff_days;
 	return $dea;
+}
+#diff=ema(12)-ema(26)
+#dea =ema(9)
+#macd=diff-dea;
+sub _MACD_DEALITTLETHANZERO{
+	my $diff_s_day_cnt=shift;
+	my $diff_l_day_cnt=shift;
+	my $dea_day_cnt=shift;
+	my $code=shift;
+	my $dhe=shift;
+	my $day_exchange_start=shift;
+	my $ema_day=shift;
+	my $diff=_DIFF($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day);
+	my $dea=_DEA($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day,$dea_day_cnt);
+	print "$code:Diff($diff_s_day_cnt,$diff_l_day_cnt):$diff,DEA($dea_day_cnt):$dea","\n";
+	if($dea < 0){
+		return $diff-$dea; 
+	}
+	return undef;
 }
 #diff=ema(12)-ema(26)
 #dea =ema(9)
@@ -234,7 +254,7 @@ sub _select_codes{
 		$date=$last_exchange_data_day[0];
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
-			my $macd=_MACD_DIFFLITTLETHANZERO(12,26,9,$code,$dhe,"2011-01-01",$date);
+			my $macd= _MACD_DEALITTLETHANZERO(12,26,9,$code,$dhe,"2011-01-01",$date);
 			next if(!$macd);
 			my $macd1=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[1]);
 			next if($macd < 0.03 || $macd <$macd1 );
@@ -248,6 +268,14 @@ sub _select_codes{
 	$dhe->disconnect;
 	close IN;
 	return @codes;
+}
+sub _delete_buy_code{
+}
+sub _add_buy_code{
+}
+sub _buy{
+#保存到文件
+	open OUT,">>",	
 }
 sub main{
     my $pause=0;
@@ -265,13 +293,24 @@ sub main{
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
 		-select [macd] [turnover]:select stock by some flag
-		-ufc:{code} from code
+		-ufc <code> :from code
+		-buy <code> <price> <total> <must sell price>:buy a stock 
 END
 	}
 		#help info
 		if ($opt =~ /-p\b/){
            $pause=1;
         }
+		if ($opt =~ /-buy\b/){
+			my $code;
+			while($code=shift @ARGV and _is_valid_code($code) ){
+
+			}
+			if($code){
+				open(OUT,$monitor_code);
+				close OUT;
+			 }
+		}
 		#select codes for exchange
 		if ($opt =~ /-select/){
 			my $tmp;
@@ -287,7 +326,7 @@ END
 				unshift @ARGV,$tmp;
 				last;
 			}
-			my $total=2;
+			my $total=20;
 			my @codes=_select_codes($StockCodeFile,$total);
 			print join("\n",@codes);
 		}
