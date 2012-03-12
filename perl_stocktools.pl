@@ -6,6 +6,7 @@ use DBI;
 require "perl_common.pl";
 require "perl_database.pl";
 require "perl_database_tools.pl";
+require "perl_stock.pl";
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
 our $BuyStockCode="buy_stock_code.txt";
@@ -16,22 +17,7 @@ our $gflag_selectcode_macd=0;
 our $gflag_selectcode_turnover=0;
 our $g_fromcode;
 $|=1;
-sub _get_stock_cur_price{
-	if(my @info=_get_stock_cur_exchange_info(shift)){
-		return $info[1];
-	}
-	return undef;
-}
-sub _get_stock_cur_exchange_info{
-    my $code = shift;
-    my $url=sprintf("http://hq.sinajs.cn/?_=1314426110204&list=%s",$code);
-	if(my $content_ref=COM_get_page_content($url,10)){
-		chomp $$content_ref;
-		my $info = substr($$content_ref,length('var hq_str_')+length($code)+1+1,-2);
-		my @info=split('\,',$info);
-		return  @info;
-	}
-}
+
 # calculate moving average
 sub _MA{
 	my @v_days=shift;
@@ -324,7 +310,7 @@ sub _report{
 }
 sub _monitor_bought_stock{
 	my ($code,$buyprice,$stoploss)=@_;
-	my $cur_price=_get_stock_cur_price($code);
+	my $cur_price=PS_get_stock_cur_price($code);
 	my @reported_codes;
 	chomp $stoploss;
 	if($stoploss>$cur_price){
@@ -482,7 +468,7 @@ END
 		if($opt =~ /-scp/){
 			my $code;
 			while($code=shift @ARGV and COM_is_valid_code($code) ){
-				my @info =_get_stock_cur_exchange_info($code);
+				my @info =PS_get_stock_cur_exchange_info($code);
                                 my $percent =($info[3]-$info[2])*100/$info[2];
                                 my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
                                 print $str;
@@ -552,7 +538,7 @@ END
                             close IN;
                          }
                         foreach $code(@codes){
-                                my @info =_get_stock_cur_exchange_info($code);
+                                my @info =PS_get_stock_cur_exchange_info($code);
                                 my $percent =($info[3]-$info[2])*100/$info[2];
                                 if($info[3]==0) {
                                     $percent=0;

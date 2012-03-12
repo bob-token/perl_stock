@@ -13,6 +13,22 @@ our $StockCodeFile="stock_code.txt";
 our $fromcode;
 
 $|=1;
+sub PS_get_stock_cur_price{
+	if(my @info=_get_stock_cur_exchange_info(shift)){
+		return $info[1];
+	}
+	return undef;
+}
+sub PS_get_stock_cur_exchange_info{
+    my $code = shift;
+    my $url=sprintf("http://hq.sinajs.cn/?_=1314426110204&list=%s",$code);
+	if(my $content_ref=COM_get_page_content($url,10)){
+		chomp $$content_ref;
+		my $info = substr($$content_ref,length('var hq_str_')+length($code)+1+1,-2);
+		my @info=split('\,',$info);
+		return  @info;
+	}
+}
 sub _update_stock_code{
 	my $browser = LWP::UserAgent->new;
 	my $i=1;
@@ -315,6 +331,54 @@ sub _UCYE{
 	$dbh->disconnect;
 	return 1;	
 }
+sub _update_last_exchange{
+	my $dbh=MSH_OpenDB($StockExDb);
+	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
+	my $year;
+	my $csec;
+	my $cmin;
+	my $chour;
+	my $cday;
+	my $cmon;
+	my $cyear;
+	my $cwday;
+	my $cyday;
+	my $cisdst;
+	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
+	$cyear=$cyear+1900;
+	my $name=0;
+	my $kaipan=1;
+	my $zuoshou=2;
+	my $shoupan=3;
+	my $zuigao=4;
+	my $zuidi=5;
+	my $jiaoyigushu=8;
+	my $jiaoyijine=9;
+	my $jiaoyidate=-2;
+	my $jiaoyitime=-1;
+	open IN,"<",$StockCodeFile;
+	foreach my $code(<IN>){
+		if($code){
+			chomp $code;
+			if(index (uc($tablesname),uc($code)) < 0){
+				#create tables;
+				my $table_p="DATE DATE,KAIPANJIA FLOAT,ZUIGAOJIA FLOAT,SHOUPANJIA FLOAT,ZUIDIJIA FLOAT,JIAOYIGUSHU BIGINT,JIAOYIJINE BIGINT";
+				MSH_CreateTableIfNotExist($dbh,$code,$table_p);
+				MSH_SetUniqueKey($dbh,$code,"DATE");
+			}
+			#获取最新产生的交易数据
+			if (my @einfo=PS_get_stock_cur_exchange_info($code)){
+				my $str_info='"'.$einfo[$jiaoyidate].'"'.','.$einfo[$kaipan].','.$einfo[$zuigao].','.$einfo[$shoupan].','.$einfo[$zuidi].','.$einfo[$jiaoyigushu].','.$einfo[$jiaoyijine];
+				my $sql=sprintf("INSERT IGNORE INTO  %s VALUES (%s) ;",$code,$str_info);
+				printf $code.":".$str_info."\n";
+				$dbh->do($sql);
+			}
+		}
+	}
+	$dbh->disconnect;
+	close IN;
+	return 1;	
+}
 sub main{
 	my @years;
 	my $flag_ude=0;
@@ -330,9 +394,10 @@ sub main{
 		-cde: create  database for stock daily exchange
 		-cre: drop stock daily excange database
 		-ude[year1 [year2...]]: update stock daily excange
+		-ulde: update stock last daily excange
 		-sude[year1 [year2...]]: smart update stock daily excange,before get data from internet ,query database;
 		-ucye code [year1 [year2...]]: update stock daily excange
-		-ufc:{code} from code
+		-ufc:<code> from code
 END
 	}
 		#update sotck code
@@ -350,6 +415,10 @@ END
 		#update from the code
 		if($opt =~ /-ufc\b/){
 			$fromcode=shift @ARGV;
+		}
+		#update stock last daily excange
+		if($opt =~ /-ulde\b/){
+			_update_last_exchange();
 		}
 		#-ucye code [year1 [year2...]]: update stock daily excange
 		if($opt =~ /-ucye\b/){
