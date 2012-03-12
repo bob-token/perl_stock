@@ -367,7 +367,8 @@ sub _update_last_exchange{
 				MSH_SetUniqueKey($dbh,$code,"DATE");
 			}
 			#获取最新产生的交易数据
-			if (my @einfo=PS_get_stock_cur_exchange_info($code)){
+			if (my @einfo=PS_get_stock_cur_exchange_info($code) ){
+				next if ($einfo[$shoupan]==0);
 				my $str_info='"'.$einfo[$jiaoyidate].'"'.','.$einfo[$kaipan].','.$einfo[$zuigao].','.$einfo[$shoupan].','.$einfo[$zuidi].','.$einfo[$jiaoyigushu].','.$einfo[$jiaoyijine];
 				my $sql=sprintf("INSERT IGNORE INTO  %s VALUES (%s) ;",$code,$str_info);
 				printf $code.":".$str_info."\n";
