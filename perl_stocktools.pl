@@ -16,7 +16,17 @@ our $gflag_selectcode_macd=0;
 our $gflag_selectcode_turnover=0;
 our $g_fromcode;
 $|=1;
-sub _get_cur_stock_exchange_info{
+sub _is_valid_code{
+    my $code =shift;
+    return $code =~/s[hz]\d{6}/;
+}
+sub _get_stock_cur_price{
+	if(my @info=_get_stock_cur_exchange_info(shift)){
+		return $info[1];
+	}
+	return undef;
+}
+sub _get_stock_cur_exchange_info{
     my $code = shift;
     my $url=sprintf("http://hq.sinajs.cn/?_=1314426110204&list=%s",$code);
     my $browser = LWP::UserAgent->new;
@@ -38,10 +48,6 @@ sub _get_cur_stock_exchange_info{
                     last;
             }
     }
-}
-sub _is_valid_code{
-    my $code =shift;
-    return $code =~/s[hz]\d{6}/;
 }
 # calculate moving average
 sub _MA{
@@ -269,13 +275,85 @@ sub _select_codes{
 	close IN;
 	return @codes;
 }
+sub _get_all_bought_stocks{
+	my @codes;
+#读取信息文件
+	open IN,"<",$BuyStockCode;
+	while(<IN>){
+		my @codeinfo=split(':',$_);
+		if(@codeinfo&&_is_valid_code($codeinfo[0])){
+			push @codes,$codeinfo[0];
+		}
+	}
+	close IN;	
+	return @codes;
+}
+sub _get_buy_code_info{
+	my $code=shift;
+#读取信息文件
+	open IN,"<",$BuyStockCode;
+	while(<IN>){
+		if(index($_,$code)==0){
+			return split(':',$_);
+		}
+	}
+	close IN;	
+	return undef;
+}
 sub _delete_buy_code{
+	my $code=shift;
+	my @buycodes;
+#读取信息文件
+	open IN,"<",$BuyStockCode;
+	while(<IN>){
+		if(index($_,$code)!=0){
+			push @buycodes,$_;
+		}
+	}
+	close IN;	
+#保存到文件
+	open OUT,">",$BuyStockCode;
+	syswrite(OUT,join("\n",@buycodes));
+	close OUT;	
 }
 sub _add_buy_code{
+	my ($code,$price,$total,$stoploss)=@_;
+	my $order=$code.':'.$price.':'.$total.':'.$stoploss;
+#保存到文件
+	open OUT,">>",$BuyStockCode;
+	syswrite(OUT,$order);
+	syswrite(OUT,"\n");
+	close OUT;	
+	return 1;
 }
 sub _buy{
-#保存到文件
-	open OUT,">>",	
+	my ($code,$price,$total,$stoploss)=@_;
+	if(!defined $stoploss){
+		$stoploss=$price*0.98;#将止损点设在98%
+	}
+	_delete_buy_code($code);
+	return _add_buy_code($code,$price,$total,$stoploss);
+}
+sub _report{
+	my $msg=shift;
+	printf $msg."\n";	
+	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
+}
+sub _monitor_bought_stock{
+	my ($code,$buyprice,$stoploss)=@_;
+	my $cur_price=_get_stock_cur_price($code);
+	chomp $stoploss;
+	if($stoploss>$cur_price){
+		my $reportstr=$code."($buyprice:$cur_price):lower than stop loss order($stoploss)";
+		_report($reportstr);
+	}
+}
+sub _monitor_bought_stocks{
+	my @codes=@_;
+	foreach my $code(@codes){
+		my @info=_get_buy_code_info($code);
+		_monitor_bought_stock($info[0],$info[1],$info[3]);
+	}
 }
 sub main{
     my $pause=0;
@@ -294,22 +372,50 @@ sub main{
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
 		-select [macd] [turnover]:select stock by some flag
 		-ufc <code> :from code
-		-buy <code> <price> <total> <must sell price>:buy a stock 
+		-buy <code> <price> <total> <stop loss order>:buy a stock 
+		-sell <code> sell a stock 
+		-mbs [code [code ..]]:monitor bought stock(s)
 END
 	}
 		#help info
 		if ($opt =~ /-p\b/){
            $pause=1;
         }
+		#monitor bought stock(s)
+		if ($opt =~ /-mbs\b/){
+			my $code;
+			my @codes;
+			my @tmpcodes;
+			while($code=shift @ARGV and _is_valid_code($code) ){
+				push @tmpcodes , $code;
+			}
+			if(@tmpcodes){
+				foreach $code(@tmpcodes){
+					my @info=_get_buy_code_info($code);
+					if(@info){
+						push @codes,$code;		
+					}
+				}
+			}else{
+				@codes=_get_all_bought_stocks();	
+			}
+			if(@codes){
+				_monitor_bought_stocks(@codes);
+			}
+		}
+		#sell stock
+		if ($opt =~ /-sell\b/){
+			my $code;
+			while($code=shift @ARGV and _is_valid_code($code) ){
+					_delete_buy_code($code);
+			}
+		}
+		#buy stock
 		if ($opt =~ /-buy\b/){
 			my $code;
 			while($code=shift @ARGV and _is_valid_code($code) ){
-
+				_buy($code,shift @ARGV,shift @ARGV,shift @ARGV);
 			}
-			if($code){
-				open(OUT,$monitor_code);
-				close OUT;
-			 }
 		}
 		#select codes for exchange
 		if ($opt =~ /-select/){
@@ -371,7 +477,7 @@ END
 		if($opt =~ /-scp/){
 			my $code;
 			while($code=shift @ARGV and _is_valid_code($code) ){
-				my @info =_get_cur_stock_exchange_info($code);
+				my @info =_get_stock_cur_exchange_info($code);
                                 my $percent =($info[3]-$info[2])*100/$info[2];
                                 my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
                                 print $str;
@@ -441,7 +547,7 @@ END
                             close IN;
                          }
                         foreach $code(@codes){
-                                my @info =_get_cur_stock_exchange_info($code);
+                                my @info =_get_stock_cur_exchange_info($code);
                                 my $percent =($info[3]-$info[2])*100/$info[2];
                                 if($info[3]==0) {
                                     $percent=0;
