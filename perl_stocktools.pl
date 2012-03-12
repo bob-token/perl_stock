@@ -16,10 +16,6 @@ our $gflag_selectcode_macd=0;
 our $gflag_selectcode_turnover=0;
 our $g_fromcode;
 $|=1;
-sub _is_valid_code{
-    my $code =shift;
-    return $code =~/s[hz]\d{6}/;
-}
 sub _get_stock_cur_price{
 	if(my @info=_get_stock_cur_exchange_info(shift)){
 		return $info[1];
@@ -29,25 +25,12 @@ sub _get_stock_cur_price{
 sub _get_stock_cur_exchange_info{
     my $code = shift;
     my $url=sprintf("http://hq.sinajs.cn/?_=1314426110204&list=%s",$code);
-    my $browser = LWP::UserAgent->new;
-    my $times=0;
-    my @stock;
-    while(1){
-            my $response = $browser->get($url);
-            if($response->is_success and 'null' ne $response->content){
-                    my $info =$response->content;
-                    chomp $info;
-                    $info = substr($info,length('var hq_str_')+length($code)+1+1,-2);
-                    my @info=split('\,',$info);
-                    return  @info;
-            }
-            if ($times < 10){
-                    ++$times;
-                    sleep 1;			
-            }else {
-                    last;
-            }
-    }
+	if(my $content_ref=COM_get_page_content($url,10)){
+		chomp $$content_ref;
+		my $info = substr($$content_ref,length('var hq_str_')+length($code)+1+1,-2);
+		my @info=split('\,',$info);
+		return  @info;
+	}
 }
 # calculate moving average
 sub _MA{
@@ -281,7 +264,7 @@ sub _get_all_bought_stocks{
 	open IN,"<",$BuyStockCode;
 	while(<IN>){
 		my @codeinfo=split(':',$_);
-		if(@codeinfo&&_is_valid_code($codeinfo[0])){
+		if(@codeinfo&&COM_is_valid_code($codeinfo[0])){
 			push @codes,$codeinfo[0];
 		}
 	}
@@ -342,6 +325,7 @@ sub _report{
 sub _monitor_bought_stock{
 	my ($code,$buyprice,$stoploss)=@_;
 	my $cur_price=_get_stock_cur_price($code);
+	my @reported_codes;
 	chomp $stoploss;
 	if($stoploss>$cur_price){
 		my $reportstr=$code."($buyprice:$cur_price):lower than stop loss order($stoploss)";
@@ -350,9 +334,12 @@ sub _monitor_bought_stock{
 }
 sub _monitor_bought_stocks{
 	my @codes=@_;
-	foreach my $code(@codes){
-		my @info=_get_buy_code_info($code);
-		_monitor_bought_stock($info[0],$info[1],$info[3]);
+	while(1){
+		foreach my $code(@codes){
+			my @info=_get_buy_code_info($code);
+			_monitor_bought_stock($info[0],$info[1],$info[3]);
+		}
+		sleep 60;
 	}
 }
 sub main{
@@ -387,7 +374,7 @@ END
 			my $code;
 			my @codes;
 			my @tmpcodes;
-			while($code=shift @ARGV and _is_valid_code($code) ){
+			while($code=shift @ARGV and COM_is_valid_code($code) ){
 				push @tmpcodes , $code;
 			}
 			if(@tmpcodes){
@@ -407,7 +394,7 @@ END
 		#sell stock
 		if ($opt =~ /-sell\b/){
 			my $code;
-			while($code=shift @ARGV and _is_valid_code($code) ){
+			while($code=shift @ARGV and COM_is_valid_code($code) ){
 					_delete_buy_code($code);
 			}
 		}
@@ -415,7 +402,7 @@ END
 		if ($opt =~ /-lb\b/){
 			my $code;
 			my @codes;
-			while($code=shift @ARGV and _is_valid_code($code) ){
+			while($code=shift @ARGV and COM_is_valid_code($code) ){
 				push @codes,$code;	
 			}
 			if(!@codes){
@@ -431,7 +418,7 @@ END
 		#buy stock
 		if ($opt =~ /-buy\b/){
 			my $code;
-			while($code=shift @ARGV and _is_valid_code($code) ){
+			while($code=shift @ARGV and COM_is_valid_code($code) ){
 				_buy($code,shift @ARGV,shift @ARGV,shift @ARGV);
 			}
 		}
@@ -494,7 +481,7 @@ END
 		#show current stock exchange price
 		if($opt =~ /-scp/){
 			my $code;
-			while($code=shift @ARGV and _is_valid_code($code) ){
+			while($code=shift @ARGV and COM_is_valid_code($code) ){
 				my @info =_get_stock_cur_exchange_info($code);
                                 my $percent =($info[3]-$info[2])*100/$info[2];
                                 my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
@@ -515,7 +502,7 @@ END
                         }
                         close IN;
                         my $codes=join(' ',@oldcodea);
-                        while(@oldcodea and $code=shift @ARGV and _is_valid_code($code)){
+                        while(@oldcodea and $code=shift @ARGV and COM_is_valid_code($code)){
                             push @codea,$code;
 						}
                         my $codea =join(' ',@codea);
@@ -536,7 +523,7 @@ END
                 if($opt =~ /-ami/){
                     	my $code;
                         my @codea;
-			while($code=shift @ARGV and _is_valid_code($code)){
+			while($code=shift @ARGV and COM_is_valid_code($code)){
                             push @codea,$code;
 			}
                         if(@codea>0){
@@ -554,7 +541,7 @@ END
 		if($opt =~ /-mcp/){
 			my $code;
                         my @codes;
-			while($code=shift @ARGV and _is_valid_code($code) ){
+			while($code=shift @ARGV and COM_is_valid_code($code) ){
                                 push @codes,$code;
 			}
                         if(@codes==0){

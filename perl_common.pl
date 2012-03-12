@@ -62,3 +62,23 @@ sub COM_is_same_day{
 	}	
 	return 0;
 }
+sub COM_is_valid_code{
+    my $code =shift;
+    return $code =~/s[hz]\d{6}/;
+}
+sub COM_get_page_content{
+	my ($url,$max_try_times)=@_;
+    my $browser = LWP::UserAgent->new;
+    while(1){
+            my $response = $browser->get($url);
+            if($response->is_success and 'null' ne $response->content){
+                    return \$response->content;
+            }
+            if ($max_try_times--){
+                    sleep 1;			
+            }else {
+                    last;
+            }
+    }
+	return undef;
+}
