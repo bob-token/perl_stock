@@ -373,6 +373,7 @@ sub main{
 		-select [macd] [turnover]:select stock by some flag
 		-ufc <code> :from code
 		-buy <code> <price> <total> <stop loss order>:buy a stock 
+		-lb[code [code ..]]:list bought stock(s)
 		-sell <code> sell a stock 
 		-mbs [code [code ..]]:monitor bought stock(s)
 END
@@ -408,6 +409,23 @@ END
 			my $code;
 			while($code=shift @ARGV and _is_valid_code($code) ){
 					_delete_buy_code($code);
+			}
+		}
+		#list buy stock
+		if ($opt =~ /-lb\b/){
+			my $code;
+			my @codes;
+			while($code=shift @ARGV and _is_valid_code($code) ){
+				push @codes,$code;	
+			}
+			if(!@codes){
+				@codes=_get_all_bought_stocks();
+			}
+			foreach $code(@codes){
+				my @info=_get_buy_code_info($code);
+				if(@info){
+					printf join(':',@info),"\n";
+				}
 			}
 		}
 		#buy stock
