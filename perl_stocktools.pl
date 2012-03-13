@@ -6,7 +6,7 @@ use DBI;
 require "perl_common.pl";
 require "perl_database.pl";
 require "perl_database_tools.pl";
-require "perl_stock.pl";
+require "perl_stocknetwork.pl";
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
 our $BuyStockCode="buy_stock_code.txt";
@@ -310,7 +310,7 @@ sub _report{
 }
 sub _monitor_bought_stock{
 	my ($code,$buyprice,$stoploss)=@_;
-	my $cur_price=PS_get_stock_cur_price($code);
+	my $cur_price=SN_get_stock_cur_price($code);
 	my @reported_codes;
 	chomp $stoploss;
 	if($stoploss>$cur_price){
@@ -538,7 +538,7 @@ END
                             close IN;
                          }
                         foreach $code(@codes){
-                                my @info =PS_get_stock_cur_exchange_info($code);
+                                my @info =SN_get_stock_cur_exchange_info($code);
                                 my $percent =($info[3]-$info[2])*100/$info[2];
                                 if($info[3]==0) {
                                     $percent=0;
