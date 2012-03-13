@@ -27,13 +27,6 @@ sub _MA{
 	}
 	return $total/@v_days;
 }
-sub _get_closing_price{
-	my $code=shift;
-	my $date=shift;
-	my $dhe=shift;
-    my $condition="DATE=\"$date\"";
-	return MSH_GetValueFirst($dhe,$code,"SHOUPANJIA",$condition); 
-}
 sub _DIFF{
 	my $diff_s_day=shift;
 	my $diff_l_day=shift;
@@ -135,7 +128,7 @@ sub _EMA{
 #计算开始$date天的平均值
 	my $first_ema;
 	my $i=1;
-	if($first_ema=_get_closing_price($code,$day_exchange_start,$dhe)){
+	if($first_ema=DBT_get_closing_price($code,$day_exchange_start,$dhe)){
 		$i=2;	
 	}
 	for(;$i<$day_cnt+1;$i++){
@@ -313,7 +306,7 @@ sub _monitor_bought_stock{
 	my $cur_price=SN_get_stock_cur_price($code);
 	my @reported_codes;
 	chomp $stoploss;
-	if($stoploss>$cur_price){
+	if($stoploss>=$cur_price){
 		my $reportstr=$code."($buyprice:$cur_price):lower than stop loss order($stoploss)";
 		_report($reportstr);
 	}

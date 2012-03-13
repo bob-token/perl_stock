@@ -52,3 +52,10 @@ sub DBT_get_season_exchage_days{
 	}
 	return undef;
 }
+sub DBT_get_closing_price{
+	my $code=shift;
+	my $date=shift;
+	my $dhe=shift;
+    my $condition="DATE=\"$date\"";
+	return MSH_GetValueFirst($dhe,$code,"SHOUPANJIA",$condition); 
+}
