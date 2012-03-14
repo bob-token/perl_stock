@@ -218,6 +218,7 @@ sub _select_codes{
 			$start=1;
 		}
 		my $date="2012-04-05";
+		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
