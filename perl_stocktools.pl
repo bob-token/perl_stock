@@ -266,13 +266,14 @@ sub _delete_buy_code{
 	my $code=shift;
 	my @buycodes;
 #读取信息文件
-	open IN,"<",$BuyStockCode;
-	while(<IN>){
-		if(index($_,$code)!=0){
-			push @buycodes,$_;
+	if(open IN,"<",$BuyStockCode){
+		while(<IN>){
+			if(index($_,$code)!=0){
+				push @buycodes,$_;
+			}
 		}
+		close IN;	
 	}
-	close IN;	
 #保存到文件
 	open OUT,">",$BuyStockCode;
 	syswrite(OUT,join("\n",@buycodes));
@@ -523,11 +524,14 @@ END
 			while($code=shift @ARGV and COM_is_valid_code($code) ){
                                 push @codes,$code;
 			}
-                        if(@codes==0){
+                        if(!@codes){
                             open(IN,$monitor_code);
-                             foreach my $tmp(<IN>){
-                                 push @codes,$tmp;         
-                             }
+                            foreach my $tmp(<IN>){
+				chomp $tmp;
+				if(COM_is_valid_code($tmp)){
+                                	push @codes,$tmp;         
+				}
+                            }
                             close IN;
                          }
                         foreach $code(@codes){
