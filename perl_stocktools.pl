@@ -14,6 +14,7 @@ our $StockCodeFile="stock_code.txt";
 our $monitor_code="monitor_stock_code.txt";
 #选择股票代码的技术指标开关
 our $gflag_selectcode_macd=0;
+our $gflag_selectcode_kdj=0;
 our $gflag_selectcode_turnover=0;
 our $g_fromcode;
 $|=1;
@@ -157,7 +158,93 @@ sub _EMA{
 	}
 	return undef;
 }
-
+#KDJ 先计算周期（n日，n周等）的RSV值（未成熟随机指标值，然后再计算K值，D值
+#J值。以日KDJ数值为例，其计算公式为
+#n日RSV=（C-Ln）/（Hn-Ln）×100
+#第n日的收盘价，Ln为第n日内的最低收盘价，Hn为n日内最高收盘价。
+#RSV值始终在1-100间波动
+#其次，计算K值与D值
+#当日K值=2/3×前一日K值+1/3×当日RSV
+#当日D值=2/3×前一日D值+1/3当日K值
+#若无前一日K值与D值则可分别用50代替
+#J值=3×当日D值-2×当日K值
+#以9日为周期的KD线为例，首先计算出最近9日的RSV值
+#9日RSV=（C-L9）/（H9-L9）×100
+#公式中C为第9日的收盘价，L9为9日内最低收盘价，H9为9日最高收盘价
+#K值=2/3×第8日K值+1/3×第9日RSV
+#D值=2/3×第8日D值+1/3×第9日K值
+#J值=3×第9日D值-2×第9日K值
+#
+sub _J_OF_KDJ{
+	my ($code,$date,$period,$dhe,$day_exchange_start)=@_;
+	my $J=3*_D_OF_KDJ($code,$date,$period,$dhe,$day_exchange_start)-2*_K_OF_KDJ($code,$date,$period,$dhe,$day_exchange_start);
+	return $J;
+}
+sub _D_OF_KDJ{
+	my ($code,$date,$period,$dhe,$day_exchange_start)=@_;
+	if(COM_is_same_day($date,$day_exchange_start)){
+		return 50;
+	}
+	#第一天的值默认
+	my $D=50;
+	
+	#计算前面的值
+	while(my $day=DBT_get_next_exchange_day($code,$day_exchange_start,$dhe)){
+		$day_exchange_start=$day;	
+		if(COM_is_earlier_than($day,$date)){	
+			$D=2/3*$D+1/3*_K_OF_KDJ($code,$day,$period,$dhe,$day_exchange_start);
+			next;
+		}
+		if(COM_is_same_day($day,$date)){
+			return 2/3*$D+1/3*_K_OF_KDJ($code,$day,$period,$dhe,$day_exchange_start);
+		}
+		return $D;
+	}
+	return undef;
+}
+sub _K_OF_KDJ{
+	my ($code,$date,$period,$dhe,$day_exchange_start)=@_;
+	if(COM_is_same_day($date,$day_exchange_start)){
+		return 50;
+	}
+	#第一天的k值默认
+	my $K=50;
+	
+	#计算前面的k值
+	while(my $day=DBT_get_next_exchange_day($code,$day_exchange_start,$dhe)){
+		$day_exchange_start=$day;	
+		if(COM_is_earlier_than($day,$date)){	
+			$K=2/3*$K+1/3*_RSV_OF_KDJ($code,$day,$dhe,$period);
+			next;
+		}
+		if(COM_is_same_day($day,$date)){
+			return 2/3*$K+1/3*_RSV_OF_KDJ($code,$day,$dhe,$period);
+		}
+		return $K;
+	}
+	return undef;
+}
+sub _RSV_OF_KDJ{
+	my ($code,$date,$dhe,$period)=@_;
+	if(my @days=DBT_get_earlier_exchange_days($dhe,$code,$date,$period)){
+		my $C=DBT_get_closing_price($code,$days[0],$dhe);
+		#n日内的最低收盘价
+		my $Ln=$C;
+		#n日内的最高收盘价
+		my $Hn=$C;
+		foreach my $day(@days){
+			my $t=DBT_get_closing_price($code,$days[0],$dhe);
+			if($Ln>$t){
+				$Ln=$t;
+			}
+			if($Hn<$t){
+				$Hn=$t;
+			}
+		}
+		return ($C-$Ln)/($Hn-$Ln)*100;
+	}
+	return undef;
+}
 sub _get_turnover{
     my $date=shift;
     my $code=shift;
@@ -337,7 +424,7 @@ sub main{
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
-		-select [macd] [turnover]:select stock by some flag
+		-select [macd][kdj][turnover]:select stock by some flag
 		-ufc <code> :from code
 		-buy <code> <price> <total> <stop loss order>:buy a stock 
 		-lb[code [code ..]]:list bought stock(s)
@@ -408,6 +495,10 @@ END
 			while($tmp=shift @ARGV){
 				if($tmp =~ /macd/){
 					$gflag_selectcode_macd=1;
+					next;
+				}
+				if($tmp =~ /kdj/){
+					$gflag_selectcode_kdj=1;
 					next;
 				}
 				if($tmp =~ /turnover/){

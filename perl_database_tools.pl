@@ -32,6 +32,16 @@ sub DBT_get_earlier_exchange_days{
 	}
 	return undef;
 }
+sub DBT_get_next_exchange_day{
+	my $code=shift;
+	my $date=shift;
+	my $dhe=shift;
+    my $condition="DATE>\"$date\" ORDER BY DATE ASC LIMIT 1";
+	if(my @days=MSH_GetValue($dhe,$code,"DATE",$condition)){
+		return $days[0];
+	}
+	return undef
+}
 sub DBT_get_next_date_closing_price{
 	my @value;
 	my $code=shift;
