@@ -313,7 +313,7 @@ sub _monitor_bought_stock{
 	}
 }
 sub _monitor_bought_stocks{
-	my @codes=@_;
+	my (@codes)=@_;
 	while(1){
 		foreach my $code(@codes){
 			my @info=_get_buy_code_info($code);

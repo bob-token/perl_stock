@@ -2,7 +2,7 @@
 $|=1;
 sub SN_get_stock_cur_price{
   if(my @info=SN_get_stock_cur_exchange_info(shift)){
-    return $info[1];
+    return $info[3];
   }
   return undef;
 }
@@ -15,5 +15,6 @@ sub SN_get_stock_cur_exchange_info{
 	    my @info=split('\,',$info);
 	    return  @info;
     }
+	return undef;
 } 
 
