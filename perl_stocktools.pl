@@ -62,7 +62,7 @@ sub _DEA{
 #diff=ema(12)-ema(26)
 #dea =ema(9)
 #macd=diff-dea;
-sub _MACD_DEALITTLETHANZERO{
+sub _MACD_DEALITTLETHAN{
 	my $diff_s_day_cnt=shift;
 	my $diff_l_day_cnt=shift;
 	my $dea_day_cnt=shift;
@@ -70,10 +70,11 @@ sub _MACD_DEALITTLETHANZERO{
 	my $dhe=shift;
 	my $day_exchange_start=shift;
 	my $ema_day=shift;
+	my $max_dea=shift;
 	my $diff=_DIFF($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day);
 	my $dea=_DEA($diff_s_day_cnt,$diff_l_day_cnt,$code,$dhe,$day_exchange_start,$ema_day,$dea_day_cnt);
 	print "$code:Diff($diff_s_day_cnt,$diff_l_day_cnt):$diff,DEA($dea_day_cnt):$dea","\n";
-	if($dea < 0){
+	if($dea <= $max_dea){
 		return $diff-$dea; 
 	}
 	return undef;
@@ -174,10 +175,11 @@ sub _EMA{
 #K值=2/3×第8日K值+1/3×第9日RSV
 #D值=2/3×第8日D值+1/3×第9日K值
 #J值=3×第9日D值-2×第9日K值
+#J值=3×第9日K值-2×第9日D值
 #
 sub _J_OF_KDJ{
 	my ($code,$date,$period,$dhe,$day_exchange_start)=@_;
-	my $J=3*_D_OF_KDJ($code,$date,$period,$dhe,$day_exchange_start)-2*_K_OF_KDJ($code,$date,$period,$dhe,$day_exchange_start);
+	my $J=3*_K_OF_KDJ($code,$date,$period,$dhe,$day_exchange_start)-2*_D_OF_KDJ($code,$date,$period,$dhe,$day_exchange_start);
 	return $J;
 }
 sub _D_OF_KDJ{
@@ -185,18 +187,18 @@ sub _D_OF_KDJ{
 	if(COM_is_same_day($date,$day_exchange_start)){
 		return 50;
 	}
+	my $origin_exchange_start=$day_exchange_start;
 	#第一天的值默认
 	my $D=50;
-	
 	#计算前面的值
 	while(my $day=DBT_get_next_exchange_day($code,$day_exchange_start,$dhe)){
 		$day_exchange_start=$day;	
 		if(COM_is_earlier_than($day,$date)){	
-			$D=2/3*$D+1/3*_K_OF_KDJ($code,$day,$period,$dhe,$day_exchange_start);
+			$D=2/3*$D+1/3*_K_OF_KDJ($code,$day,$period,$dhe,$origin_exchange_start);
 			next;
 		}
 		if(COM_is_same_day($day,$date)){
-			return 2/3*$D+1/3*_K_OF_KDJ($code,$day,$period,$dhe,$day_exchange_start);
+			return 2/3*$D+1/3*_K_OF_KDJ($code,$day,$period,$dhe,$origin_exchange_start);
 		}
 		return $D;
 	}
@@ -233,7 +235,7 @@ sub _RSV_OF_KDJ{
 		#n日内的最高收盘价
 		my $Hn=$C;
 		foreach my $day(@days){
-			my $t=DBT_get_closing_price($code,$days[0],$dhe);
+			my $t=DBT_get_closing_price($code,$day,$dhe);
 			if($Ln>$t){
 				$Ln=$t;
 			}
@@ -304,19 +306,36 @@ sub _select_codes{
 			next if(index(COM_get_fromcode(),$code)==-1);
 			$start=1;
 		}
-		my $date="2012-04-05";
+		my $date="2012-12-31";
+		my $data_start_day="2011-01-01";
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
+		my $yesterday=$last_exchange_data_day[1];
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
-			my $macd= _MACD_DEALITTLETHANZERO(12,26,9,$code,$dhe,"2011-01-01",$date);
+			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,"2011-01-01",$date,-1.0);
 			next if(!$macd);
 			my $macd1=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[1]);
 			next if($macd < 0.03 || $macd <$macd1 );
 			my $macd2=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[2]);
 			next if($macd1<$macd2);
 			print $code,":$date:MACD:$macd","\n";
-			push @codes,join(":",$code,$date,$macd);
+			push @codes,join(":",$code,$date,"MACD",$macd);
+		}
+		if($gflag_selectcode_kdj){
+			my $period=9;
+			my @days=DBT_get_earlier_exchange_days($dhe,$code,$date,30);
+			@days=reverse @days;
+			my $kdj_start_day=$days[0];
+			my $K=_K_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+			my $YK=_K_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
+			my $D=_D_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+			my $YD=_D_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
+			my $J=_J_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+			print join(":",$code,$date,"K:",$K,"D:",$D,"J:",$J),"\n";
+			if($YK<= $YD and $K >= $D){
+				push @codes,join(":",$code,$date,"K",$K,"D",$D,"J",$J);
+			}
 		}
 		last if(@codes >= $stock_cnt);
 	}
