@@ -174,7 +174,6 @@ sub _EMA{
 #公式中C为第9日的收盘价，L9为9日内最低收盘价，H9为9日最高收盘价
 #K值=2/3×第8日K值+1/3×第9日RSV
 #D值=2/3×第8日D值+1/3×第9日K值
-#J值=3×第9日D值-2×第9日K值
 #J值=3×第9日K值-2×第9日D值
 #
 sub _J_OF_KDJ{
@@ -184,12 +183,12 @@ sub _J_OF_KDJ{
 }
 sub _D_OF_KDJ{
 	my ($code,$date,$period,$dhe,$day_exchange_start)=@_;
-	if(COM_is_same_day($date,$day_exchange_start)){
-		return 50;
-	}
 	my $origin_exchange_start=$day_exchange_start;
 	#第一天的值默认
-	my $D=50;
+	my $D=2/3*50+1/3*_K_OF_KDJ($code,$date,$period,$dhe,$day_exchange_start);
+	if(COM_is_same_day($date,$day_exchange_start)){
+			return $D;
+	}
 	#计算前面的值
 	while(my $day=DBT_get_next_exchange_day($code,$day_exchange_start,$dhe)){
 		$day_exchange_start=$day;	
@@ -206,11 +205,11 @@ sub _D_OF_KDJ{
 }
 sub _K_OF_KDJ{
 	my ($code,$date,$period,$dhe,$day_exchange_start)=@_;
-	if(COM_is_same_day($date,$day_exchange_start)){
-		return 50;
-	}
 	#第一天的k值默认
-	my $K=50;
+	my $K=2/3*50+1/3*_RSV_OF_KDJ($code,$date,$dhe,$period);
+	if(COM_is_same_day($date,$day_exchange_start)){
+			return $K;
+	}
 	
 	#计算前面的k值
 	while(my $day=DBT_get_next_exchange_day($code,$day_exchange_start,$dhe)){
@@ -242,6 +241,9 @@ sub _RSV_OF_KDJ{
 			if($Hn<$t){
 				$Hn=$t;
 			}
+		}
+		if($Hn-$Ln==0){
+			return 0;
 		}
 		return ($C-$Ln)/($Hn-$Ln)*100;
 	}
@@ -306,7 +308,7 @@ sub _select_codes{
 			next if(index(COM_get_fromcode(),$code)==-1);
 			$start=1;
 		}
-		my $date="2012-12-31";
+		my $date="2052-12-31";
 		my $data_start_day="2011-01-01";
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
@@ -326,6 +328,7 @@ sub _select_codes{
 			my $period=9;
 			my @days=DBT_get_earlier_exchange_days($dhe,$code,$date,30);
 			@days=reverse @days;
+			#$date="2012-03-15";
 			my $kdj_start_day=$days[0];
 			my $K=_K_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
 			my $YK=_K_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
@@ -334,6 +337,7 @@ sub _select_codes{
 			my $J=_J_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
 			print join(":",$code,$date,"K:",$K,"D:",$D,"J:",$J),"\n";
 			if($YK<= $YD and $K >= $D){
+				print join(":",$code,$date,"YK:",$YK,"YD:",$YD,"J:",$J),"\n";
 				push @codes,join(":",$code,$date,"K",$K,"D",$D,"J",$J);
 			}
 		}
@@ -572,7 +576,7 @@ END
 		if($opt =~ /-scp/){
 			my $code;
 			while($code=shift @ARGV and COM_is_valid_code($code) ){
-				my @info =PS_get_stock_cur_exchange_info($code);
+				my @info =SN_get_stock_cur_exchange_info($code);
                                 my $percent =($info[3]-$info[2])*100/$info[2];
                                 my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
                                 print $str;
