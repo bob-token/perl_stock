@@ -14,6 +14,18 @@ our $StockCodeFile="stock_code.txt";
 our $fromcode;
 
 $|=1;
+sub _clean_exchange_db{
+	my $dbh=_open_stock_db();
+	my @tablesname=MSH_GetAllTablesNameArrary($dbh,$StockExDb);
+	foreach my $code (@tablesname) {
+		chomp $code;
+		my $sql=sprintf("delete from %s where KAIPANJIA=0",$code);
+		$dbh->do($sql);
+		print "$code cleared","\n";
+	}
+	$dbh->disconnect;
+	return 1;	
+}
 sub _update_stock_code{
 	my $browser = LWP::UserAgent->new;
 	my $i=1;
@@ -202,13 +214,13 @@ sub _smart_update_stocks_exchange{
 		if($cyear == $year){
 			$total=int(($cmon-1)/3)+1;
 		}
-		if(defined $fromcode){
+		if(COM_get_fromcode()){
 			$start=0;	
 		}
 		foreach my $code (<IN>) {
 			chop $code;
 			if(!$start){
-				next if(index($fromcode,$code)==-1);
+				next if(index(COM_get_fromcode(),$code)==-1);
 				$start=1;
 			}
 			if(index (uc($tablesname),uc($code)) < 0){
@@ -341,10 +353,18 @@ sub _update_last_exchange{
 	my $jiaoyijine=9;
 	my $jiaoyidate=-2;
 	my $jiaoyitime=-1;
+	my $start=1;
+	if(COM_get_fromcode()){
+		$start=0;	
+	}
 	open IN,"<",$StockCodeFile;
 	foreach my $code(<IN>){
 		if($code){
 			chomp $code;
+			if(!$start){
+				next if(index(COM_get_fromcode(),$code)==-1);
+				$start=1;
+			}
 			if(index (uc($tablesname),uc($code)) < 0){
 				#create tables;
 				my $table_p="DATE DATE,KAIPANJIA FLOAT,ZUIGAOJIA FLOAT,SHOUPANJIA FLOAT,ZUIDIJIA FLOAT,JIAOYIGUSHU BIGINT,JIAOYIJINE BIGINT";
@@ -352,10 +372,13 @@ sub _update_last_exchange{
 				MSH_SetUniqueKey($dbh,$code,"DATE");
 			}
 			#获取最新产生的交易数据
-			if (my @einfo=SN_get_stock_cur_exchange_info($code) ){
-				next if ($einfo[$shoupan]==0);
+			my @einfo;
+			if (@einfo=SN_get_stock_cur_exchange_info($code) ){
 				my $str_info='"'.$einfo[$jiaoyidate].'"'.','.$einfo[$kaipan].','.$einfo[$zuigao].','.$einfo[$shoupan].','.$einfo[$zuidi].','.$einfo[$jiaoyigushu].','.$einfo[$jiaoyijine];
 				my $sql=sprintf("INSERT IGNORE INTO  %s VALUES (%s) ;",$code,$str_info);
+				if($einfo[$kaipan]<=0){
+					printf 	"Skip ";
+				}
 				printf $code.":".$str_info."\n";
 				$dbh->do($sql);
 			}
@@ -369,6 +392,7 @@ sub main{
 	my @years;
 	my $flag_ude=0;
 	my $flag_sude=0;
+	COM_filter_param(\@ARGV);
 	while(my $opt=shift @ARGV){
 		#help infomation
 		if ($opt =~ /-h/){			 
@@ -384,8 +408,11 @@ sub main{
 		-sude[year1 [year2...]]: smart update stock daily excange,before get data from internet ,query database;
 		-ucye code [year1 [year2...]]: update stock daily excange
 		-ufc:<code> from code
+		-clearexdb:clear exchange database
 END
 	}
+		#clear exchange database
+		$opt =~ /-clearexdb\b/ && _clean_exchange_db()&&print "clear exchange database success\n";
 		#update sotck code
 		$opt =~ /-uc\b/ && _update_stock_code($StockCodeFile)&&print "update socks code success\n";
 		#create  database for stock base info

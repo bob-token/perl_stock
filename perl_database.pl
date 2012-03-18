@@ -59,6 +59,22 @@ sub MSH_GetAllTablesName1{
 	}
 	return @names;
 }
+sub MSH_GetAllTablesNameArrary{
+	my $dbh=shift;
+	my $db_name=shift;
+	#use database;
+	my $sql=sprintf("USE %s ;",$db_name);
+	$dbh->do($sql);
+	#show tables
+	$sql=("SHOW TABLES;");
+	my $sth =$dbh->prepare($sql);
+	$sth->execute();
+	my @names=();
+	while(my $code=$sth->fetchrow_array){
+		push @names,$code;
+	}
+	return @names;
+}
 sub MSH_GetAllTablesName{
 	my $dbh=shift;
 	my $db_name=shift;
