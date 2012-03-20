@@ -126,3 +126,14 @@ sub COM_get_cur_time{
 	}
 	return @mytime;
 }
+sub COM_today{
+	my $type=shift;
+	my $year=COM_get_cur_time('year');
+	my $mon=COM_get_cur_time('month');
+	my $day=COM_get_cur_time('day');
+	if($type==0){
+		return join('-',$year,$mon,$day);	
+	}elsif($type==1){
+		return join('',$year,$mon,$day);	
+	}
+}

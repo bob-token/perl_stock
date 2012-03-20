@@ -445,17 +445,38 @@ sub _buy{
 	push @codeinfo,$importantprice;
 	return _add_buy_code_info(@codeinfo);
 }
+sub _log{
+	my ($logfile,$msg)=@_;
+	open OUT,">>",$logfile;
+	syswrite(OUT,"\n");
+	syswrite(OUT,$msg);
+	close OUT; 
+}
 sub _report{
 	my $msg=shift;
 	printf $msg."\n";	
 	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
+	_log(COM_today(1),$msg);
 }
-sub _construct_stoploss_header{
-	my ($code)=@_;
-	if(SCOM_is_valid_code($code){
-		return "$code:stoploss";
+sub _construct_header{
+	my ($code,$type)=@_;
+	if(SCOM_is_valid_code($code)){
+		return "$code:$type";
 	}
 	return undef;
+}
+sub _is_today_loged{
+	my ($logflag)=@_;
+	if(open (IN,'<',COM_today(1))){
+		foreach my $line(<IN>){
+			if(index($line,$logflag)!=-1){
+				close IN;
+				return 1;
+			}
+		}
+	}
+	close IN;
+	return 0;
 }
 sub _monitor_bought_stock{
 	my ($code)=@_;
@@ -465,12 +486,20 @@ sub _monitor_bought_stock{
 		my $stoploss = _get_buy_code_info($code,'stoploss');
 		my $importantprice= _get_buy_code_info($code,'importantprice');
 		chomp $stoploss;
-		if($stoploss>=$cur_price){
-			my $reportstr="$code:stoploss:"."($buyprice:$cur_price): order($stoploss)";
+		if($stoploss>=$cur_price && !_is_today_loged(_construct_header($code,'stoploss'))){
+			my $reportstr=_construct_header($code,'stoploss').":($buyprice:$cur_price):stoploss:($stoploss)";
 			_report($reportstr);
 		}
-		if($importantprice <=$cur_price){
-			my $reportstr=$code."($buyprice:$cur_price):higher ($importantprice)";
+		if($importantprice >=$cur_price&& !_is_today_loged(_construct_header($code,'importantprice'))){
+			my $reportstr=_construct_header($code,'importantprice').":($buyprice:$cur_price):importantprice:($importantprice)";
+			_report($reportstr);
+		}
+		if(COM_get_cur_time('hour') >= 11&& !_is_today_loged(_construct_header($code,'AM'))){
+			my $reportstr=_construct_header($code,'AM').":($buyprice:$cur_price)";
+			_report($reportstr);
+		}
+		if(COM_get_cur_time('hour') >= 15&& !_is_today_loged(_construct_header($code,'PM'))){
+			my $reportstr=_construct_header($code,'PM').":($buyprice:$cur_price)";
 			_report($reportstr);
 		}
 	}
