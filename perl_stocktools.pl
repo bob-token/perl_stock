@@ -449,13 +449,21 @@ sub _report{
 	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
 }
 sub _monitor_bought_stock{
-	my ($code,$buyprice,$stoploss)=@_;
+	my ($code)=@_;
 	my $cur_price=SN_get_stock_cur_price($code);
-	my @reported_codes;
-	chomp $stoploss;
-	if($stoploss>=$cur_price){
-		my $reportstr=$code."($buyprice:$cur_price):lower than stop loss order($stoploss)";
-		_report($reportstr);
+	if($code){
+		my $buyprice= _get_buy_code_info($code,'price');
+		my $stoploss = _get_buy_code_info($code,'stoploss');
+		my $importantprice= _get_buy_code_info($code,'importantprice');
+		chomp $stoploss;
+		if($stoploss>=$cur_price){
+			my $reportstr=$code."($buyprice:$cur_price):lower than stop loss order($stoploss)";
+			_report($reportstr);
+		}
+		if($importantprice <=$cur_price){
+			my $reportstr=$code."($buyprice:$cur_price):higher ($importantprice)";
+			_report($reportstr);
+		}
 	}
 }
 sub _monitor_bought_stocks{
@@ -463,7 +471,7 @@ sub _monitor_bought_stocks{
 	while(1){
 		foreach my $code(@codes){
 			my @info=_get_buy_code_info($code);
-			_monitor_bought_stock($info[0],$info[1],$info[3]);
+			_monitor_bought_stock($info[0]);
 		}
 		sleep 60;
 	}
