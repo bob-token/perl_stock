@@ -615,102 +615,100 @@ END
 		    print _get_turnover($date,$code,$deh,$dih);
 		    $deh->disconnect;
 		    $dih->disconnect;
-          }
+        }
 		#show current stock exchange price
 		if($opt =~ /-scp/){
 			my $code;
 			while($code=shift @ARGV and COM_is_valid_code($code) ){
 				my @info =SN_get_stock_cur_exchange_info($code);
-                                my $percent =($info[3]-$info[2])*100/$info[2];
-                                my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
-                                print $str;
+					my $percent =($info[3]-$info[2])*100/$info[2];
+					my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
+					print $str;
 			}
 			if(defined $code){
 				unshift(@ARGV,$code);
 			}
 		};
-                if($opt =~ /-dmi/){
-                      	my $code;
-                        my @codea;
-                        my @oldcodea;
-                        my @newcodea;
-                        open(IN,$monitor_code);
-                        foreach my $tmp(<IN>){
-                            push @oldcodea,$tmp;         
-                        }
-                        close IN;
-                        my $codes=join(' ',@oldcodea);
-                        while(@oldcodea and $code=shift @ARGV and COM_is_valid_code($code)){
-                            push @codea,$code;
-						}
-                        my $codea =join(' ',@codea);
-                        foreach my $tmp(@oldcodea){
-                            chomp $tmp;
-                            if(index($codea,$tmp)==-1){
-                                push @newcodea,$tmp;
-                            }
-                        }
-                            open(OUT,'>',$monitor_code);
-                            print OUT @newcodea;
-                            close OUT;
-
- 			if(defined $code){
-				unshift(@ARGV,$code);
+		if($opt =~ /-dmi/){
+			my $code;
+			my @codea;
+			my @oldcodea;
+			my @newcodea;
+			open(IN,$monitor_code);
+			foreach my $tmp(<IN>){
+				push @oldcodea,$tmp;         
 			}
-                }
-                if($opt =~ /-ami/){
-                    	my $code;
-                        my @codea;
-			while($code=shift @ARGV and COM_is_valid_code($code)){
-                            push @codea,$code;
+			close IN;
+			my $codes=join(' ',@oldcodea);
+			while(@oldcodea and $code=shift @ARGV and COM_is_valid_code($code)){
+				push @codea,$code;
 			}
-                        if(@codea>0){
-                            open(IN,'>>',$monitor_code);
-                                foreach my $tmp(@codea){
-                                    syswrite(IN,$tmp);
-                                    syswrite(IN,"\n");
-                                }
-                            close IN;
-                        }
+			my $codea =join(' ',@codea);
+			foreach my $tmp(@oldcodea){
+				chomp $tmp;
+				if(index($codea,$tmp)==-1){
+					push @newcodea,$tmp;
+				}
+			}
+				open(OUT,'>',$monitor_code);
+				print OUT @newcodea;
+				close OUT;
 			if(defined $code){
 				unshift(@ARGV,$code);
 			}
-                }
+        }
+	   if($opt =~ /-ami/){
+			my $code;
+			my @codea;
+			while($code=shift @ARGV and COM_is_valid_code($code)){
+				push @codea,$code;
+			}
+			if(@codea>0){
+				open(IN,'>>',$monitor_code);
+				foreach my $tmp(@codea){
+					syswrite(IN,"\n");
+					syswrite(IN,$tmp);
+				}
+				close IN;
+			}
+			if(defined $code){
+				unshift(@ARGV,$code);
+			}
+		}
 		if($opt =~ /-mcp/){
 			my $code;
-                        my @codes;
+            my @codes;
 			while($code=shift @ARGV and COM_is_valid_code($code) ){
-                                push @codes,$code;
+            	push @codes,$code;
 			}
-                        if(!@codes){
-                            open(IN,$monitor_code);
-                            foreach my $tmp(<IN>){
-				chomp $tmp;
-				if(COM_is_valid_code($tmp)){
-                                	push @codes,$tmp;         
-				}
-                            }
-                            close IN;
-                         }
-                        foreach $code(@codes){
-                                my @info =SN_get_stock_cur_exchange_info($code);
-                                my $percent =($info[3]-$info[2])*100/$info[2];
-                                if($info[3]==0) {
-                                    $percent=0;
-                                }
-                                my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
-                                print $str;                            
-                        }
+            if(!@codes){
+            	open(IN,$monitor_code);
+                foreach my $tmp(<IN>){
+					chomp $tmp;
+					if(COM_is_valid_code($tmp)){
+						push @codes,$tmp;         
+					}
+                }
+                close IN;
+            }
+            foreach $code(@codes){
+					my @info =SN_get_stock_cur_exchange_info($code);
+					my $percent =($info[3]-$info[2])*100/$info[2];
+					if($info[3]==0) {
+						$percent=0;
+					}
+					my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
+					print $str;                            
+			}
 
 			if(defined $code){
 				unshift(@ARGV,$code);
 			}
-		};
-
+		}
 	}
-        if($pause){
-            system("pause");
-        }   
+	if($pause){
+		system("pause");
+	}   
 	print "\nbye bye!\n";
 }
 
