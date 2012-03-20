@@ -355,7 +355,7 @@ sub _get_all_bought_stocks{
 	open IN,"<",$BuyStockCode;
 	while(<IN>){
 		my @codeinfo=split(':',$_);
-		if(@codeinfo&&COM_is_valid_code($codeinfo[0])){
+		if(@codeinfo&&SCOM_is_valid_code($codeinfo[0])){
 			push @codes,$codeinfo[0];
 		}
 	}
@@ -450,6 +450,13 @@ sub _report{
 	printf $msg."\n";	
 	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
 }
+sub _construct_stoploss_header{
+	my ($code)=@_;
+	if(SCOM_is_valid_code($code){
+		return "$code:stoploss";
+	}
+	return undef;
+}
 sub _monitor_bought_stock{
 	my ($code)=@_;
 	my $cur_price=SN_get_stock_cur_price($code);
@@ -459,7 +466,7 @@ sub _monitor_bought_stock{
 		my $importantprice= _get_buy_code_info($code,'importantprice');
 		chomp $stoploss;
 		if($stoploss>=$cur_price){
-			my $reportstr=$code."($buyprice:$cur_price):lower than stop loss order($stoploss)";
+			my $reportstr="$code:stoploss:"."($buyprice:$cur_price): order($stoploss)";
 			_report($reportstr);
 		}
 		if($importantprice <=$cur_price){
@@ -510,7 +517,7 @@ END
 			my $code;
 			my @codes;
 			my @tmpcodes;
-			while($code=shift @ARGV and COM_is_valid_code($code) ){
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
 				push @tmpcodes , $code;
 			}
 			if(@tmpcodes){
@@ -530,7 +537,7 @@ END
 		#sell stock
 		if ($opt =~ /-sell\b/){
 			my $code;
-			while($code=shift @ARGV and COM_is_valid_code($code) ){
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
 					_delete_buy_code($code);
 			}
 		}
@@ -538,7 +545,7 @@ END
 		if ($opt =~ /-lb\b/){
 			my $code;
 			my @codes;
-			while($code=shift @ARGV and COM_is_valid_code($code) ){
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
 				push @codes,$code;	
 			}
 			if(!@codes){
@@ -554,7 +561,7 @@ END
 		#buy stock
 		if ($opt =~ /-buy\b/){
 			my $code;
-			while($code=shift @ARGV and COM_is_valid_code($code) ){
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
 				_buy($code,shift @ARGV,shift @ARGV,shift @ARGV);
 			}
 		}
@@ -621,7 +628,7 @@ END
 		#show current stock exchange price
 		if($opt =~ /-scp/){
 			my $code;
-			while($code=shift @ARGV and COM_is_valid_code($code) ){
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
 				my @info =SN_get_stock_cur_exchange_info($code);
 					my $percent =($info[3]-$info[2])*100/$info[2];
 					my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
@@ -642,7 +649,7 @@ END
 			}
 			close IN;
 			my $codes=join(' ',@oldcodea);
-			while(@oldcodea and $code=shift @ARGV and COM_is_valid_code($code)){
+			while(@oldcodea and $code=shift @ARGV and SCOM_is_valid_code($code)){
 				push @codea,$code;
 			}
 			my $codea =join(' ',@codea);
@@ -662,7 +669,7 @@ END
 	   if($opt =~ /-ami/){
 			my $code;
 			my @codea;
-			while($code=shift @ARGV and COM_is_valid_code($code)){
+			while($code=shift @ARGV and SCOM_is_valid_code($code)){
 				push @codea,$code;
 			}
 			if(@codea>0){
@@ -680,14 +687,14 @@ END
 		if($opt =~ /-mcp/){
 			my $code;
             my @codes;
-			while($code=shift @ARGV and COM_is_valid_code($code) ){
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
             	push @codes,$code;
 			}
             if(!@codes){
             	open(IN,$monitor_code);
                 foreach my $tmp(<IN>){
 					chomp $tmp;
-					if(COM_is_valid_code($tmp)){
+					if(SCOM_is_valid_code($tmp)){
 						push @codes,$tmp;         
 					}
                 }

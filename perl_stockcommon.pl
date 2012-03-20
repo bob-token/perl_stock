@@ -22,7 +22,7 @@ use strict;
 use warnings;
 require "perl_common.pl";
 $|=1;
-sub COM_is_valid_code{
+sub SCOM_is_valid_code{
     my $code =shift;
     return $code =~/s[hz]\d{6}/;
 }
