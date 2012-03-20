@@ -4,6 +4,7 @@ use LWP;
 use Encode;
 use DBI;
 require "perl_common.pl";
+require "perl_stockcommon.pl";
 require "perl_database.pl";
 require "perl_database_tools.pl";
 require "perl_stocknetwork.pl";
@@ -195,20 +196,15 @@ sub _smart_update_stocks_exchange{
 	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
 	open(IN,shift);
 	my $year=shift;
-	my $csec;
-	my $cmin;
-	my $chour;
 	my $cday;
 	my $cmon;
 	my $cyear;
-	my $cwday;
 	my $cyday;
-	my $cisdst;
-	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
-	$cyear=$cyear+1900;
-	$cmon+=1;
+	$cyear=COM_get_cur_time('year');;
+	$cmon=COM_get_cur_time('month')+1;
+	$cday=COM_get_cur_time('day');
 	my $today=$cyear."-$cmon"."-$cday";
-	if($cyear >= $year){
+	if(COM_get_cur_time('year') >= $year){
 		my $total=4;
 		my $start=1;
 		if($cyear == $year){

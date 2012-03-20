@@ -4,6 +4,7 @@ use warnings;
 use LWP;
 use DBI;
 require "perl_common.pl";
+require "perl_stockcommon.pl";
 require "perl_database.pl";
 require "perl_database_tools.pl";
 require "perl_stocknetwork.pl";

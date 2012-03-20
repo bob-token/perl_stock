@@ -68,10 +68,7 @@ sub COM_is_valid_attribute{
 	}
 	return 0;
 }
-sub COM_is_valid_code{
-    my $code =shift;
-    return $code =~/s[hz]\d{6}/;
-}
+
 sub COM_get_page_content{
 	my ($url,$max_try_times)=@_;
     my $browser = LWP::UserAgent->new;
@@ -87,4 +84,45 @@ sub COM_get_page_content{
             }
     }
 	return undef;
+}
+sub COM_get_cur_time{
+	my ($flag)=@_;
+	my $csec;
+	my $cmin;
+	my $chour;
+	my $cday;
+	my $cmon;
+	my $cyear;
+	my $cwday;
+	my $cyday;
+	my $cisdst;
+	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
+	$cyear=$cyear+1900;
+	my @mytime;
+	push @mytime,$cyear;
+	push @mytime,$cmon;  #0-11
+	push @mytime,$cday;
+	push @mytime,$chour;
+	push @mytime,$cmin;
+	push @mytime,$csec;
+	push @mytime,$cwday;
+	push @mytime,$cyday;
+	push @mytime,$cisdst;
+	if($flag){
+		if ($flag =~/year/){
+			return $mytime[0];
+		}elsif($flag =~/month/){
+			return $mytime[1];
+		}elsif($flag =~/day/){
+			return $mytime[2];
+		}elsif($flag =~/hour/){
+			return $mytime[3];
+		}elsif($flag =~/minute/){
+			return $mytime[4];
+		}elsif($flag =~/second/){
+			return $mytime[5];
+		}
+		return undef;
+	}
+	return @mytime;
 }
