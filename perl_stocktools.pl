@@ -319,7 +319,8 @@ sub _select_codes{
 			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,"2011-01-01",$date,-1.0);
 			next if(!$macd);
 			my $macd1=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[1]);
-			next if($macd < 0.03 || $macd <$macd1 );
+			#next if($macd < 0.03 || $macd <$macd1 );
+			next if($macd <$macd1 );
 			my $macd2=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[2]);
 			next if($macd1<$macd2);
 			print $code,":$date:MACD:$macd","\n";
@@ -430,7 +431,7 @@ sub _add_buy_code{
 sub _buy{
 	my ($code,$price,$total,$stoploss,$importantprice)=@_;
 	if(!$importantprice){
-		$importantprice=$price*1.5;#将止损点设在98%
+		$importantprice=$price*1.05;#将止损点设在98%
 	}
 	if(!defined $stoploss){
 		$stoploss=$price*0.98;#将止损点设在98%
