@@ -62,6 +62,12 @@ sub COM_is_same_day{
 	}	
 	return 0;
 }
+sub COM_is_valid_attribute{
+	if (!/^-/){
+		return 1;
+	}
+	return 0;
+}
 sub COM_is_valid_code{
     my $code =shift;
     return $code =~/s[hz]\d{6}/;

@@ -361,15 +361,32 @@ sub _get_all_bought_stocks{
 	return @codes;
 }
 sub _get_buy_code_info{
-	my $code=shift;
+	my ($code,$flag)=@_;
+	my @info;
 #读取信息文件
 	open IN,"<",$BuyStockCode;
 	while(<IN>){
 		if(index($_,$code)==0){
-			return split(':',$_);
+			@info=split(':',$_);
 		}
 	}
 	close IN;	
+	if(@info){
+		if(!$flag){
+			return @info;
+		}
+		if($flag =~/code/){
+			return $info[0];	
+		}elsif($flag =~/price/){
+			return $info[1];
+		}elsif($flag =~/total/){
+			return $info[2];
+		}elsif($flag =~/stoploss/){
+			return $info[3];
+		}elsif($flag =~/importantprice/){
+			return $info[4];
+		}
+	}
 	return undef;
 }
 sub _delete_buy_code{
@@ -389,6 +406,16 @@ sub _delete_buy_code{
 	syswrite(OUT,join("\n",@buycodes));
 	close OUT;	
 }
+sub _add_buy_code_info{
+	my (@codeinfo)=@_;
+	my $order=join(':',@codeinfo);
+#保存到文件
+	open OUT,">>",$BuyStockCode;
+	syswrite(OUT,$order);
+	syswrite(OUT,"\n");
+	close OUT;	
+	return 1;
+}
 sub _add_buy_code{
 	my ($code,$price,$total,$stoploss)=@_;
 	my $order=$code.':'.$price.':'.$total.':'.$stoploss;
@@ -400,12 +427,21 @@ sub _add_buy_code{
 	return 1;
 }
 sub _buy{
-	my ($code,$price,$total,$stoploss)=@_;
+	my ($code,$price,$total,$stoploss,$importantprice)=@_;
+	if(!$importantprice){
+		$importantprice=$price*1.5;#将止损点设在98%
+	}
 	if(!defined $stoploss){
 		$stoploss=$price*0.98;#将止损点设在98%
 	}
 	_delete_buy_code($code);
-	return _add_buy_code($code,$price,$total,$stoploss);
+	my @codeinfo;
+	push @codeinfo,$code;
+	push @codeinfo,$price;
+	push @codeinfo,$total;
+	push @codeinfo,$stoploss;
+	push @codeinfo,$importantprice;
+	return _add_buy_code_info(@codeinfo);
 }
 sub _report{
 	my $msg=shift;
