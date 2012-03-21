@@ -109,17 +109,17 @@ sub COM_get_cur_time{
 	push @mytime,$cyday;
 	push @mytime,$cisdst;
 	if($flag){
-		if ($flag =~/year/){
+		if ($flag =~/\byear\b/){
 			return $mytime[0];
-		}elsif($flag =~/month/){
+		}elsif($flag =~/\bmonth\b/){
 			return $mytime[1];
-		}elsif($flag =~/day/){
+		}elsif($flag =~/\bday\b/){
 			return $mytime[2];
-		}elsif($flag =~/hour/){
+		}elsif($flag =~/\bhour\b/){
 			return $mytime[3];
-		}elsif($flag =~/minute/){
+		}elsif($flag =~/\bminute\b/){
 			return $mytime[4];
-		}elsif($flag =~/second/){
+		}elsif($flag =~/\bsecond\b/){
 			return $mytime[5];
 		}
 		return undef;

@@ -377,15 +377,15 @@ sub _get_buy_code_info{
 		if(!$flag){
 			return @info;
 		}
-		if($flag =~/code/){
+		if($flag =~/\bcode\b/){
 			return $info[0];	
-		}elsif($flag =~/price/){
+		}elsif($flag =~/\bprice\b/){
 			return $info[1];
-		}elsif($flag =~/total/){
+		}elsif($flag =~/\btotal\b/){
 			return $info[2];
-		}elsif($flag =~/stoploss/){
+		}elsif($flag =~/\bstoploss\b/){
 			return $info[3];
-		}elsif($flag =~/importantprice/){
+		}elsif($flag =~/\bimportantprice\b/){
 			return $info[4];
 		}
 	}
@@ -490,7 +490,7 @@ sub _monitor_bought_stock{
 			my $reportstr=_construct_header($code,'stoploss').":($buyprice:$cur_price):stoploss:($stoploss)";
 			_report($reportstr);
 		}
-		if($importantprice >=$cur_price&& !_is_today_loged(_construct_header($code,'importantprice'))){
+		if($importantprice <=$cur_price&& !_is_today_loged(_construct_header($code,'importantprice'))){
 			my $reportstr=_construct_header($code,'importantprice').":($buyprice:$cur_price):importantprice:($importantprice)";
 			_report($reportstr);
 		}
