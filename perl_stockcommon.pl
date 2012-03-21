@@ -27,3 +27,10 @@ sub SCOM_is_valid_code{
     return $code =~/s[hz]\d{6}/;
 }
 
+sub SCOM_is_exchange_duration{
+	my ($hour,$minute)=@_;
+	if(($hour > 9 && $minute>20 && $hour <11) ||($hour>13 && $minute>20 && $hour <15) ){
+		return 1;
+	}
+	return 0;
+}

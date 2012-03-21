@@ -485,6 +485,9 @@ sub _monitor_bought_stock{
 		my $buyprice= _get_buy_code_info($code,'price');
 		my $stoploss = _get_buy_code_info($code,'stoploss');
 		my $importantprice= _get_buy_code_info($code,'importantprice');
+		my $hour=COM_get_cur_time('hour');
+		my $minute=COM_get_cur_time('minute');
+		return if (!SCOM_is_exchange_duration($hour,$minute));
 		chomp $stoploss;
 		if($stoploss>=$cur_price && !_is_today_loged(_construct_header($code,'stoploss'))){
 			my $reportstr=_construct_header($code,'stoploss').":($buyprice:$cur_price):stoploss:($stoploss)";
@@ -494,11 +497,11 @@ sub _monitor_bought_stock{
 			my $reportstr=_construct_header($code,'importantprice').":($buyprice:$cur_price):importantprice:($importantprice)";
 			_report($reportstr);
 		}
-		if(COM_get_cur_time('hour') >= 11&& !_is_today_loged(_construct_header($code,'AM'))){
+		if( $hour>= 11&& !_is_today_loged(_construct_header($code,'AM'))){
 			my $reportstr=_construct_header($code,'AM').":($buyprice:$cur_price)";
 			_report($reportstr);
 		}
-		if(COM_get_cur_time('hour') >= 15&& !_is_today_loged(_construct_header($code,'PM'))){
+		if($hour&& !_is_today_loged(_construct_header($code,'PM'))){
 			my $reportstr=_construct_header($code,'PM').":($buyprice:$cur_price)";
 			_report($reportstr);
 		}
