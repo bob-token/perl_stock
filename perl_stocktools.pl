@@ -310,18 +310,18 @@ sub _select_codes{
 			$start=1;
 		}
 		my $date="2052-12-31";
-		my $data_start_day="2011-01-01";
+		my $data_start_day="2012-01-01";
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
 		my $yesterday=$last_exchange_data_day[1];
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
-			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,"2011-01-01",$date,-1.0);
+			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,$data_start_day,$date,-1.0);
 			next if(!$macd);
-			my $macd1=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[1]);
+			my $macd1=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[1]);
 			#next if($macd < 0.03 || $macd <$macd1 );
 			next if($macd <$macd1 );
-			my $macd2=_MACD(12,26,9,$code,$dhe,"2011-01-01",$last_exchange_data_day[2]);
+			my $macd2=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[2]);
 			next if($macd1<$macd2);
 			print $code,":$date:MACD:$macd","\n";
 			push @codes,join(":",$code,$date,"MACD",$macd);
