@@ -501,7 +501,7 @@ sub _monitor_bought_stock{
 			my $reportstr=_construct_header($code,'AM').":($buyprice:$cur_price)";
 			_report($reportstr);
 		}
-		if($hour&& !_is_today_loged(_construct_header($code,'PM'))){
+		if($hour>=15&& !_is_today_loged(_construct_header($code,'PM'))){
 			my $reportstr=_construct_header($code,'PM').":($buyprice:$cur_price)";
 			_report($reportstr);
 		}
