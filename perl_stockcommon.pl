@@ -29,7 +29,12 @@ sub SCOM_is_valid_code{
 
 sub SCOM_is_exchange_duration{
 	my ($hour,$minute)=@_;
-	if(($hour > 9 && $minute>20 && $hour <11) ||($hour>13 && $minute>20 && $hour <15) ){
+	#ÉÏÎç9:20-11:20
+	if(9*60+20 <= $hour*60+$minute &&11*60+20 >= $hour*60+$minute ){
+		return 1;
+	}
+	#ÏÂÎç13:00-15:00
+	if(13*60 <= $hour*60+$minute &&15*60 >= $hour*60+$minute ){
 		return 1;
 	}
 	return 0;
