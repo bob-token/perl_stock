@@ -682,26 +682,24 @@ END
 			my @newcodea;
 			open(IN,$monitor_code);
 			foreach my $tmp(<IN>){
+				next if(!SCOM_is_valid_code($tmp));
 				push @oldcodea,$tmp;         
 			}
 			close IN;
-			my $codes=join(' ',@oldcodea);
-			while(@oldcodea and $code=shift @ARGV and SCOM_is_valid_code($code)){
+			while($code=shift @ARGV and SCOM_is_valid_code($code)){
 				push @codea,$code;
 			}
 			my $codea =join(' ',@codea);
+			open(OUT,'>',$monitor_code); 
 			foreach my $tmp(@oldcodea){
 				chomp $tmp;
 				if(index($codea,$tmp)==-1){
-					push @newcodea,$tmp;
+					print OUT "\n";
+					print OUT $tmp;
+					print OUT @newcodea;
 				}
 			}
-				open(OUT,'>',$monitor_code);
-				print OUT @newcodea;
-				close OUT;
-			if(defined $code){
-				unshift(@ARGV,$code);
-			}
+			close OUT;
         }
 	   if($opt =~ /-ami/){
 			my $code;
