@@ -443,6 +443,7 @@ sub _buy{
 	push @codeinfo,$total;
 	push @codeinfo,$stoploss;
 	push @codeinfo,$importantprice;
+	_AMI($code);
 	return _add_buy_code_info(@codeinfo);
 }
 sub _log{
@@ -522,6 +523,50 @@ sub _monitor_bought_stocks{
 		sleep 60;
 	}
 }
+sub _DMI{
+	my @codea;
+	my @oldcodea;
+	my @newcodea;
+	open(IN,$monitor_code);
+	foreach my $tmp(<IN>){
+		chomp $tmp;
+		next if(!SCOM_is_valid_code($tmp));
+		push @oldcodea,$tmp;         
+	}
+	close IN;
+	while(my $code=shift @_){
+		chomp $code;
+		next if(!SCOM_is_valid_code($code));
+		push @codea,$code;
+	}
+	my $codea =join(' ',@codea);
+	open(OUT,'>',$monitor_code); 
+	foreach my $tmp(@oldcodea){
+		chomp $tmp;
+		if(index($codea,$tmp)==-1){
+			print OUT "\n";
+			print OUT $tmp;
+			print OUT @newcodea;
+		}
+	}
+	close OUT;
+}
+sub _AMI{
+	my @codea;
+	while(my $code=shift @_ ){
+		next if(!SCOM_is_valid_code($code));
+		push @codea,$code;
+	}
+	if(@codea>0){
+		open(OUT,'>>',$monitor_code);
+		foreach my $tmp(@codea){
+			chomp $tmp;
+			syswrite(OUT,"\n");
+			syswrite(OUT,$tmp);
+		}
+		close OUT;
+	}
+}
 sub main{
     my $pause=0;
 	#´«ÒýÓÃ
@@ -575,6 +620,7 @@ END
 		if ($opt =~ /-sell\b/){
 			my $code;
 			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+					_DMI($code);
 					_delete_buy_code($code);
 			}
 		}
@@ -677,46 +723,24 @@ END
 		};
 		if($opt =~ /-dmi/){
 			my $code;
-			my @codea;
-			my @oldcodea;
-			my @newcodea;
-			open(IN,$monitor_code);
-			foreach my $tmp(<IN>){
-				next if(!SCOM_is_valid_code($tmp));
-				push @oldcodea,$tmp;         
-			}
-			close IN;
-			while($code=shift @ARGV and SCOM_is_valid_code($code)){
-				push @codea,$code;
-			}
-			my $codea =join(' ',@codea);
-			open(OUT,'>',$monitor_code); 
-			foreach my $tmp(@oldcodea){
-				chomp $tmp;
-				if(index($codea,$tmp)==-1){
-					print OUT "\n";
-					print OUT $tmp;
-					print OUT @newcodea;
+			while($code=shift @ARGV){
+				if(SCOM_is_valid_code($code)){
+					_DMI($code);
 				}
 			}
-			close OUT;
+			if($code){
+				push @ARGV,$code;
+			}
         }
 	   if($opt =~ /-ami/){
 			my $code;
-			my @codea;
-			while($code=shift @ARGV and SCOM_is_valid_code($code)){
-				push @codea,$code;
-			}
-			if(@codea>0){
-				open(IN,'>>',$monitor_code);
-				foreach my $tmp(@codea){
-					syswrite(IN,"\n");
-					syswrite(IN,$tmp);
+			while($code=shift @ARGV){
+				if(SCOM_is_valid_code($code)){
+					_AMI($code);
 				}
-				close IN;
 			}
-			if(defined $code){
-				unshift(@ARGV,$code);
+			if($code){
+				push @ARGV,$code;
 			}
 		}
 		if($opt =~ /-mcp/){
