@@ -498,16 +498,17 @@ sub _monitor_bought_stock{
 				my $reportstr=_construct_header($code,'importantprice').":($buyprice:$cur_price):importantprice:($importantprice)";
 				_report($reportstr);
 			}
-		}
-		#中午休市提示
-		if( $hour>= 12&& !_is_today_loged(_construct_header($code,'AM'))){
-			my $reportstr=_construct_header($code,'AM').":($buyprice:$cur_price)";
-			_report($reportstr);
-		}
-		#下午休市提示
-		if($hour>=15&& !_is_today_loged(_construct_header($code,'PM'))){
-			my $reportstr=_construct_header($code,'PM').":($buyprice:$cur_price)";
-			_report($reportstr);
+		}else{
+			#中午休市提示
+			if( $hour>= 11&& !_is_today_loged(_construct_header($code,'AM'))){
+				my $reportstr=_construct_header($code,'AM').":($buyprice:$cur_price)";
+				_report($reportstr);
+			}
+			#下午休市提示
+			if($hour>=15&& !_is_today_loged(_construct_header($code,'PM'))){
+				my $reportstr=_construct_header($code,'PM').":($buyprice:$cur_price)";
+				_report($reportstr);
+			}
 		}
 	}
 }
