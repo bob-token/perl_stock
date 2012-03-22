@@ -485,29 +485,31 @@ sub _monitor_bought_stock{
 	if($code){
 		my $buyprice= _get_buy_code_info($code,'price');
 		my $stoploss = _get_buy_code_info($code,'stoploss');
+		my $total = _get_buy_code_info($code,'total');
 		my $importantprice= _get_buy_code_info($code,'importantprice');
 		my $hour=COM_get_cur_time('hour');
 		my $minute=COM_get_cur_time('minute');
+		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
 		chomp $stoploss;
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($stoploss>=$cur_price && !_is_today_loged(_construct_header($code,'stoploss'))){
-				my $reportstr=_construct_header($code,'stoploss').":($buyprice:$cur_price):stoploss:($stoploss)";
+				my $reportstr=_construct_header($code,'stoploss').":($buyprice:$cur_price:$income):stoploss:($stoploss)";
 				_report($reportstr);
 			}
 			if($importantprice <=$cur_price&& !_is_today_loged(_construct_header($code,'importantprice'))){
-				my $reportstr=_construct_header($code,'importantprice').":($buyprice:$cur_price):importantprice:($importantprice)";
+				my $reportstr=_construct_header($code,'importantprice').":($buyprice:$cur_price:$income):importantprice:($importantprice)";
 				_report($reportstr);
 			}
 		}else{
 			#中午休市提示
 			if( $hour>= 11&& !_is_today_loged(_construct_header($code,'AM'))){
-				my $reportstr=_construct_header($code,'AM').":($buyprice:$cur_price)";
+				my $reportstr=_construct_header($code,'AM').":($buyprice:$cur_price:$income)";
 				_report($reportstr);
 			}
 			#下午休市提示
 			if($hour>=15&& !_is_today_loged(_construct_header($code,'PM'))){
-				my $reportstr=_construct_header($code,'PM').":($buyprice:$cur_price)";
+				my $reportstr=_construct_header($code,'PM').":($buyprice:$cur_price:$income)";
 				_report($reportstr);
 			}
 		}

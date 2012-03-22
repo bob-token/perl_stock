@@ -39,3 +39,17 @@ sub SCOM_is_exchange_duration{
 	}
 	return 0;
 }
+sub SCOM_calc_income{
+	my ($code,$buyprice,$sellprice,$total)=@_;
+	my $yinhuatax=0.001;
+	my $servicechange=0.002;
+	if(SCOM_is_valid_code($code)){
+		my $income=($sellprice-$buyprice)*$total-($yinhuatax+$servicechange)*$sellprice;
+		#沪市股票要加一元的过户费
+		if(index($code,'sh')!=-1){
+			$income=$income-1;
+		}
+		return $income;
+	}
+	return 0;
+}
