@@ -29,8 +29,8 @@ sub SCOM_is_valid_code{
 
 sub SCOM_is_exchange_duration{
 	my ($hour,$minute)=@_;
-	#ионГ9:20-11:20
-	if(9*60+20 <= $hour*60+$minute &&11*60+20 >= $hour*60+$minute ){
+	#ионГ9:15-11:20
+	if(9*60+25<= $hour*60+$minute &&11*60+30 >= $hour*60+$minute ){
 		return 1;
 	}
 	#обнГ13:00-15:00
