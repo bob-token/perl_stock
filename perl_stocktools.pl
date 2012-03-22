@@ -490,6 +490,7 @@ sub _monitor_bought_stock{
 		my $hour=COM_get_cur_time('hour');
 		my $minute=COM_get_cur_time('minute');
 		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
+		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
