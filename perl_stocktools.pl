@@ -487,18 +487,24 @@ sub _monitor_bought_stock{
 		my $stoploss = _get_buy_code_info($code,'stoploss');
 		my $total = _get_buy_code_info($code,'total');
 		my $importantprice= _get_buy_code_info($code,'importantprice');
+		my $percent=($importantprice-$buyprice)/$buyprice;
+		my $K=int((($cur_price-$buyprice)/$buyprice)/$percent);
 		my $hour=COM_get_cur_time('hour');
 		my $minute=COM_get_cur_time('minute');
 		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
+			if($K*$percent*($cur_price)<=$cur_price&& !_is_today_loged(_construct_header($code,"$K*importantprice"))){
+				my $reportstr=_construct_header($code,"$K*importantprice").":($buyprice:$cur_price:$income))";
+				_report($reportstr);
+			}
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($stoploss>=$cur_price && !_is_today_loged(_construct_header($code,'stoploss'))){
 				my $reportstr=_construct_header($code,'stoploss').":($buyprice:$cur_price:$income):stoploss:($stoploss)";
 				_report($reportstr);
 			}
-			if($importantprice <=$cur_price&& !_is_today_loged(_construct_header($code,'importantprice'))){
+			if($K*$percent*($cur_price)<=$cur_price&& !_is_today_loged(_construct_header($code,"$K*importantprice"))){
 				my $reportstr=_construct_header($code,'importantprice').":($buyprice:$cur_price:$income):importantprice:($importantprice)";
 				_report($reportstr);
 			}
