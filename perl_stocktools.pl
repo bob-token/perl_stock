@@ -494,10 +494,6 @@ sub _monitor_bought_stock{
 		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
-			if($K*$percent*($cur_price)<=$cur_price&& !_is_today_loged(_construct_header($code,"$K*importantprice"))){
-				my $reportstr=_construct_header($code,"$K*importantprice").":($buyprice:$cur_price:$income))";
-				_report($reportstr);
-			}
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($stoploss>=$cur_price && !_is_today_loged(_construct_header($code,'stoploss'))){
@@ -505,7 +501,7 @@ sub _monitor_bought_stock{
 				_report($reportstr);
 			}
 			if($K*$percent*($cur_price)<=$cur_price&& !_is_today_loged(_construct_header($code,"$K*importantprice"))){
-				my $reportstr=_construct_header($code,'importantprice').":($buyprice:$cur_price:$income):importantprice:($importantprice)";
+				my $reportstr=_construct_header($code,"$K*importantprice").":($buyprice:$cur_price:$income))";
 				_report($reportstr);
 			}
 		}else{
