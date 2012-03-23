@@ -1,1 +1,1 @@
-
+echo shutdown > /sys/power/disk; echo disk > /sys/power/state
