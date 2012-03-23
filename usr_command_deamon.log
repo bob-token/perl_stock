@@ -1,2 +1,0 @@
-usr_command_deamon.sh: line 1: /sys/power/disk: Permission denied
-usr_command_deamon.sh: line 1: /sys/power/state: Permission denied
