@@ -1,1 +1,20 @@
 
+total 128
+-rw-r--r-- 1 bob bob   102 Mar 20 23:06 2012220
+-rw-r--r-- 1 bob bob   108 Mar 22 21:32 2012222
+-rw-r--r-- 1 bob bob    31 Mar 22 20:47 buy_stock_code.txt
+-rw-r--r-- 1 bob bob     9 Mar 22 20:47 monitor_stock_code.txt
+-rw-r--r-- 1 bob bob    85 Feb 28 19:43 perl_backup.bat
+-rw-r--r-- 1 bob bob  2509 Feb 28 19:43 perl_backup.pl
+-rw-r--r-- 1 bob bob  2902 Mar 21 19:54 perl_common.pl
+-rw-r--r-- 1 bob bob  2483 Mar 18 17:07 perl_database.pl
+-rw-r--r-- 1 bob bob  1917 Mar 15 19:39 perl_database_tools.pl
+-rw-r--r-- 1 bob bob  1232 Mar 23 20:28 perl_stockcommon.pl
+-rw-r--r-- 1 bob bob  1771 Mar 15 13:59 perl_stocknetwork.pl
+-rw-r--r-- 1 bob bob 13163 Mar 20 19:52 perl_stock.pl
+-rw-r--r-- 1 bob bob 21253 Mar 23 20:28 perl_stocktools.pl
+-rw-r--r-- 1 bob bob    29 Feb 28 19:43 README
+-rw-r--r-- 1 bob bob 21879 Mar  9 21:18 stock_code.txt
+-rw-r--r-- 1 bob bob  5259 Mar 21 22:49 tags
+-rw-r--r-- 1 bob bob     1 Mar 23 23:43 usr_command.log
+-rw-r--r-- 1 bob bob     5 Mar 23 23:54 usr_command.sh
