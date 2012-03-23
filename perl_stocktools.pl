@@ -453,18 +453,45 @@ sub _log{
 	syswrite(OUT,$msg);
 	close OUT; 
 }
+sub _report_code{
+	my ($code,$msg)=@_;
+	printf $msg."\n";	
+	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
+	_log($code,$msg);
+}
 sub _report{
 	my $msg=shift;
 	printf $msg."\n";	
 	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
 	_log(COM_today(1),$msg);
 }
-sub _construct_header{
+sub _construct_code_day_header{
+	my ($code,$type)=@_;
+	if(SCOM_is_valid_code($code)){
+		my $day=COM_today(0);
+		return "$day:$code:$type";
+	}
+	return undef;
+}
+sub _construct_code_header{
 	my ($code,$type)=@_;
 	if(SCOM_is_valid_code($code)){
 		return "$code:$type";
 	}
 	return undef;
+}
+sub _is_exchange_info_loged{
+	my ($code,$logflag)=@_;
+	if(open (IN,'<',$code)){
+		foreach my $line(<IN>){
+			if(index($line,$logflag)!=-1){
+				close IN;
+				return 1;
+			}
+		}
+	}
+	close IN;
+	return 0;
 }
 sub _is_today_loged{
 	my ($logflag)=@_;
@@ -496,24 +523,24 @@ sub _monitor_bought_stock{
 		chomp $stoploss;
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
-			if($stoploss>=$cur_price && !_is_today_loged(_construct_header($code,'stoploss'))){
-				my $reportstr=_construct_header($code,'stoploss').":($buyprice:$cur_price:$income):stoploss:($stoploss)";
-				_report($reportstr);
+			if($stoploss>=$cur_price && ! _is_exchange_info_loged($code,_construct_code_day_header($code,'stoploss'))){
+				my $reportstr=_construct_code_day_header($code,'stoploss').":($buyprice:$cur_price:$income):stoploss:($stoploss)";
+				 _report_code($code,$reportstr);
 			}
-			if($K*$percent*($cur_price)<=$cur_price&& !_is_today_loged(_construct_header($code,"$K*importantprice"))){
-				my $reportstr=_construct_header($code,"$K*importantprice").":($buyprice:$cur_price:$income))";
-				_report($reportstr);
+			if($K*$percent*($cur_price)<=$cur_price&& !_is_exchange_info_loged($code,_construct_code_header($code,"$K*importantprice"))){
+				my $reportstr=_construct_code_header($code,"$K*importantprice").":($buyprice:$cur_price:$income))";
+				 _report_code($code,$reportstr);
 			}
 		}else{
 			#中午休市提示
-			if( $hour>= 11&& !_is_today_loged(_construct_header($code,'AM'))){
-				my $reportstr=_construct_header($code,'AM').":($buyprice:$cur_price:$income)";
-				_report($reportstr);
+			if( $hour>= 11&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'AM'))){
+				my $reportstr=_construct_code_day_header($code,'AM').":($buyprice:$cur_price:$income)";
+				 _report_code($code,$reportstr);
 			}
 			#下午休市提示
-			if($hour>=15&& !_is_today_loged(_construct_header($code,'PM'))){
-				my $reportstr=_construct_header($code,'PM').":($buyprice:$cur_price:$income)";
-				_report($reportstr);
+			if($hour>=15&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'PM'))){
+				my $reportstr=_construct_code_day_header($code,'PM').":($buyprice:$cur_price:$income)";
+				 _report_code($code,$reportstr);
 			}
 		}
 	}
