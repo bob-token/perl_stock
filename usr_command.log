@@ -757,3 +757,4 @@ sh600868:Diff(12,26):0.00388920298071049,DEA(9):0.0339665124134587
 sh600869:Diff(12,26):0.650587059634418,DEA(9):0.681086537003087
 sh600870:Diff(12,26):-0.0303478497912089,DEA(9):0.0381751808523055
 usr_command.sh: line 2:  5344 Terminated              perl perl_stocktools.pl -select macd
+usr_command.sh: line 1:  6299 Terminated              perl perl_stocktools.pl -mbs
