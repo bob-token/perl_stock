@@ -1,1 +1,1 @@
-
+echo standby>/sys/power/state
