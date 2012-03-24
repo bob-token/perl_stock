@@ -252,3 +252,4 @@ sh600235:1*importantprice:(6.56:7.11:328.98))
 [[32m[1m11:48:53[0m]  successfully send sms to 18320754872
 you have sent 5 messages today, 194 messages this monthcount
 [[32m[1m11:48:53[0m]  Free sip struct and close socket
+usr_command.sh: line 1: 25683 Terminated              perl perl_stocktools.pl -mbs
