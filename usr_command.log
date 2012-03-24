@@ -342,3 +342,4 @@ usr_command.sh: line 1: 25683 Terminated              perl perl_stocktools.pl -m
 [[32m[1m16:17:08[0m]  successfully send sms to 18320754872
 you have sent 8 messages today, 197 messages this monthcount
 [[32m[1m16:17:08[0m]  Free sip struct and close socket
+usr_command.sh: line 1:  1707 Terminated              perl perl_stocktools.pl -mbs
