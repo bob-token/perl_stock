@@ -457,7 +457,7 @@ sub _report_code{
 	my ($code,$msg)=@_;
 	printf $msg."\n";	
 	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
-	if(index($code,''){
+	if(index($code,'sh600199') !=-1){
 		system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -t 18320754872 -d\"½ðÖÓ×Ó¾Æ:$msg\"");
 	}
 	_log($code,$msg);
