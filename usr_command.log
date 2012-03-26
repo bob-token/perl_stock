@@ -1,1 +1,2 @@
 usr_command.sh: line 1:  7122 Terminated              perl perl_stocktools.pl -mbs
+Can't open perl script "perl_stocktools": No such file or directory
