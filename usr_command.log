@@ -207,3 +207,32 @@ sh600235:1*importantprice:(6.56:7.13:340.98))
 [[32m[1m09:30:07[0m]  Save contact list successfully
 [[32m[1m09:30:07[0m]  Sent a message to myself
 [[32m[1m09:30:07[0m]  Free sip struct and close socket
+sh600235:2*importantprice:(6.56:7.24:406.98))
+[[32m[1m09:49:14[0m]  Set a initialized Config Struct to User
+[[32m[1m09:49:14[0m]  Initialize ssi authentication action
+[[32m[1m09:49:14[0m]  221.130.45.212:443
+[[32m[1m09:49:14[0m]  Start ssi login with v3Temp password , user number 13590216192
+[[32m[1m09:49:14[0m]  SSI login success
+[[32m[1m09:49:14[0m]  221.130.45.201:80
+[[32m[1m09:49:15[0m]  Load user information
+[[32m[1m09:49:16[0m]  Load user information
+[[32m[1m09:49:16[0m]  Load contact list
+[[32m[1m09:49:16[0m]  221.176.31.42:8080
+[[32m[1m09:49:16[0m]  Set a initialized Sip Struct to User
+[[32m[1m09:49:16[0m]  Initialize sipc registeration action
+[[32m[1m09:49:16[0m]  Start registering to sip server(221.176.31.42:8080)
+[[32m[1m09:49:16[0m]  Register to sip server success
+[[32m[1m09:49:16[0m]  nonce:2AA3B9EC1507856766C07CB025EC55ED
+[[32m[1m09:49:16[0m]  Start encrypting response
+[[32m[1m09:49:16[0m]  Encrypting reponse success
+[[32m[1m09:49:16[0m]  Initialize sipc authencation action
+[[32m[1m09:49:16[0m]  Start sipc authentication , with ak-value
+[[32m[1m09:49:16[0m]  Got sipc response
+[[32m[1m09:49:16[0m]  Sipc authentication success
+[[32m[1m09:49:16[0m]  Start reading contact list 
+[[32m[1m09:49:16[0m]  Contact list is the same as that stored in the local disk!
+[[32m[1m09:49:16[0m]  Save user information
+[[32m[1m09:49:17[0m]  Save contact list
+[[32m[1m09:49:17[0m]  Save contact list successfully
+[[32m[1m09:49:17[0m]  Sent a message to myself
+[[32m[1m09:49:17[0m]  Free sip struct and close socket
