@@ -768,3 +768,34 @@ you have sent 3 messages today, 221 messages this monthcount
 [[32m[1m15:01:46[0m]  Save contact list successfully
 [[32m[1m15:01:46[0m]  Sent a message to myself
 [[32m[1m15:01:46[0m]  Free sip struct and close socket
+[[32m[1m15:01:46[0m]  Set a initialized Config Struct to User
+[[32m[1m15:01:46[0m]  Initialize ssi authentication action
+[[32m[1m15:01:46[0m]  221.130.45.212:443
+[[32m[1m15:01:47[0m]  Start ssi login with v3Temp password , user number 13590216192
+[[32m[1m15:01:47[0m]  SSI login success
+[[32m[1m15:01:47[0m]  221.130.45.201:80
+[[32m[1m15:01:48[0m]  Load user information
+[[32m[1m15:01:48[0m]  Load user information
+[[32m[1m15:01:48[0m]  Load contact list
+[[32m[1m15:01:48[0m]  221.176.31.42:8080
+[[32m[1m15:01:48[0m]  Set a initialized Sip Struct to User
+[[32m[1m15:01:48[0m]  Initialize sipc registeration action
+[[32m[1m15:01:48[0m]  Start registering to sip server(221.176.31.42:8080)
+[[32m[1m15:01:49[0m]  Register to sip server success
+[[32m[1m15:01:49[0m]  nonce:7562218935D14ECB39A2D5DC2E028402
+[[32m[1m15:01:49[0m]  Start encrypting response
+[[32m[1m15:01:49[0m]  Encrypting reponse success
+[[32m[1m15:01:49[0m]  Initialize sipc authencation action
+[[32m[1m15:01:49[0m]  Start sipc authentication , with ak-value
+[[32m[1m15:01:49[0m]  Got sipc response
+[[32m[1m15:01:49[0m]  Sipc authentication success
+[[32m[1m15:01:49[0m]  Start reading contact list 
+[[32m[1m15:01:49[0m]  Contact list is the same as that stored in the local disk!
+[[32m[1m15:01:49[0m]  Save user information
+[[32m[1m15:01:49[0m]  Save contact list
+[[32m[1m15:01:49[0m]  Save contact list successfully
+[[32m[1m15:01:49[0m]  Get user information by mobile number success
+[[32m[1m15:01:49[0m]  Sent a message to (sip:521733905@fetion.com.cn;p=22610)`s mobile phone
+[[32m[1m15:01:50[0m]  successfully send sms to 18320754872
+you have sent 6 messages today, 224 messages this monthcount
+[[32m[1m15:01:50[0m]  Free sip struct and close socket
