@@ -129,7 +129,7 @@ sub COM_get_cur_time{
 sub COM_today{
 	my $type=shift;
 	my $year=COM_get_cur_time('year');
-	my $mon=COM_get_cur_time('month');
+	my $mon=COM_get_cur_time('month')+1;
 	my $day=COM_get_cur_time('day');
 	if($type==0){
 		return join('-',$year,$mon,$day);	
