@@ -1,0 +1,9 @@
+*.pyc
+*.cache
+test.py
+PyWapFetion.egg-info/
+build/
+dist/
+*.zip
+*.tar
+*.tar.gz
