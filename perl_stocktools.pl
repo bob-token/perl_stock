@@ -453,19 +453,35 @@ sub _log{
 	syswrite(OUT,$msg);
 	close OUT; 
 }
+sub _get_flag{
+	my ($flag,$flagfile)=@_;
+	open IN,"<",$flagfile;
+	my $i=0;
+	my $r;
+	while(<IN>){
+		if($i++<=$flag){
+			$r=$_;
+		}
+	}
+	close IN;
+	chomp $r;
+	return $r;
+}
 sub _report_code{
 	my ($code,$msg)=@_;
 	printf $msg."\n";	
-	#system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
+	my $flag0=_get_flag(0,"flag");
+	my $flag1=_get_flag(1,"flag");
+	my $flag2=_get_flag(2,"flag");
+	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 \"$msg\"");
 	if(index($code,'sh600199') !=-1){
-	#	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -t 18320754872 -d\"jinzhongzi:$msg\"");
+	#	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 $flag2 \"$msg\"");
 	}
 	_log($code,$msg);
 }
 sub _report{
 	my $msg=shift;
 	printf $msg."\n";	
-	system("/usr/local/bin/cliofetion -f 13590216192 -p15989589076xhb -d\"$msg\"");
 	_log(COM_today(1),$msg);
 }
 sub _construct_code_day_header{
