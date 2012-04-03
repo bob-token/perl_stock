@@ -618,6 +618,28 @@ sub _AMI{
 		close OUT;
 	}
 }
+sub _get_exchange_info{
+	my ($code,$from,$to)=@_;
+	my $dhe=MSH_OpenDB($StockExDb);
+	my @info=DBT_get_exchange_info($code,$from,$to,$dhe);
+	my $i=0;
+	my @onevalue=();
+	my @myinfo=();
+	$dhe->disconnect;
+	foreach my $value(@info){
+		if ($value=~/\d{4}-\d{1,2}-\d{1,2}/){
+			if (@onevalue){
+				push @myinfo,join(" ",@onevalue);	
+				@onevalue=();
+			}
+		}
+		push @onevalue,$value;	
+	}
+	if (@onevalue){
+		push @myinfo,join(" ",@onevalue);
+	}
+	return @myinfo;
+}
 sub main{
     my $pause=0;
 	#´«ÒýÓÃ
@@ -639,6 +661,7 @@ sub main{
 		-lb[code [code ..]]:list bought stock(s)
 		-sell <code> sell a stock 
 		-mbs [code [code ..]]:monitor bought stock(s)
+		-show <code> [fromdate] [todate]:show exchange info in the days
 END
 	}
 		#help info
@@ -691,6 +714,16 @@ END
 					printf join(':',@info),"\n";
 				}
 			}
+		}
+		#show exhcange info
+		if ($opt =~ /-show\b/){
+			my $code;
+			my @info;
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+				@info=_get_exchange_info($code,shift @ARGV,shift @ARGV);
+				last;
+			}
+			print join("\n",@info);
 		}
 		#buy stock
 		if ($opt =~ /-buy\b/){

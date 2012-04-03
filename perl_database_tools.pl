@@ -42,6 +42,14 @@ sub DBT_get_next_exchange_day{
 	}
 	return undef
 }
+sub DBT_get_exchange_info{
+	my $code=shift;
+	my $fromdate=shift;
+	my $todate=shift;
+	my $dhe=shift;
+    my $condition="DATE>=\"$fromdate\" and DATE<=\"$todate\" ORDER BY DATE ASC ";
+	return MSH_GetValue($dhe,$code,"*",$condition); 
+}
 sub DBT_get_next_date_closing_price{
 	my @value;
 	my $code=shift;
