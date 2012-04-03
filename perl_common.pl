@@ -93,7 +93,7 @@ sub COM_get_cur_time{
 	my $cday;
 	my $cmon;
 	my $cyear;
-	my $cwday;
+	my $cwday;#$wday is the day of the week, with 0 indicating Sunday and 3 indicating Wednesday
 	my $cyday;
 	my $cisdst;
 	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
@@ -121,6 +121,8 @@ sub COM_get_cur_time{
 			return $mytime[4];
 		}elsif($flag =~/\bsecond\b/){
 			return $mytime[5];
+		}elsif($flag =~/\bweek_of_day\b/){
+			return $cwday;
 		}
 		return undef;
 	}

@@ -27,6 +27,12 @@ sub SCOM_is_valid_code{
     return $code =~/s[hz]\d{6}/;
 }
 
+sub SCOM_today_is_exchange_day{
+	if(COM_get_cur_time('week_of_day')==0 || COM_get_cur_time('week_of_day')==6){
+		return 0;	
+	}
+	return 1;
+}
 sub SCOM_is_exchange_duration{
 	my ($hour,$minute)=@_;
 	#ионГ9:20-11:20

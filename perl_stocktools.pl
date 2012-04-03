@@ -540,6 +540,9 @@ sub _monitor_bought_stock{
 		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
+		if (!SCOM_today_is_exchange_day()){
+			return;
+		}
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($stoploss>=$cur_price && ! _is_exchange_info_loged($code,_construct_code_day_header($code,'stoploss'))){
