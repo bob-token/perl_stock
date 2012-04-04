@@ -111,6 +111,7 @@ _get_stock_base_info	.\perl_stock.pl	/^sub _get_stock_base_info{$/;"	s
 _get_stock_exchange	.\perl_stock.pl	/^sub _get_stock_exchange{$/;"	s
 _get_turnover	.\perl_stocktools.pl	/^sub _get_turnover{$/;"	s
 _getid	.\pywapfetion\PyWapFetion\Fetion.py	/^    def _getid(self,mobile):$/;"	m	class:Fetion
+_init_code_monitor_info	.\perl_stocktools.pl	/^sub _init_code_monitor_info{$/;"	s
 _is_exchange_info_loged	.\perl_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
 _is_today_loged	.\perl_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _log	.\perl_stocktools.pl	/^sub _log{$/;"	s
@@ -119,6 +120,7 @@ _monitor_bought_stock	.\perl_stocktools.pl	/^sub _monitor_bought_stock{$/;"	s
 _monitor_bought_stocks	.\perl_stocktools.pl	/^sub _monitor_bought_stocks{$/;"	s
 _new_than	.\perl_backup.pl	/^sub _new_than{$/;"	s
 _open_stock_db	.\perl_stock.pl	/^sub _open_stock_db{$/;"	s
+_read_key_value	.\perl_stocktools.pl	/^sub _read_key_value{$/;"	s
 _report	.\perl_stocktools.pl	/^sub _report{$/;"	s
 _report_code	.\perl_stocktools.pl	/^sub _report_code{$/;"	s
 _select_codes	.\perl_stocktools.pl	/^sub _select_codes{$/;"	s
@@ -128,8 +130,10 @@ _update_last_exchange	.\perl_stock.pl	/^sub _update_last_exchange{$/;"	s
 _update_stock_base_info	.\perl_stock.pl	/^sub _update_stock_base_info{$/;"	s
 _update_stock_code	.\perl_stock.pl	/^sub _update_stock_code{$/;"	s
 _update_stock_exchange	.\perl_stock.pl	/^sub _update_stock_exchange{$/;"	s
+_update_stock_status	.\perl_stocktools.pl	/^sub _update_stock_status{$/;"	s
 _update_stocks_base_info	.\perl_stock.pl	/^sub _update_stocks_base_info{$/;"	s
 _update_stocks_exchange	.\perl_stock.pl	/^sub _update_stocks_exchange{$/;"	s
+_write_key_value	.\perl_stocktools.pl	/^sub _write_key_value{$/;"	s
 addblacklist	.\pywapfetion\PyWapFetion\Fetion.py	/^    addblacklist = lambda self,id: '加入黑名单成功!' in self.open('im\/user\/Addblacklist.action?touserid=%s' % id)$/;"	v	class:Fetion
 alive	.\pywapfetion\PyWapFetion\Fetion.py	/^    alive = lambda self:'心情' in self.open('im\/index\/indexcenter.action')$/;"	v	class:Fetion
 allstatus	.\pywapfetion\example.py	/^allstatus=myfetion.getallusersstatus() #返回一个dict，格式{用户ID：用户状态}$/;"	v

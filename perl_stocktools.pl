@@ -17,7 +17,7 @@ our $monitor_code="monitor_stock_code.txt";
 our $gflag_selectcode_macd=0;
 our $gflag_selectcode_kdj=0;
 our $gflag_selectcode_turnover=0;
-our $g_fromcode;
+our %gall_monitor_info=();
 $|=1;
 
 # calculate moving average
@@ -450,6 +450,8 @@ sub _get_code_monitor_info_file{
 	my ($code,$flag)=@_;
 	if($flag=~/\blog\b/){
 		return "$code"."_log";		
+	}elsif($flag=~/\bstatus\b/){
+		return "$code"."_status";
 	}
 	return undef;
 }
@@ -532,10 +534,32 @@ sub _is_today_loged{
 	close IN;
 	return 0;
 }
+sub _read_key_value{
+	my ($file,$key)=@_;
+}
+sub _write_key_value{
+	my ($file,$key,$value)=@_;
+}
+sub _update_stock_status{
+	my ($code,$cur_price)=@_;
+	my $key_max_price='max_price';
+	my $key_average_price='average_price';
+	my $statusfile=_get_code_monitor_info_file($code,'status');
+	my $max_price=_read_key_value($key_max_price);
+	my $average_price=_read_key_value($key_average_price);
+	if($max_price <$cur_price){
+		_write_key_value($key_max_price,$cur_price);
+	}
+	if(($cur_price+$average_price)/2 != $average_price){
+		_write_key_value($key_average_price,sprintf("%.2f",($cur_price+$average_price)/2));
+	}
+}
 sub _monitor_bought_stock{
-	my ($code)=@_;
-	my $cur_price=SN_get_stock_cur_price($code);
+	my ($code,$refarrar_monitor_info)=@_;
 	if($code){
+		my $tip_percent_average_diff=0.02;
+		my $tip_percent_fore_diff=0.03;
+		my $cur_price=SN_get_stock_cur_price($code);
 		my $buyprice= _get_buy_code_info($code,'price');
 		my $stoploss = _get_buy_code_info($code,'stoploss');
 		my $total = _get_buy_code_info($code,'total');
@@ -545,7 +569,9 @@ sub _monitor_bought_stock{
 		my $hour=COM_get_cur_time('hour');
 		my $minute=COM_get_cur_time('minute');
 		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
-		my $average=0;
+		my $average=\@{$refarrar_monitor_info}[0];
+		my $max=\@{$refarrar_monitor_info}[1];
+		my $fore_price=\@{$refarrar_monitor_info}[2];
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
 		if (!SCOM_today_is_exchange_day()){
@@ -553,6 +579,27 @@ sub _monitor_bought_stock{
 		}
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
+			if($$max <$cur_price){
+			   $$max=$cur_price;	
+			}
+			if(${$average}==0){
+				${$average}=$cur_price;
+			}
+			if($$fore_price==0){
+				$$fore_price=$cur_price;
+			}
+			#提示	
+			my $average_diff=($cur_price-${$average})/$$average;
+			if(abs($average_diff)>=$tip_percent_average_diff){
+				my $reportstr=_construct_code_day_header($code,'average_diff').":($buyprice:$cur_price:$income):average_diff:($average_diff})";
+				 _report_code($code,$reportstr);
+			}
+			my $fore_diff=($cur_price-${$fore_price})/$$fore_price;
+			if(abs($fore_diff)>=$tip_percent_fore_diff){
+				my $reportstr=_construct_code_day_header($code,'fore_diff').":($buyprice:$cur_price:$income):average_diff:($fore_diff})";
+				 _report_code($code,$reportstr);
+			}
+					
 			if($stoploss>=$cur_price && ! _is_exchange_info_loged($code,_construct_code_day_header($code,'stoploss'))){
 				my $reportstr=_construct_code_day_header($code,'stoploss').":($buyprice:$cur_price:$income):stoploss:($stoploss)";
 				 _report_code($code,$reportstr);
@@ -573,16 +620,36 @@ sub _monitor_bought_stock{
 				 _report_code($code,$reportstr);
 			}
 		}
+		if(($cur_price+${$average})/2 != ${$average}){
+			${$average}=(${$average}+$cur_price)/2;
+		}
+		$$fore_price=$cur_price;
 	}
+}
+sub _init_code_monitor_info{
+	my ($code,$ref_all_monitor_info)=@_;
+	my %a=(
+		average_price =>0,
+		max_price =>0,
+	);	
+	%{$ref_all_monitor_info}={$code=>%a};
 }
 sub _monitor_bought_stocks{
 	my (@codes)=@_;
+	my @opt=();
+#init
+	foreach my $code(@codes){
+		#_init_code_monitor_info($code,\%gall_monitor_info);
+		my @info=[0,0,0];
+		push @opt,@info;
+	}
 	while(1){
+		my $i=0;
 		foreach my $code(@codes){
 			my @info=_get_buy_code_info($code);
-			_monitor_bought_stock($info[0]);
+			_monitor_bought_stock($info[0],$opt[$i++]);
 		}
-		sleep 60;
+#		sleep 60;
 	}
 }
 sub _DMI{
