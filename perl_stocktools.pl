@@ -446,6 +446,13 @@ sub _buy{
 	_AMI($code);
 	return _add_buy_code_info(@codeinfo);
 }
+sub _get_code_monitor_info_file{
+	my ($code,$flag)=@_;
+	if($flag=~/\blog\b/){
+		return "$code"."_log";		
+	}
+	return undef;
+}
 sub _log{
 	my ($logfile,$msg)=@_;
 	open OUT,">>",$logfile;
@@ -477,7 +484,7 @@ sub _report_code{
 	if(index($code,'sh600199') !=-1){
 	#	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 $flag2 \"$msg\"");
 	}
-	_log($code,$msg);
+	_log( _get_code_monitor_info_file($code,'log'),$msg);
 }
 sub _report{
 	my $msg=shift;
@@ -501,7 +508,7 @@ sub _construct_code_header{
 }
 sub _is_exchange_info_loged{
 	my ($code,$logflag)=@_;
-	if(open (IN,'<',$code)){
+	if(open (IN,'<', _get_code_monitor_info_file($code,'log'))){
 		foreach my $line(<IN>){
 			if(index($line,$logflag)!=-1){
 				close IN;
@@ -538,6 +545,7 @@ sub _monitor_bought_stock{
 		my $hour=COM_get_cur_time('hour');
 		my $minute=COM_get_cur_time('minute');
 		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
+		my $average=0;
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
 		if (!SCOM_today_is_exchange_day()){
