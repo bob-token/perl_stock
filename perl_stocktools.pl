@@ -572,10 +572,6 @@ sub _monitor_bought_stock{
 		if (!SCOM_today_is_exchange_day()){
 			return;
 		}
-			#提示	
-			if(${$average}==0){
-				${$average}=$cur_price;
-			}
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($$max <$cur_price){
@@ -591,13 +587,13 @@ sub _monitor_bought_stock{
 			my $average_diff=($cur_price-${$average})/$$average;
 			if(abs($average_diff)>=$tip_percent_average_diff){
 				$average_diff=sprintf("%.4f",$average_diff);
-				my $reportstr=_construct_code_day_header($code,'average_diff').":($buyprice:$cur_price:$income):average_diff:($average_diff})";
+				my $reportstr=_construct_code_day_header($code,'average_diff').":($buyprice:$cur_price:$income):average_diff:($average_diff))";
 				 _report_code($code,$reportstr);
 			}
 			my $fore_diff=($cur_price-${$fore_price})/$$fore_price;
 			if(abs($fore_diff)>=$tip_percent_fore_diff){
 				$fore_diff=sprintf("%.4f",$fore_diff);
-				my $reportstr=_construct_code_day_header($code,'fore_diff').":($buyprice:$cur_price:$income):average_diff:($fore_diff})";
+				my $reportstr=_construct_code_day_header($code,'fore_diff').":($buyprice:$cur_price:$income):fore_diff:($fore_diff))";
 				 _report_code($code,$reportstr);
 			}
 					
