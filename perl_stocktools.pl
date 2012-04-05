@@ -448,12 +448,7 @@ sub _buy{
 }
 sub _get_code_monitor_info_file{
 	my ($code,$flag)=@_;
-	if($flag=~/\blog\b/){
-		return "$code"."_log";		
-	}elsif($flag=~/\bstatus\b/){
-		return "$code"."_status";
-	}
-	return undef;
+	return SCOM_code_get_file_name($code,$flag);
 }
 sub _log{
 	my ($logfile,$msg)=@_;

@@ -50,6 +50,8 @@ Python2	.\pywapfetion\bobfetion.py	/^from __future__ import with_statement #在P
 Python2	.\pywapfetion\example.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
 Request	.\pywapfetion\PyWapFetion\Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
 SCOM_calc_income	.\perl_stockcommon.pl	/^sub SCOM_calc_income{$/;"	s
+SCOM_code_get_file_name	.\perl_stockcommon.pl	/^sub SCOM_code_get_file_name{$/;"	s
+SCOM_get_file_name	.\perl_stockcommon.pl	/^sub SCOM_get_file_name{$/;"	s
 SCOM_is_exchange_duration	.\perl_stockcommon.pl	/^sub SCOM_is_exchange_duration{$/;"	s
 SCOM_is_valid_code	.\perl_stockcommon.pl	/^sub SCOM_is_valid_code{$/;"	s
 SCOM_today_is_exchange_day	.\perl_stockcommon.pl	/^sub SCOM_today_is_exchange_day{$/;"	s

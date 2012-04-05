@@ -28,9 +28,18 @@ sub SCOM_is_valid_code{
 }
 
 sub SCOM_today_is_exchange_day{
+	my $today=COM_today(0);
 	if(COM_get_cur_time('week_of_day')==0 || COM_get_cur_time('week_of_day')==6){
 		return 0;	
 	}
+	my $non_exchangeday=SCOM_get_file_name('non-exchangeday');
+	open (IN,'<',$non_exchangeday);
+	while(<IN>){
+		if(COM_is_same_day($_,$today)){
+			return 0;
+		}
+	}
+	close IN;
 	return 1;
 }
 sub SCOM_is_exchange_duration{
@@ -58,4 +67,20 @@ sub SCOM_calc_income{
 		return $income;
 	}
 	return 0;
+}
+sub SCOM_get_file_name{
+	my ($flag)=@_;
+	if($flag=~/\bnon-exchangeday\b/){
+		return "non_exchangeday_txt";		
+	}
+	return undef;
+}
+sub SCOM_code_get_file_name{
+	my ($code,$flag)=@_;
+	if($flag=~/\blog\b/){
+		return "$code"."_log";		
+	}elsif($flag=~/\bstatus\b/){
+		return "$code"."_status";
+	}
+	return undef;
 }
