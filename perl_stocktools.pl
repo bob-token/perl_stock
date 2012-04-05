@@ -552,7 +552,7 @@ sub _update_stock_status{
 sub _monitor_bought_stock{
 	my ($code,$refarrar_monitor_info)=@_;
 	if($code){
-		my $tip_percent_average_diff=0.002;
+		my $tip_percent_average_diff=0.003;
 		my $tip_percent_fore_diff=0.006;
 		my $cur_price=SN_get_stock_cur_price($code);
 		my $buyprice= _get_buy_code_info($code,'price');
