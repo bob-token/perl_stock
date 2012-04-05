@@ -605,6 +605,10 @@ sub _monitor_bought_stock{
 				my $reportstr=_construct_code_header($code,"$K*importantprice").":($buyprice:$cur_price:$income))";
 				 _report_code($code,$reportstr);
 			}
+			if(($cur_price+${$average})/2 != ${$average}){
+				${$average}=(${$average}+$cur_price)/2;
+			}
+			$$fore_price=$cur_price;
 		}else{
 			#中午休市提示
 			if( $hour>= 11&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'AM'))){
@@ -617,10 +621,6 @@ sub _monitor_bought_stock{
 				 _report_code($code,$reportstr);
 			}
 		}
-		if(($cur_price+${$average})/2 != ${$average}){
-			${$average}=(${$average}+$cur_price)/2;
-		}
-		$$fore_price=$cur_price;
 	}
 }
 sub _init_code_monitor_info{
