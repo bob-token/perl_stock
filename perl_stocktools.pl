@@ -609,6 +609,8 @@ sub _monitor_bought_stock{
 				${$average}=(${$average}+$cur_price)/2;
 			}
 			$$fore_price=$cur_price;
+			printf("\naverage:$$average");
+			printf("\nfore_price:$$fore_price");
 		}else{
 			#中午休市提示
 			if( $hour>= 11&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'AM'))){
@@ -646,7 +648,7 @@ sub _monitor_bought_stocks{
 			my @info=_get_buy_code_info($code);
 			_monitor_bought_stock($info[0],$opt[$i++]);
 		}
-#		sleep 60;
+		sleep 60;
 	}
 }
 sub _DMI{
