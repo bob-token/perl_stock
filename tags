@@ -4,208 +4,208 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-AliveKeeper	.\pywapfetion\PyWapFetion\AliveKeeper.py	/^class AliveKeeper(Thread):$/;"	c
-AliveKeeper	.\pywapfetion\PyWapFetion\Fetion.py	/^            from AliveKeeper import AliveKeeper$/;"	i
-COM_filter_param	.\perl_common.pl	/^sub COM_filter_param{$/;"	s
-COM_get_cur_time	.\perl_common.pl	/^sub COM_get_cur_time{$/;"	s
-COM_get_fromcode	.\perl_common.pl	/^sub COM_get_fromcode{$/;"	s
-COM_get_page_content	.\perl_common.pl	/^sub COM_get_page_content{$/;"	s
-COM_is_earlier_than	.\perl_common.pl	/^sub COM_is_earlier_than{$/;"	s
-COM_is_same_day	.\perl_common.pl	/^sub COM_is_same_day{$/;"	s
-COM_is_valid_attribute	.\perl_common.pl	/^sub COM_is_valid_attribute{$/;"	s
-COM_today	.\perl_common.pl	/^sub COM_today{$/;"	s
-Cache	.\pywapfetion\PyWapFetion\Cache.py	/^class Cache(object):$/;"	c
-Cache	.\pywapfetion\PyWapFetion\Fetion.py	/^from Cache import Cache$/;"	i
-Check	.\pywapfetion\WapFetion.py	/^def Check(bool):$/;"	f
-CookieJar	.\pywapfetion\PyWapFetion\Fetion.py	/^from cookielib import CookieJar$/;"	i
-DBT_get_closing_price	.\perl_database_tools.pl	/^sub DBT_get_closing_price{$/;"	s
-DBT_get_earlier_exchange_days	.\perl_database_tools.pl	/^sub DBT_get_earlier_exchange_days{$/;"	s
-DBT_get_exchange_info	.\perl_database_tools.pl	/^sub DBT_get_exchange_info{$/;"	s
-DBT_get_next_date_closing_price	.\perl_database_tools.pl	/^sub DBT_get_next_date_closing_price{$/;"	s
-DBT_get_next_exchange_day	.\perl_database_tools.pl	/^sub DBT_get_next_exchange_day{$/;"	s
-DBT_get_season_exchage_days	.\perl_database_tools.pl	/^sub DBT_get_season_exchage_days{$/;"	s
-Fetion	.\pywapfetion\PyWapFetion\Fetion.py	/^class Fetion(object):$/;"	c
-Fetion	.\pywapfetion\PyWapFetion\__init__.py	/^from Fetion import Fetion$/;"	i
-Fetion	.\pywapfetion\WapFetion.py	/^from PyWapFetion import Fetion$/;"	i
-FetionNotLogin	.\pywapfetion\PyWapFetion\Errors.py	/^class FetionNotLogin(Exception):$/;"	c
-FetionNotYourFriend	.\pywapfetion\PyWapFetion\Errors.py	/^class FetionNotYourFriend(Exception):$/;"	c
-GzipFile	.\pywapfetion\PyWapFetion\Fetion.py	/^from gzip import GzipFile$/;"	i
-HTTPCookieProcessor	.\pywapfetion\PyWapFetion\Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
-HTTPHandler	.\pywapfetion\PyWapFetion\Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
-MSH_CreateDB	.\perl_database.pl	/^sub MSH_CreateDB{$/;"	s
-MSH_CreateTable	.\perl_database.pl	/^sub MSH_CreateTable{$/;"	s
-MSH_CreateTableIfNotExist	.\perl_database.pl	/^sub MSH_CreateTableIfNotExist{$/;"	s
-MSH_DropDB	.\perl_database.pl	/^sub MSH_DropDB{$/;"	s
-MSH_GetAllTablesName	.\perl_database.pl	/^sub MSH_GetAllTablesName{$/;"	s
-MSH_GetAllTablesName1	.\perl_database.pl	/^sub MSH_GetAllTablesName1{$/;"	s
-MSH_GetAllTablesNameArrary	.\perl_database.pl	/^sub MSH_GetAllTablesNameArrary{$/;"	s
-MSH_GetValue	.\perl_database.pl	/^sub MSH_GetValue{$/;"	s
-MSH_GetValueFirst	.\perl_database.pl	/^sub MSH_GetValueFirst{$/;"	s
-MSH_OpenDB	.\perl_database.pl	/^sub MSH_OpenDB{$/;"	s
-MSH_SetUniqueKey	.\perl_database.pl	/^sub MSH_SetUniqueKey{$/;"	s
-Password	.\pywapfetion\WapFetion.py	/^Password = getpass('')$/;"	v
-Phone	.\pywapfetion\WapFetion.py	/^Phone = raw_input('')$/;"	v
-PyWapFetion	.\pywapfetion\setup.py	/^import PyWapFetion$/;"	i
-Python2	.\pywapfetion\bobfetion.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
-Python2	.\pywapfetion\example.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
-Request	.\pywapfetion\PyWapFetion\Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
-SCOM_calc_income	.\perl_stockcommon.pl	/^sub SCOM_calc_income{$/;"	s
-SCOM_code_get_file_name	.\perl_stockcommon.pl	/^sub SCOM_code_get_file_name{$/;"	s
-SCOM_get_file_name	.\perl_stockcommon.pl	/^sub SCOM_get_file_name{$/;"	s
-SCOM_is_exchange_duration	.\perl_stockcommon.pl	/^sub SCOM_is_exchange_duration{$/;"	s
-SCOM_is_valid_code	.\perl_stockcommon.pl	/^sub SCOM_is_valid_code{$/;"	s
-SCOM_today_is_exchange_day	.\perl_stockcommon.pl	/^sub SCOM_today_is_exchange_day{$/;"	s
-SN_get_stock_cur_exchange_info	.\perl_stocknetwork.pl	/^sub SN_get_stock_cur_exchange_info{$/;"	s
-SN_get_stock_cur_price	.\perl_stocknetwork.pl	/^sub SN_get_stock_cur_price{$/;"	s
-Status	.\pywapfetion\WapFetion.py	/^Status = '4' if Status is '' or (Status.isdigit() and 0<int(2)<5) else Stauts$/;"	v
-Status	.\pywapfetion\WapFetion.py	/^Status = raw_input()$/;"	v
-StringIO	.\pywapfetion\PyWapFetion\Fetion.py	/^except:from StringIO import StringIO$/;"	i
-StringIO	.\pywapfetion\PyWapFetion\Fetion.py	/^try:from cStringIO import StringIO$/;"	i
-Thread	.\pywapfetion\PyWapFetion\AliveKeeper.py	/^from threading import Thread$/;"	i
-_AMI	.\perl_stocktools.pl	/^sub _AMI{$/;"	s
-_DEA	.\perl_stocktools.pl	/^sub _DEA{$/;"	s
-_DIFF	.\perl_stocktools.pl	/^sub _DIFF{$/;"	s
-_DMI	.\perl_stocktools.pl	/^sub _DMI{$/;"	s
-_D_OF_KDJ	.\perl_stocktools.pl	/^sub _D_OF_KDJ{$/;"	s
-_EMA	.\perl_stocktools.pl	/^sub _EMA{$/;"	s
-_J_OF_KDJ	.\perl_stocktools.pl	/^sub _J_OF_KDJ{$/;"	s
-_K_OF_KDJ	.\perl_stocktools.pl	/^sub _K_OF_KDJ{$/;"	s
-_MA	.\perl_stocktools.pl	/^sub _MA{$/;"	s
-_MACD	.\perl_stocktools.pl	/^sub _MACD{$/;"	s
-_MACD_DEALITTLETHAN	.\perl_stocktools.pl	/^sub _MACD_DEALITTLETHAN{$/;"	s
-_MACD_DIFFLITTLETHANZERO	.\perl_stocktools.pl	/^sub _MACD_DIFFLITTLETHANZERO{$/;"	s
-_RSV_OF_KDJ	.\perl_stocktools.pl	/^sub _RSV_OF_KDJ{$/;"	s
-_UCYE	.\perl_stock.pl	/^sub _UCYE{$/;"	s
-__all__	.\pywapfetion\PyWapFetion\AliveKeeper.py	/^__all__ = ['AliveKeeper']$/;"	v
-__all__	.\pywapfetion\PyWapFetion\Cache.py	/^__all__ = ['Cache']$/;"	v
-__all__	.\pywapfetion\PyWapFetion\Fetion.py	/^__all__ = ['Fetion']$/;"	v
-__author__	.\pywapfetion\PyWapFetion\__init__.py	/^__author__ = 'bob'$/;"	v
-__author__	.\pywapfetion\WapFetion.py	/^__author__ = 'bob'$/;"	v
-__doc__	.\pywapfetion\WapFetion.py	/^__doc__ = '基于PyWapFetion的CLI飞信客户端'$/;"	v
-__enter__	.\pywapfetion\PyWapFetion\Fetion.py	/^    __enter__ = lambda self:self$/;"	v	class:Fetion
-__init__	.\pywapfetion\PyWapFetion\AliveKeeper.py	/^    def __init__(self,fetion,sleeptime=240,Daemon=True,start=True):$/;"	m	class:AliveKeeper
-__init__	.\pywapfetion\PyWapFetion\Cache.py	/^    def __init__(self,path):$/;"	m	class:Cache
-__init__	.\pywapfetion\PyWapFetion\Fetion.py	/^    def __init__(self,mobile,password,status='4',cachefile='Fetion.cache',keepalive=False):$/;"	m	class:Fetion
-__license__	.\pywapfetion\PyWapFetion\__init__.py	/^__license__ = 'MIT'$/;"	v
-__license__	.\pywapfetion\WapFetion.py	/^__license__ = 'MIT'$/;"	v
-__name__	.\pywapfetion\PyWapFetion\__init__.py	/^__name__ = 'PyWapFetion'$/;"	v
-__name__	.\pywapfetion\WapFetion.py	/^__name__ = ''$/;"	v
-__setitem__	.\pywapfetion\PyWapFetion\Cache.py	/^    __setitem__        = lambda self,k,id:self.dict.__setitem__(k,id)$/;"	v	class:Cache
-__version__	.\pywapfetion\PyWapFetion\__init__.py	/^__version__ = '0.9'$/;"	v
-__website__	.\pywapfetion\PyWapFetion\__init__.py	/^__website__ = 'http:\/\/github.com\/bob\/PyWapFetion'$/;"	v
-_add_buy_code	.\perl_stocktools.pl	/^sub _add_buy_code{$/;"	s
-_add_buy_code_info	.\perl_stocktools.pl	/^sub _add_buy_code_info{$/;"	s
-_buy	.\perl_stocktools.pl	/^sub _buy{$/;"	s
-_clean_exchange_db	.\perl_stock.pl	/^sub _clean_exchange_db{$/;"	s
-_clear_stock_db	.\perl_stock.pl	/^sub _clear_stock_db{$/;"	s
-_construct_code_day_header	.\perl_stocktools.pl	/^sub _construct_code_day_header{$/;"	s
-_construct_code_header	.\perl_stocktools.pl	/^sub _construct_code_header{$/;"	s
-_create_stock_db	.\perl_stock.pl	/^sub _create_stock_db{$/;"	s
-_delete_buy_code	.\perl_stocktools.pl	/^sub _delete_buy_code{$/;"	s
-_get_all_bought_stocks	.\perl_stocktools.pl	/^sub _get_all_bought_stocks{$/;"	s
-_get_buy_code_info	.\perl_stocktools.pl	/^sub _get_buy_code_info{$/;"	s
-_get_code_monitor_info_file	.\perl_stocktools.pl	/^sub _get_code_monitor_info_file{$/;"	s
-_get_dir_modified_time	.\perl_backup.pl	/^sub _get_dir_modified_time{$/;"	s
-_get_exchange_info	.\perl_stocktools.pl	/^sub _get_exchange_info{$/;"	s
-_get_file_modified_time	.\perl_backup.pl	/^sub _get_file_modified_time{$/;"	s
-_get_flag	.\perl_stocktools.pl	/^sub _get_flag{$/;"	s
-_get_stock_base_info	.\perl_stock.pl	/^sub _get_stock_base_info{$/;"	s
-_get_stock_exchange	.\perl_stock.pl	/^sub _get_stock_exchange{$/;"	s
-_get_turnover	.\perl_stocktools.pl	/^sub _get_turnover{$/;"	s
-_getid	.\pywapfetion\PyWapFetion\Fetion.py	/^    def _getid(self,mobile):$/;"	m	class:Fetion
-_init_code_monitor_info	.\perl_stocktools.pl	/^sub _init_code_monitor_info{$/;"	s
-_is_exchange_info_loged	.\perl_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
-_is_today_loged	.\perl_stocktools.pl	/^sub _is_today_loged{$/;"	s
-_log	.\perl_stocktools.pl	/^sub _log{$/;"	s
-_login	.\pywapfetion\PyWapFetion\Fetion.py	/^    _login = lambda self:'登陆' in self.open('im\/login\/inputpasssubmit1.action',{'m':self.mobile,'pass':self.password,'loginstatus':self.status}) $/;"	v	class:Fetion
-_monitor_bought_stock	.\perl_stocktools.pl	/^sub _monitor_bought_stock{$/;"	s
-_monitor_bought_stocks	.\perl_stocktools.pl	/^sub _monitor_bought_stocks{$/;"	s
-_new_than	.\perl_backup.pl	/^sub _new_than{$/;"	s
-_open_stock_db	.\perl_stock.pl	/^sub _open_stock_db{$/;"	s
-_read_key_value	.\perl_stocktools.pl	/^sub _read_key_value{$/;"	s
-_report	.\perl_stocktools.pl	/^sub _report{$/;"	s
-_report_code	.\perl_stocktools.pl	/^sub _report_code{$/;"	s
-_select_codes	.\perl_stocktools.pl	/^sub _select_codes{$/;"	s
-_smart_update_stocks_exchange	.\perl_stock.pl	/^sub _smart_update_stocks_exchange{$/;"	s
-_turnover_get_codes	.\perl_stocktools.pl	/^sub _turnover_get_codes{$/;"	s
-_update_last_exchange	.\perl_stock.pl	/^sub _update_last_exchange{$/;"	s
-_update_stock_base_info	.\perl_stock.pl	/^sub _update_stock_base_info{$/;"	s
-_update_stock_code	.\perl_stock.pl	/^sub _update_stock_code{$/;"	s
-_update_stock_exchange	.\perl_stock.pl	/^sub _update_stock_exchange{$/;"	s
-_update_stock_status	.\perl_stocktools.pl	/^sub _update_stock_status{$/;"	s
-_update_stocks_base_info	.\perl_stock.pl	/^sub _update_stocks_base_info{$/;"	s
-_update_stocks_exchange	.\perl_stock.pl	/^sub _update_stocks_exchange{$/;"	s
-_write_key_value	.\perl_stocktools.pl	/^sub _write_key_value{$/;"	s
-addblacklist	.\pywapfetion\PyWapFetion\Fetion.py	/^    addblacklist = lambda self,id: '加入黑名单成功!' in self.open('im\/user\/Addblacklist.action?touserid=%s' % id)$/;"	v	class:Fetion
-alive	.\pywapfetion\PyWapFetion\Fetion.py	/^    alive = lambda self:'心情' in self.open('im\/index\/indexcenter.action')$/;"	v	class:Fetion
-allstatus	.\pywapfetion\example.py	/^allstatus=myfetion.getallusersstatus() #返回一个dict，格式{用户ID：用户状态}$/;"	v
-allusers	.\pywapfetion\example.py	/^allusers=myfetion.getallusers() #取得所有好友的*飞信ID*。返回一个tuple$/;"	v
-allusersinfo	.\pywapfetion\example.py	/^allusersinfo=myfetion.getallusersinfo()$/;"	v
-avatarfinder	.\pywapfetion\PyWapFetion\Fetion.py	/^avatarfinder = compile('<div class="mybox_info_pic"><a href="#"><img src="(.*?)"')$/;"	v
-backup	.\perl_backup.pl	/^sub backup{$/;"	s
-build_opener	.\pywapfetion\PyWapFetion\Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
-changeimpresa	.\pywapfetion\PyWapFetion\Fetion.py	/^    changeimpresa = lambda self,impresa: impresa in self.open('im\/user\/editimpresaSubmit.action',{'impresa':impresa})$/;"	v	class:Fetion
-checkmessage	.\pywapfetion\WapFetion.py	/^def checkmessage(Fetion):$/;"	f
-classifiers	.\pywapfetion\setup.py	/^classifiers = [$/;"	v
-clear	.\pywapfetion\WapFetion.py	/^clear = lambda :system("clear") if name is "posix" else system("cls")$/;"	v
-command	.\pywapfetion\WapFetion.py	/^    command = raw_input('Fetion>').split()$/;"	v
-compile	.\pywapfetion\PyWapFetion\Fetion.py	/^from re import compile$/;"	i
-deletefriend	.\pywapfetion\PyWapFetion\Fetion.py	/^    deletefriend = lambda self,id: '删除好友成功!' in self.open('im\/user\/deletefriendsubmit.action?touserid=%s' % id)$/;"	v	class:Fetion
-description	.\pywapfetion\setup.py	/^description = 'A simple python lib for WapFetion',$/;"	v
-dump	.\pywapfetion\PyWapFetion\Cache.py	/^from marshal import dump,load$/;"	i
-exit	.\pywapfetion\WapFetion.py	/^from sys import exit$/;"	i
-findid	.\pywapfetion\PyWapFetion\Fetion.py	/^    def findid(self,mobile):$/;"	m	class:Fetion
-getallusers	.\pywapfetion\PyWapFetion\Fetion.py	/^    def getallusers(self):$/;"	m	class:Fetion
-getallusersinfo	.\pywapfetion\PyWapFetion\Fetion.py	/^    getallusersinfo = lambda self: dict([[x,self.getuserinfo(x)] for x in self.getallusers()])$/;"	v	class:Fetion
-getallusersstatus	.\pywapfetion\PyWapFetion\Fetion.py	/^    getallusersstatus = lambda self: dict([[x,self.getuserstatus(x)] for x in self.getallusers()])$/;"	v	class:Fetion
-getgroups	.\pywapfetion\PyWapFetion\Fetion.py	/^    def getgroups(self):$/;"	m	class:Fetion
-getgroupusers	.\pywapfetion\PyWapFetion\Fetion.py	/^    def getgroupusers(self,groupid):$/;"	m	class:Fetion
-getmessage	.\pywapfetion\PyWapFetion\Fetion.py	/^    def getmessage(self):$/;"	m	class:Fetion
-getpass	.\pywapfetion\WapFetion.py	/^from getpass import getpass$/;"	i
-getuserinfo	.\pywapfetion\PyWapFetion\Fetion.py	/^    def getuserinfo(self,id):$/;"	m	class:Fetion
-getuserstatus	.\pywapfetion\PyWapFetion\Fetion.py	/^    def getuserstatus(self,id):$/;"	m	class:Fetion
-group_re	.\pywapfetion\PyWapFetion\Fetion.py	/^group_re = {$/;"	v
-groups	.\pywapfetion\example.py	/^groups=myfetion.getgroups()$/;"	v
-idfinder	.\pywapfetion\PyWapFetion\Fetion.py	/^idfinder = compile('touserid=(\\d*)')$/;"	v
-info	.\pywapfetion\example.py	/^info = myfetion.getuserinfo('飞信ID') $/;"	v
-infofinder	.\pywapfetion\PyWapFetion\Fetion.py	/^infofinder = compile('<dd>(.*?)<\/dd>')$/;"	v
-keywords	.\pywapfetion\setup.py	/^keywords = 'library mobile fetion',$/;"	v
-license	.\pywapfetion\setup.py	/^license = PyWapFetion.__license__,$/;"	v
-load	.\pywapfetion\PyWapFetion\Cache.py	/^from marshal import dump,load$/;"	i
-main	.\perl_backup.pl	/^sub main{$/;"	s
-main	.\perl_stock.pl	/^sub main{$/;"	s
-main	.\perl_stocktools.pl	/^sub main{$/;"	s
-markread	.\pywapfetion\PyWapFetion\Fetion.py	/^    markread = lambda self,id:' ' in self.open('im\/box\/deleteMessages.action',{'fromIdUser':id})$/;"	v	class:Fetion
-msg_re	.\pywapfetion\PyWapFetion\Fetion.py	/^msg_re = {$/;"	v
-myfetion	.\pywapfetion\example.py	/^myfetion = Fetion('手机号','密码')$/;"	v
-myfetion	.\pywapfetion\example.py	/^myfetion = Fetion('手机号','密码',keepalive=True)#自动保持状态$/;"	v
-name	.\pywapfetion\WapFetion.py	/^from os import system,name$/;"	i
-name	.\pywapfetion\setup.py	/^name = PyWapFetion.__name__,$/;"	v
-namefinder	.\pywapfetion\PyWapFetion\Fetion.py	/^namefinder = compile('<div class="mybox_info_text"><span>(.*?)<\/span>')$/;"	v
-open	.\pywapfetion\PyWapFetion\Fetion.py	/^    def open(self,url,data=''):$/;"	m	class:Fetion
-packages	.\pywapfetion\setup.py	/^packages = ['PyWapFetion'],$/;"	v
-printl	.\pywapfetion\WapFetion.py	/^def printl(msg,newline=True):$/;"	f
-relieveblack	.\pywapfetion\PyWapFetion\Fetion.py	/^    relieveblack = lambda self,id: '对不起,操作失败,请重新访问此页面' in self.open('im\/blackmanage\/relieveBlack.action?touserid=%s' % id)#我也不知道为什么操作成功它提示这个。。$/;"	v	class:Fetion
-run	.\pywapfetion\PyWapFetion\AliveKeeper.py	/^    def run(self):$/;"	m	class:AliveKeeper
-send	.\pywapfetion\PyWapFetion\__init__.py	/^def send(mobile,password,to,message):$/;"	f
-send2self	.\pywapfetion\PyWapFetion\__init__.py	/^def send2self(mobile,password,message):$/;"	f
-sendBYid	.\pywapfetion\PyWapFetion\Fetion.py	/^    def sendBYid(self,id,message,sm=False):$/;"	m	class:Fetion
-setup	.\pywapfetion\setup.py	/^from setuptools import setup$/;"	i
-sleep	.\pywapfetion\PyWapFetion\AliveKeeper.py	/^from time import sleep$/;"	i
-start_new_thread	.\pywapfetion\WapFetion.py	/^from thread import start_new_thread$/;"	i
-status	.\pywapfetion\example.py	/^status=myfetion.getuserstatus('ID') #返回一个str，内容为当前用户状态$/;"	v
-sys	.\pywapfetion\bobfetion.py	/^import sys$/;"	i
-system	.\pywapfetion\WapFetion.py	/^from os import system,name$/;"	i
-tweet	.\pywapfetion\PyWapFetion\Fetion.py	/^    tweet = lambda self,content:'成功' in self.open('space\/microblog\/create.action',{'content':content,'checkCode':'','from':'myspace'})$/;"	v	class:Fetion
-url	.\pywapfetion\setup.py	/^url = PyWapFetion.__website__,$/;"	v
-urlencode	.\pywapfetion\PyWapFetion\Fetion.py	/^from urllib import urlencode$/;"	i
-users	.\pywapfetion\example.py	/^users=myfetion.getgroupusers('1') #取得分组号为1的分组内所有好友的*飞信ID*。返回一个tuple$/;"	v
-userstatus	.\pywapfetion\PyWapFetion\Fetion.py	/^userstatus = compile('<a href="\/im\/user\/userinfoByuserid.action\\?touserid=\\d*&amp;.*?">.*?<\/a>\\[(.*?)\\]')$/;"	v
-version	.\pywapfetion\setup.py	/^version = PyWapFetion.__version__,$/;"	v
-with	.\pywapfetion\bobfetion.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
-with	.\pywapfetion\example.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
-with_statement	.\pywapfetion\PyWapFetion\Cache.py	/^from __future__ import with_statement$/;"	i
-with_statement	.\pywapfetion\PyWapFetion\__init__.py	/^from __future__ import with_statement$/;"	i
-with_statement	.\pywapfetion\bobfetion.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
-with_statement	.\pywapfetion\example.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
-zip_safe	.\pywapfetion\setup.py	/^zip_safe = True,$/;"	v
+AliveKeeper	pywapfetion/PyWapFetion/AliveKeeper.py	/^class AliveKeeper(Thread):$/;"	c
+AliveKeeper	pywapfetion/PyWapFetion/Fetion.py	/^            from AliveKeeper import AliveKeeper$/;"	i
+COM_filter_param	perl_common.pl	/^sub COM_filter_param{$/;"	s
+COM_get_cur_time	perl_common.pl	/^sub COM_get_cur_time{$/;"	s
+COM_get_fromcode	perl_common.pl	/^sub COM_get_fromcode{$/;"	s
+COM_get_page_content	perl_common.pl	/^sub COM_get_page_content{$/;"	s
+COM_is_earlier_than	perl_common.pl	/^sub COM_is_earlier_than{$/;"	s
+COM_is_same_day	perl_common.pl	/^sub COM_is_same_day{$/;"	s
+COM_is_valid_attribute	perl_common.pl	/^sub COM_is_valid_attribute{$/;"	s
+COM_today	perl_common.pl	/^sub COM_today{$/;"	s
+Cache	pywapfetion/PyWapFetion/Cache.py	/^class Cache(object):$/;"	c
+Cache	pywapfetion/PyWapFetion/Fetion.py	/^from Cache import Cache$/;"	i
+Check	pywapfetion/WapFetion.py	/^def Check(bool):$/;"	f
+CookieJar	pywapfetion/PyWapFetion/Fetion.py	/^from cookielib import CookieJar$/;"	i
+DBT_get_closing_price	perl_database_tools.pl	/^sub DBT_get_closing_price{$/;"	s
+DBT_get_earlier_exchange_days	perl_database_tools.pl	/^sub DBT_get_earlier_exchange_days{$/;"	s
+DBT_get_exchange_info	perl_database_tools.pl	/^sub DBT_get_exchange_info{$/;"	s
+DBT_get_next_date_closing_price	perl_database_tools.pl	/^sub DBT_get_next_date_closing_price{$/;"	s
+DBT_get_next_exchange_day	perl_database_tools.pl	/^sub DBT_get_next_exchange_day{$/;"	s
+DBT_get_season_exchage_days	perl_database_tools.pl	/^sub DBT_get_season_exchage_days{$/;"	s
+Fetion	pywapfetion/PyWapFetion/Fetion.py	/^class Fetion(object):$/;"	c
+Fetion	pywapfetion/PyWapFetion/__init__.py	/^from Fetion import Fetion$/;"	i
+Fetion	pywapfetion/WapFetion.py	/^from PyWapFetion import Fetion$/;"	i
+FetionNotLogin	pywapfetion/PyWapFetion/Errors.py	/^class FetionNotLogin(Exception):$/;"	c
+FetionNotYourFriend	pywapfetion/PyWapFetion/Errors.py	/^class FetionNotYourFriend(Exception):$/;"	c
+GzipFile	pywapfetion/PyWapFetion/Fetion.py	/^from gzip import GzipFile$/;"	i
+HTTPCookieProcessor	pywapfetion/PyWapFetion/Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
+HTTPHandler	pywapfetion/PyWapFetion/Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
+MSH_CreateDB	perl_database.pl	/^sub MSH_CreateDB{$/;"	s
+MSH_CreateTable	perl_database.pl	/^sub MSH_CreateTable{$/;"	s
+MSH_CreateTableIfNotExist	perl_database.pl	/^sub MSH_CreateTableIfNotExist{$/;"	s
+MSH_DropDB	perl_database.pl	/^sub MSH_DropDB{$/;"	s
+MSH_GetAllTablesName	perl_database.pl	/^sub MSH_GetAllTablesName{$/;"	s
+MSH_GetAllTablesName1	perl_database.pl	/^sub MSH_GetAllTablesName1{$/;"	s
+MSH_GetAllTablesNameArrary	perl_database.pl	/^sub MSH_GetAllTablesNameArrary{$/;"	s
+MSH_GetValue	perl_database.pl	/^sub MSH_GetValue{$/;"	s
+MSH_GetValueFirst	perl_database.pl	/^sub MSH_GetValueFirst{$/;"	s
+MSH_OpenDB	perl_database.pl	/^sub MSH_OpenDB{$/;"	s
+MSH_SetUniqueKey	perl_database.pl	/^sub MSH_SetUniqueKey{$/;"	s
+Password	pywapfetion/WapFetion.py	/^Password = getpass('')$/;"	v
+Phone	pywapfetion/WapFetion.py	/^Phone = raw_input('')$/;"	v
+PyWapFetion	pywapfetion/setup.py	/^import PyWapFetion$/;"	i
+Python2	pywapfetion/bobfetion.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
+Python2	pywapfetion/example.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
+Request	pywapfetion/PyWapFetion/Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
+SCOM_calc_income	perl_stockcommon.pl	/^sub SCOM_calc_income{$/;"	s
+SCOM_code_get_file_name	perl_stockcommon.pl	/^sub SCOM_code_get_file_name{$/;"	s
+SCOM_get_file_name	perl_stockcommon.pl	/^sub SCOM_get_file_name{$/;"	s
+SCOM_is_exchange_duration	perl_stockcommon.pl	/^sub SCOM_is_exchange_duration{$/;"	s
+SCOM_is_valid_code	perl_stockcommon.pl	/^sub SCOM_is_valid_code{$/;"	s
+SCOM_today_is_exchange_day	perl_stockcommon.pl	/^sub SCOM_today_is_exchange_day{$/;"	s
+SN_get_stock_cur_exchange_info	perl_stocknetwork.pl	/^sub SN_get_stock_cur_exchange_info{$/;"	s
+SN_get_stock_cur_price	perl_stocknetwork.pl	/^sub SN_get_stock_cur_price{$/;"	s
+Status	pywapfetion/WapFetion.py	/^Status = '4' if Status is '' or (Status.isdigit() and 0<int(2)<5) else Stauts$/;"	v
+Status	pywapfetion/WapFetion.py	/^Status = raw_input()$/;"	v
+StringIO	pywapfetion/PyWapFetion/Fetion.py	/^except:from StringIO import StringIO$/;"	i
+StringIO	pywapfetion/PyWapFetion/Fetion.py	/^try:from cStringIO import StringIO$/;"	i
+Thread	pywapfetion/PyWapFetion/AliveKeeper.py	/^from threading import Thread$/;"	i
+_AMI	perl_stocktools.pl	/^sub _AMI{$/;"	s
+_DEA	perl_stocktools.pl	/^sub _DEA{$/;"	s
+_DIFF	perl_stocktools.pl	/^sub _DIFF{$/;"	s
+_DMI	perl_stocktools.pl	/^sub _DMI{$/;"	s
+_D_OF_KDJ	perl_stocktools.pl	/^sub _D_OF_KDJ{$/;"	s
+_EMA	perl_stocktools.pl	/^sub _EMA{$/;"	s
+_J_OF_KDJ	perl_stocktools.pl	/^sub _J_OF_KDJ{$/;"	s
+_K_OF_KDJ	perl_stocktools.pl	/^sub _K_OF_KDJ{$/;"	s
+_MA	perl_stocktools.pl	/^sub _MA{$/;"	s
+_MACD	perl_stocktools.pl	/^sub _MACD{$/;"	s
+_MACD_DEALITTLETHAN	perl_stocktools.pl	/^sub _MACD_DEALITTLETHAN{$/;"	s
+_MACD_DIFFLITTLETHANZERO	perl_stocktools.pl	/^sub _MACD_DIFFLITTLETHANZERO{$/;"	s
+_RSV_OF_KDJ	perl_stocktools.pl	/^sub _RSV_OF_KDJ{$/;"	s
+_UCYE	perl_stock.pl	/^sub _UCYE{$/;"	s
+__all__	pywapfetion/PyWapFetion/AliveKeeper.py	/^__all__ = ['AliveKeeper']$/;"	v
+__all__	pywapfetion/PyWapFetion/Cache.py	/^__all__ = ['Cache']$/;"	v
+__all__	pywapfetion/PyWapFetion/Fetion.py	/^__all__ = ['Fetion']$/;"	v
+__author__	pywapfetion/PyWapFetion/__init__.py	/^__author__ = 'bob'$/;"	v
+__author__	pywapfetion/WapFetion.py	/^__author__ = 'bob'$/;"	v
+__doc__	pywapfetion/WapFetion.py	/^__doc__ = '基于PyWapFetion的CLI飞信客户端'$/;"	v
+__enter__	pywapfetion/PyWapFetion/Fetion.py	/^    __enter__ = lambda self:self$/;"	v	class:Fetion
+__init__	pywapfetion/PyWapFetion/AliveKeeper.py	/^    def __init__(self,fetion,sleeptime=240,Daemon=True,start=True):$/;"	m	class:AliveKeeper
+__init__	pywapfetion/PyWapFetion/Cache.py	/^    def __init__(self,path):$/;"	m	class:Cache
+__init__	pywapfetion/PyWapFetion/Fetion.py	/^    def __init__(self,mobile,password,status='4',cachefile='Fetion.cache',keepalive=False):$/;"	m	class:Fetion
+__license__	pywapfetion/PyWapFetion/__init__.py	/^__license__ = 'MIT'$/;"	v
+__license__	pywapfetion/WapFetion.py	/^__license__ = 'MIT'$/;"	v
+__name__	pywapfetion/PyWapFetion/__init__.py	/^__name__ = 'PyWapFetion'$/;"	v
+__name__	pywapfetion/WapFetion.py	/^__name__ = ''$/;"	v
+__setitem__	pywapfetion/PyWapFetion/Cache.py	/^    __setitem__        = lambda self,k,id:self.dict.__setitem__(k,id)$/;"	v	class:Cache
+__version__	pywapfetion/PyWapFetion/__init__.py	/^__version__ = '0.9'$/;"	v
+__website__	pywapfetion/PyWapFetion/__init__.py	/^__website__ = 'http:\/\/github.com\/bob\/PyWapFetion'$/;"	v
+_add_buy_code	perl_stocktools.pl	/^sub _add_buy_code{$/;"	s
+_add_buy_code_info	perl_stocktools.pl	/^sub _add_buy_code_info{$/;"	s
+_buy	perl_stocktools.pl	/^sub _buy{$/;"	s
+_clean_exchange_db	perl_stock.pl	/^sub _clean_exchange_db{$/;"	s
+_clear_stock_db	perl_stock.pl	/^sub _clear_stock_db{$/;"	s
+_construct_code_day_header	perl_stocktools.pl	/^sub _construct_code_day_header{$/;"	s
+_construct_code_header	perl_stocktools.pl	/^sub _construct_code_header{$/;"	s
+_create_stock_db	perl_stock.pl	/^sub _create_stock_db{$/;"	s
+_delete_buy_code	perl_stocktools.pl	/^sub _delete_buy_code{$/;"	s
+_get_all_bought_stocks	perl_stocktools.pl	/^sub _get_all_bought_stocks{$/;"	s
+_get_buy_code_info	perl_stocktools.pl	/^sub _get_buy_code_info{$/;"	s
+_get_code_monitor_info_file	perl_stocktools.pl	/^sub _get_code_monitor_info_file{$/;"	s
+_get_dir_modified_time	perl_backup.pl	/^sub _get_dir_modified_time{$/;"	s
+_get_exchange_info	perl_stocktools.pl	/^sub _get_exchange_info{$/;"	s
+_get_file_modified_time	perl_backup.pl	/^sub _get_file_modified_time{$/;"	s
+_get_flag	perl_stocktools.pl	/^sub _get_flag{$/;"	s
+_get_stock_base_info	perl_stock.pl	/^sub _get_stock_base_info{$/;"	s
+_get_stock_exchange	perl_stock.pl	/^sub _get_stock_exchange{$/;"	s
+_get_turnover	perl_stocktools.pl	/^sub _get_turnover{$/;"	s
+_getid	pywapfetion/PyWapFetion/Fetion.py	/^    def _getid(self,mobile):$/;"	m	class:Fetion
+_init_code_monitor_info	perl_stocktools.pl	/^sub _init_code_monitor_info{$/;"	s
+_is_exchange_info_loged	perl_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
+_is_today_loged	perl_stocktools.pl	/^sub _is_today_loged{$/;"	s
+_log	perl_stocktools.pl	/^sub _log{$/;"	s
+_login	pywapfetion/PyWapFetion/Fetion.py	/^    _login = lambda self:'登陆' in self.open('im\/login\/inputpasssubmit1.action',{'m':self.mobile,'pass':self.password,'loginstatus':self.status}) $/;"	v	class:Fetion
+_monitor_bought_stock	perl_stocktools.pl	/^sub _monitor_bought_stock{$/;"	s
+_monitor_bought_stocks	perl_stocktools.pl	/^sub _monitor_bought_stocks{$/;"	s
+_new_than	perl_backup.pl	/^sub _new_than{$/;"	s
+_open_stock_db	perl_stock.pl	/^sub _open_stock_db{$/;"	s
+_read_key_value	perl_stocktools.pl	/^sub _read_key_value{$/;"	s
+_report	perl_stocktools.pl	/^sub _report{$/;"	s
+_report_code	perl_stocktools.pl	/^sub _report_code{$/;"	s
+_select_codes	perl_stocktools.pl	/^sub _select_codes{$/;"	s
+_smart_update_stocks_exchange	perl_stock.pl	/^sub _smart_update_stocks_exchange{$/;"	s
+_turnover_get_codes	perl_stocktools.pl	/^sub _turnover_get_codes{$/;"	s
+_update_last_exchange	perl_stock.pl	/^sub _update_last_exchange{$/;"	s
+_update_stock_base_info	perl_stock.pl	/^sub _update_stock_base_info{$/;"	s
+_update_stock_code	perl_stock.pl	/^sub _update_stock_code{$/;"	s
+_update_stock_exchange	perl_stock.pl	/^sub _update_stock_exchange{$/;"	s
+_update_stock_status	perl_stocktools.pl	/^sub _update_stock_status{$/;"	s
+_update_stocks_base_info	perl_stock.pl	/^sub _update_stocks_base_info{$/;"	s
+_update_stocks_exchange	perl_stock.pl	/^sub _update_stocks_exchange{$/;"	s
+_write_key_value	perl_stocktools.pl	/^sub _write_key_value{$/;"	s
+addblacklist	pywapfetion/PyWapFetion/Fetion.py	/^    addblacklist = lambda self,id: '加入黑名单成功!' in self.open('im\/user\/Addblacklist.action?touserid=%s' % id)$/;"	v	class:Fetion
+alive	pywapfetion/PyWapFetion/Fetion.py	/^    alive = lambda self:'心情' in self.open('im\/index\/indexcenter.action')$/;"	v	class:Fetion
+allstatus	pywapfetion/example.py	/^allstatus=myfetion.getallusersstatus() #返回一个dict，格式{用户ID：用户状态}$/;"	v
+allusers	pywapfetion/example.py	/^allusers=myfetion.getallusers() #取得所有好友的*飞信ID*。返回一个tuple$/;"	v
+allusersinfo	pywapfetion/example.py	/^allusersinfo=myfetion.getallusersinfo()$/;"	v
+avatarfinder	pywapfetion/PyWapFetion/Fetion.py	/^avatarfinder = compile('<div class="mybox_info_pic"><a href="#"><img src="(.*?)"')$/;"	v
+backup	perl_backup.pl	/^sub backup{$/;"	s
+build_opener	pywapfetion/PyWapFetion/Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
+changeimpresa	pywapfetion/PyWapFetion/Fetion.py	/^    changeimpresa = lambda self,impresa: impresa in self.open('im\/user\/editimpresaSubmit.action',{'impresa':impresa})$/;"	v	class:Fetion
+checkmessage	pywapfetion/WapFetion.py	/^def checkmessage(Fetion):$/;"	f
+classifiers	pywapfetion/setup.py	/^classifiers = [$/;"	v
+clear	pywapfetion/WapFetion.py	/^clear = lambda :system("clear") if name is "posix" else system("cls")$/;"	v
+command	pywapfetion/WapFetion.py	/^    command = raw_input('Fetion>').split()$/;"	v
+compile	pywapfetion/PyWapFetion/Fetion.py	/^from re import compile$/;"	i
+deletefriend	pywapfetion/PyWapFetion/Fetion.py	/^    deletefriend = lambda self,id: '删除好友成功!' in self.open('im\/user\/deletefriendsubmit.action?touserid=%s' % id)$/;"	v	class:Fetion
+description	pywapfetion/setup.py	/^description = 'A simple python lib for WapFetion',$/;"	v
+dump	pywapfetion/PyWapFetion/Cache.py	/^from marshal import dump,load$/;"	i
+exit	pywapfetion/WapFetion.py	/^from sys import exit$/;"	i
+findid	pywapfetion/PyWapFetion/Fetion.py	/^    def findid(self,mobile):$/;"	m	class:Fetion
+getallusers	pywapfetion/PyWapFetion/Fetion.py	/^    def getallusers(self):$/;"	m	class:Fetion
+getallusersinfo	pywapfetion/PyWapFetion/Fetion.py	/^    getallusersinfo = lambda self: dict([[x,self.getuserinfo(x)] for x in self.getallusers()])$/;"	v	class:Fetion
+getallusersstatus	pywapfetion/PyWapFetion/Fetion.py	/^    getallusersstatus = lambda self: dict([[x,self.getuserstatus(x)] for x in self.getallusers()])$/;"	v	class:Fetion
+getgroups	pywapfetion/PyWapFetion/Fetion.py	/^    def getgroups(self):$/;"	m	class:Fetion
+getgroupusers	pywapfetion/PyWapFetion/Fetion.py	/^    def getgroupusers(self,groupid):$/;"	m	class:Fetion
+getmessage	pywapfetion/PyWapFetion/Fetion.py	/^    def getmessage(self):$/;"	m	class:Fetion
+getpass	pywapfetion/WapFetion.py	/^from getpass import getpass$/;"	i
+getuserinfo	pywapfetion/PyWapFetion/Fetion.py	/^    def getuserinfo(self,id):$/;"	m	class:Fetion
+getuserstatus	pywapfetion/PyWapFetion/Fetion.py	/^    def getuserstatus(self,id):$/;"	m	class:Fetion
+group_re	pywapfetion/PyWapFetion/Fetion.py	/^group_re = {$/;"	v
+groups	pywapfetion/example.py	/^groups=myfetion.getgroups()$/;"	v
+idfinder	pywapfetion/PyWapFetion/Fetion.py	/^idfinder = compile('touserid=(\\d*)')$/;"	v
+info	pywapfetion/example.py	/^info = myfetion.getuserinfo('飞信ID') $/;"	v
+infofinder	pywapfetion/PyWapFetion/Fetion.py	/^infofinder = compile('<dd>(.*?)<\/dd>')$/;"	v
+keywords	pywapfetion/setup.py	/^keywords = 'library mobile fetion',$/;"	v
+license	pywapfetion/setup.py	/^license = PyWapFetion.__license__,$/;"	v
+load	pywapfetion/PyWapFetion/Cache.py	/^from marshal import dump,load$/;"	i
+main	perl_backup.pl	/^sub main{$/;"	s
+main	perl_stock.pl	/^sub main{$/;"	s
+main	perl_stocktools.pl	/^sub main{$/;"	s
+markread	pywapfetion/PyWapFetion/Fetion.py	/^    markread = lambda self,id:' ' in self.open('im\/box\/deleteMessages.action',{'fromIdUser':id})$/;"	v	class:Fetion
+msg_re	pywapfetion/PyWapFetion/Fetion.py	/^msg_re = {$/;"	v
+myfetion	pywapfetion/example.py	/^myfetion = Fetion('手机号','密码')$/;"	v
+myfetion	pywapfetion/example.py	/^myfetion = Fetion('手机号','密码',keepalive=True)#自动保持状态$/;"	v
+name	pywapfetion/WapFetion.py	/^from os import system,name$/;"	i
+name	pywapfetion/setup.py	/^name = PyWapFetion.__name__,$/;"	v
+namefinder	pywapfetion/PyWapFetion/Fetion.py	/^namefinder = compile('<div class="mybox_info_text"><span>(.*?)<\/span>')$/;"	v
+open	pywapfetion/PyWapFetion/Fetion.py	/^    def open(self,url,data=''):$/;"	m	class:Fetion
+packages	pywapfetion/setup.py	/^packages = ['PyWapFetion'],$/;"	v
+printl	pywapfetion/WapFetion.py	/^def printl(msg,newline=True):$/;"	f
+relieveblack	pywapfetion/PyWapFetion/Fetion.py	/^    relieveblack = lambda self,id: '对不起,操作失败,请重新访问此页面' in self.open('im\/blackmanage\/relieveBlack.action?touserid=%s' % id)#我也不知道为什么操作成功它提示这个。。$/;"	v	class:Fetion
+run	pywapfetion/PyWapFetion/AliveKeeper.py	/^    def run(self):$/;"	m	class:AliveKeeper
+send	pywapfetion/PyWapFetion/__init__.py	/^def send(mobile,password,to,message):$/;"	f
+send2self	pywapfetion/PyWapFetion/__init__.py	/^def send2self(mobile,password,message):$/;"	f
+sendBYid	pywapfetion/PyWapFetion/Fetion.py	/^    def sendBYid(self,id,message,sm=False):$/;"	m	class:Fetion
+setup	pywapfetion/setup.py	/^from setuptools import setup$/;"	i
+sleep	pywapfetion/PyWapFetion/AliveKeeper.py	/^from time import sleep$/;"	i
+start_new_thread	pywapfetion/WapFetion.py	/^from thread import start_new_thread$/;"	i
+status	pywapfetion/example.py	/^status=myfetion.getuserstatus('ID') #返回一个str，内容为当前用户状态$/;"	v
+sys	pywapfetion/bobfetion.py	/^import sys$/;"	i
+system	pywapfetion/WapFetion.py	/^from os import system,name$/;"	i
+tweet	pywapfetion/PyWapFetion/Fetion.py	/^    tweet = lambda self,content:'成功' in self.open('space\/microblog\/create.action',{'content':content,'checkCode':'','from':'myspace'})$/;"	v	class:Fetion
+url	pywapfetion/setup.py	/^url = PyWapFetion.__website__,$/;"	v
+urlencode	pywapfetion/PyWapFetion/Fetion.py	/^from urllib import urlencode$/;"	i
+users	pywapfetion/example.py	/^users=myfetion.getgroupusers('1') #取得分组号为1的分组内所有好友的*飞信ID*。返回一个tuple$/;"	v
+userstatus	pywapfetion/PyWapFetion/Fetion.py	/^userstatus = compile('<a href="\/im\/user\/userinfoByuserid.action\\?touserid=\\d*&amp;.*?">.*?<\/a>\\[(.*?)\\]')$/;"	v
+version	pywapfetion/setup.py	/^version = PyWapFetion.__version__,$/;"	v
+with	pywapfetion/bobfetion.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
+with	pywapfetion/example.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
+with_statement	pywapfetion/PyWapFetion/Cache.py	/^from __future__ import with_statement$/;"	i
+with_statement	pywapfetion/PyWapFetion/__init__.py	/^from __future__ import with_statement$/;"	i
+with_statement	pywapfetion/bobfetion.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
+with_statement	pywapfetion/example.py	/^from __future__ import with_statement #在Python2.5中使用with的话需要这么干$/;"	i
+zip_safe	pywapfetion/setup.py	/^zip_safe = True,$/;"	v

@@ -304,6 +304,7 @@ sub _select_codes{
 	}
 	while(<IN> ){
 		$code=$_;
+		my $code_info=();
 		chomp $code;
 		if(!$start){
 			next if(index(COM_get_fromcode(),$code)==-1);
@@ -314,6 +315,8 @@ sub _select_codes{
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
 		my $yesterday=$last_exchange_data_day[1];
+
+		$code_info=join(':',$code,$date);
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
 			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,$data_start_day,$date,-1.0);
@@ -324,7 +327,9 @@ sub _select_codes{
 			my $macd2=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[2]);
 			next if($macd1<$macd2);
 			print $code,":$date:MACD:$macd","\n";
-			push @codes,join(":",$code,$date,"MACD",$macd);
+			#push @codes,join(":",$code,$date,"MACD",$macd);
+			$code_info=join(":",$code_info,"MACD",$macd);
+
 		}
 		if($gflag_selectcode_kdj){
 			my $period=9;
@@ -338,11 +343,17 @@ sub _select_codes{
 			my $YD=_D_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
 			my $J=_J_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
 			print join(":",$code,$date,"K:",$K,"D:",$D,"J:",$J),"\n";
-			if($YK<= $YD and $K >= $D){
+		#	if($YK<= $YD and $K >= $D){
+			if($YK - $YD < $K - $D){
 				print join(":",$code,$date,"YK:",$YK,"YD:",$YD,"J:",$J),"\n";
-				push @codes,join(":",$code,$date,"K",$K,"D",$D,"J",$J);
+				#push @codes,join(":",$code,$date,"K",$K,"D",$D,"J",$J);
+				$code_info=join(":",$code_info,"K",$K,"D",$D,"J",$J);
+			}else{
+				next;
 			}
 		}
+
+		push @codes,$code_info;
 		last if(@codes >= $stock_cnt);
 	}
 	$dhe->disconnect;
