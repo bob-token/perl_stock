@@ -564,7 +564,7 @@ sub _monitor_bought_stock{
 	my ($code,$refarrar_monitor_info)=@_;
 	if($code){
 		my $tip_percent_average_diff=0.005;
-		my $tip_percent_fore_diff=0.006;
+		my $tip_percent_fore_diff=0.007;
 		my $cur_price=SN_get_stock_cur_price($code);
 		my $buyprice= _get_buy_code_info($code,'price');
 		my $stoploss = _get_buy_code_info($code,'stoploss');
@@ -598,13 +598,13 @@ sub _monitor_bought_stock{
 			my $average_diff=($cur_price-${$average})/$$average;
 			if(abs($average_diff)>=$tip_percent_average_diff){
 				$average_diff=sprintf("%.4f",$average_diff);
-				my $reportstr=_construct_code_day_header($code,'average_diff').":($buyprice:$cur_price:$income):average_diff:($average_diff))";
+				my $reportstr=_construct_code_day_header($code,'ave_dif').":($buyprice:$cur_price:$income):ave_dif:($average_diff))";
 				 _report_code($code,$reportstr);
 			}
 			my $fore_diff=($cur_price-${$fore_price})/$$fore_price;
 			if(abs($fore_diff)>=$tip_percent_fore_diff){
 				$fore_diff=sprintf("%.4f",$fore_diff);
-				my $reportstr=_construct_code_day_header($code,'fore_diff').":($buyprice:$cur_price:$income):fore_diff:($fore_diff))";
+				my $reportstr=_construct_code_day_header($code,'f_dif').":($buyprice:$cur_price:$income):f_dif:($fore_diff))";
 				 _report_code($code,$reportstr);
 			}
 					
