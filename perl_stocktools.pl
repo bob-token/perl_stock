@@ -659,7 +659,7 @@ sub _monitor_bought_stocks{
 			my @info=_get_buy_code_info($code);
 			_monitor_bought_stock($info[0],$opt[$i++]);
 		}
-		sleep 60;
+		sleep 30;
 	}
 }
 sub _DMI{
