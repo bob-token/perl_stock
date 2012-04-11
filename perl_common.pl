@@ -72,6 +72,9 @@ sub COM_is_valid_attribute{
 sub COM_get_page_content{
 	my ($url,$max_try_times)=@_;
     my $browser = LWP::UserAgent->new;
+	if(!$max_try_times){
+		$max_try_times=0;
+	}
     while(1){
             my $response = $browser->get($url);
             if($response->is_success and 'null' ne $response->content){

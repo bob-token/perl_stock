@@ -303,6 +303,11 @@ sub _select_codes{
 	if(COM_get_fromcode()){
 		$start=0;
 	}
+#	my $page=COM_get_page_content("http://vip.stock.finance.sina.com.cn/mkt/#hangye_GE002");
+#	open IN,'>',"page.txt";
+#	print IN $$page; 
+#	close IN;
+#	return ;
 	while(<IN> ){
 		$code=$_;
 		my $code_info=();
@@ -335,7 +340,6 @@ sub _select_codes{
 			print $code,":$date:MACD:$macd","\n";
 			#push @codes,join(":",$code,$date,"MACD",$macd);
 			$code_info=join(":",$code_info,"MACD",$macd);
-
 		}
 		if($gflag_selectcode_kdj){
 			my $period=9;
