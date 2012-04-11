@@ -298,6 +298,7 @@ sub _select_codes{
 	my $code;
 	my $start=1;
 	my $dhe=MSH_OpenDB($StockExDb);
+	my $dhi=MSH_OpenDB($StockInfoDb);
 	open(IN,"<",$StockCodeFile);
 	if(COM_get_fromcode()){
 		$start=0;
@@ -316,6 +317,8 @@ sub _select_codes{
 		$date=$last_exchange_data_day[0];
 		my $yesterday=$last_exchange_data_day[1];
 
+		my $liutongshizhi=DBT_get_exchange_market_value($code,$dhi);
+		next if($liutongshizhi>50000000000);
 		$code_info=join(':',$code,$date);
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
@@ -357,6 +360,7 @@ sub _select_codes{
 		last if(@codes >= $stock_cnt);
 	}
 	$dhe->disconnect;
+	$dhi->disconnect;
 	close IN;
 	return @codes;
 }
