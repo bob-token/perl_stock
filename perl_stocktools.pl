@@ -318,7 +318,7 @@ sub _select_codes{
 		my $yesterday=$last_exchange_data_day[1];
 
 		my $liutongshizhi=DBT_get_exchange_market_value($code,$dhi);
-		next if($liutongshizhi>50000000000);
+		next if($liutongshizhi>5000000000);
 		$code_info=join(':',$code,$date);
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
