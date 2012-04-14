@@ -575,6 +575,7 @@ sub _monitor_bought_stock{
 	my ($code,$refarrar_monitor_info)=@_;
 	if($code){
 		my $tip_percent_average_diff=0.005;
+		my $tip_percent_reported_diff=0.005;
 		my $tip_percent_fore_diff=0.007;
 		my $cur_price=SN_get_stock_cur_price($code);
 		my $buyprice= _get_buy_code_info($code,'price');
@@ -589,6 +590,7 @@ sub _monitor_bought_stock{
 		my $average=\@{$refarrar_monitor_info}[0];
 		my $max=\@{$refarrar_monitor_info}[1];
 		my $fore_price=\@{$refarrar_monitor_info}[2];
+		my $reported_price=\@{$refarrar_monitor_info}[3];
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
 		if (!SCOM_today_is_exchange_day()){
@@ -605,27 +607,40 @@ sub _monitor_bought_stock{
 			if($$fore_price==0){
 				$$fore_price=$cur_price;
 			}
+			if($$reported_price==0){
+				$$reported_price=$cur_price;
+			}
 			#ÌבÊ¾	
 			my $average_diff=($cur_price-${$average})/$$average;
 			if(abs($average_diff)>=$tip_percent_average_diff){
 				$average_diff=sprintf("%.4f",$average_diff);
 				my $reportstr=_construct_code_day_header($code,'ave_dif').":($buyprice:$cur_price:$income):ave_dif:($average_diff))";
 				 _report_code($code,$reportstr);
+				$$reported_price=$cur_price;
 			}
 			my $fore_diff=($cur_price-${$fore_price})/$$fore_price;
 			if(abs($fore_diff)>=$tip_percent_fore_diff){
 				$fore_diff=sprintf("%.4f",$fore_diff);
 				my $reportstr=_construct_code_day_header($code,'f_dif').":($buyprice:$cur_price:$income):f_dif:($fore_diff))";
 				 _report_code($code,$reportstr);
+				$$reported_price=$cur_price;
 			}
 					
 			if($stoploss>=$cur_price && ! _is_exchange_info_loged($code,_construct_code_day_header($code,'stoploss'))){
 				my $reportstr=_construct_code_day_header($code,'stoploss').":($buyprice:$cur_price:$income):stoploss:($stoploss)";
 				 _report_code($code,$reportstr);
+				$$reported_price=$cur_price;
 			}
 			if($K*$percent*($cur_price)<=$cur_price&& !_is_exchange_info_loged($code,_construct_code_header($code,"$K*importantprice"))){
 				my $reportstr=_construct_code_header($code,"$K*importantprice").":($buyprice:$cur_price:$income))";
 				 _report_code($code,$reportstr);
+				$$reported_price=$cur_price;
+			}
+			my $reported_price_diff=(($cur_price-$reported_price)/$reported_price);
+			if(abs($reported_price_diff)>$tip_percent_reported_diff){
+				my $reportstr=_construct_code_header($code,'rep_dif').":($buyprice:$cur_price:$income):rep_dif:$reported_price_diff";
+				 _report_code($code,$reportstr);
+				$$reported_price=$cur_price;
 			}
 			if(($cur_price+${$average})/2 != ${$average}){
 				${$average}=(${$average}+$cur_price)/2;
@@ -661,7 +676,7 @@ sub _monitor_bought_stocks{
 #init
 	foreach my $code(@codes){
 		#_init_code_monitor_info($code,\%gall_monitor_info);
-		my @info=[0,0,0];
+		my @info=[0,0,0,0];
 		push @opt,@info;
 	}
 	while(1){
@@ -670,7 +685,7 @@ sub _monitor_bought_stocks{
 			my @info=_get_buy_code_info($code);
 			_monitor_bought_stock($info[0],$opt[$i++]);
 		}
-		sleep 30;
+		sleep 10;
 	}
 }
 sub _DMI{
