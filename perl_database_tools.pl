@@ -77,7 +77,7 @@ sub DBT_get_closing_price{
     my $condition="DATE=\"$date\"";
 	return MSH_GetValueFirst($dhe,$code,"SHOUPANJIA",$condition); 
 }
-sub DBT_get_exchange_market_value{
+sub DBT_get_exchange_stockts{
 	my $code=shift;
 	my $dhe=shift;
 	return MSH_GetValueFirst($dhe,$code,"LIUTONGGU"); 

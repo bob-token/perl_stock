@@ -21,7 +21,7 @@ CookieJar	.\pywapfetion\PyWapFetion\Fetion.py	/^from cookielib import CookieJar$
 DBT_get_closing_price	.\perl_database_tools.pl	/^sub DBT_get_closing_price{$/;"	s
 DBT_get_earlier_exchange_days	.\perl_database_tools.pl	/^sub DBT_get_earlier_exchange_days{$/;"	s
 DBT_get_exchange_info	.\perl_database_tools.pl	/^sub DBT_get_exchange_info{$/;"	s
-DBT_get_exchange_market_value	.\perl_database_tools.pl	/^sub DBT_get_exchange_market_value{$/;"	s
+DBT_get_exchange_stockts	.\perl_database_tools.pl	/^sub DBT_get_exchange_stockts{$/;"	s
 DBT_get_next_date_closing_price	.\perl_database_tools.pl	/^sub DBT_get_next_date_closing_price{$/;"	s
 DBT_get_next_exchange_day	.\perl_database_tools.pl	/^sub DBT_get_next_exchange_day{$/;"	s
 DBT_get_season_exchage_days	.\perl_database_tools.pl	/^sub DBT_get_season_exchage_days{$/;"	s
@@ -170,6 +170,7 @@ groups	.\pywapfetion\example.py	/^groups=myfetion.getgroups()$/;"	v
 idfinder	.\pywapfetion\PyWapFetion\Fetion.py	/^idfinder = compile('touserid=(\\d*)')$/;"	v
 info	.\pywapfetion\example.py	/^info = myfetion.getuserinfo('飞信ID') $/;"	v
 infofinder	.\pywapfetion\PyWapFetion\Fetion.py	/^infofinder = compile('<dd>(.*?)<\/dd>')$/;"	v
+initUserName	.\page.html	/^					function initUserName(){$/;"	f
 keywords	.\pywapfetion\setup.py	/^keywords = 'library mobile fetion',$/;"	v
 license	.\pywapfetion\setup.py	/^license = PyWapFetion.__license__,$/;"	v
 load	.\pywapfetion\PyWapFetion\Cache.py	/^from marshal import dump,load$/;"	i

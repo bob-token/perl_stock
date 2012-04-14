@@ -321,12 +321,16 @@ sub _select_codes{
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
 		my $yesterday=$last_exchange_data_day[1];
-
-		my $liutongshizhi=DBT_get_exchange_market_value($code,$dhi);
+		my $cur_price=SN_get_stock_cur_price($code);
+		my $liutongshizhi=$cur_price*DBT_get_exchange_stockts($code,$dhi);
 		#对流通市值做限制
 		my $billion=1000000000 ;
 		my $million=1000000 ;
-		next if($liutongshizhi>4*$billion or $liutongshizhi <40*$million);
+		 if($liutongshizhi>4*$billion or $liutongshizhi <40*$million){
+			 my $mb=sprintf("%.2f",$liutongshizhi/$billion);
+			 print "Skip $code:market value : $mb billion\n";
+			 next;
+		 }
 		$code_info=join(':',$code,$date);
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
