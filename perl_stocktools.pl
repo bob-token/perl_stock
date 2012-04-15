@@ -327,7 +327,7 @@ sub _select_codes{
 		my $billion=1000000000 ;
 		my $million=1000000 ;
 		 if($liutongshizhi>4*$billion or $liutongshizhi <40*$million){
-			 my $mb=sprintf("%.2f",$liutongshizhi/$billion);
+			 my $mb=sprintf("%.3f",$liutongshizhi/$billion);
 			 print "Skip $code:market value : $mb billion\n";
 			 next;
 		 }
