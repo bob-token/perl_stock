@@ -640,8 +640,9 @@ sub _monitor_bought_stock{
 				 _report_code($code,$reportstr);
 				$$reported_price=$cur_price;
 			}
-			my $reported_price_diff=(($cur_price-$reported_price)/$reported_price);
+			my $reported_price_diff=(($cur_price-$$reported_price)/$$reported_price);
 			if(abs($reported_price_diff)>$tip_percent_reported_diff){
+				$reported_price_diff=sprintf("%.4f",$reported_price_diff);
 				my $reportstr=_construct_code_header($code,'rep_dif').":($buyprice:$cur_price:$income):rep_dif:$reported_price_diff";
 				 _report_code($code,$reportstr);
 				$$reported_price=$cur_price;
@@ -652,6 +653,7 @@ sub _monitor_bought_stock{
 			$$fore_price=$cur_price;
 			printf("\naverage:$$average");
 			printf("\nfore_price:$$fore_price");
+			printf("\nreported_price:$$reported_price");
 		}else{
 			#中午休市提示
 			if( $hour>= 11&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'AM'))){
