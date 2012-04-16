@@ -695,46 +695,32 @@ sub _monitor_bought_stocks{
 	}
 }
 sub _DMI{
-	my @codea;
-	my @oldcodea;
-	my @newcodea;
-	open(IN,$monitor_code);
-	foreach my $tmp(<IN>){
-		chomp $tmp;
-		next if(!SCOM_is_valid_code($tmp));
-		push @oldcodea,$tmp;         
-	}
-	close IN;
-	while(my $code=shift @_){
-		chomp $code;
-		next if(!SCOM_is_valid_code($code));
-		push @codea,$code;
-	}
-	my $codea =join(' ',@codea);
-	open(OUT,'>',$monitor_code); 
-	foreach my $tmp(@oldcodea){
-		chomp $tmp;
-		if(index($codea,$tmp)==-1){
-			print OUT "\n";
-			print OUT $tmp;
-			print OUT @newcodea;
+	my $code=shift;
+	my @codes;
+#读取信息文件
+	if(open IN,"<",$monitor_code){
+		while(<IN>){
+			if(index($_,$code)==-1){
+				chomp $code;
+				push @codes,$_;
+			}
 		}
+		close IN;	
 	}
-	close OUT;
+#保存到文件
+	open OUT,">",$monitor_code;
+	syswrite(OUT,join("\n",@codes));
+	close OUT;	
 }
 sub _AMI{
 	my @codea;
-	while(my $code=shift @_ ){
-		next if(!SCOM_is_valid_code($code));
-		push @codea,$code;
-	}
-	if(@codea>0){
-		open(OUT,'>>',$monitor_code);
-		foreach my $tmp(@codea){
-			chomp $tmp;
-			syswrite(OUT,"\n");
-			syswrite(OUT,$tmp);
-		}
+	my ($code)=@_;
+	if(SCOM_is_valid_code($code)){
+		chomp $code;
+		_DMI($code);
+		open OUT,">>",$monitor_code;
+		syswrite(OUT,"\n");
+		syswrite(OUT,$code);
 		close OUT;
 	}
 }
