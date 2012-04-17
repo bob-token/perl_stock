@@ -418,12 +418,14 @@ sub _get_buy_code_info{
 	return undef;
 }
 sub _delete_buy_code{
-	my $code=shift;
+	my ($code)=@_;
 	my @buycodes;
 #读取信息文件
 	if(open IN,"<",$BuyStockCode){
 		while(<IN>){
-			if(index($_,$code)!=0){
+			chomp $_;
+			my @info=split(':',$_);
+			if(@info && SCOM_is_valid_code($info[0]) && index($_,$code)!=0){
 				push @buycodes,$_;
 			}
 		}
@@ -439,8 +441,8 @@ sub _add_buy_code_info{
 	my $order=join(':',@codeinfo);
 #保存到文件
 	open OUT,">>",$BuyStockCode;
-	syswrite(OUT,$order);
 	syswrite(OUT,"\n");
+	syswrite(OUT,$order);
 	close OUT;	
 	return 1;
 }
@@ -656,12 +658,12 @@ sub _monitor_bought_stock{
 			printf("\nreported_price:$$reported_price");
 		}else{
 			#中午休市提示
-			if( $hour>= 11&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'AM'))){
+			if( $hour >=11&& $hour <13&&!_is_exchange_info_loged($code,_construct_code_day_header($code,'AM'))){
 				my $reportstr=_construct_code_day_header($code,'AM').":($buyprice:$cur_price:$income)";
 				 _report_code($code,$reportstr);
 			}
 			#下午休市提示
-			if($hour>=15&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'PM'))){
+			if( $hour >=15&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'PM'))){
 				my $reportstr=_construct_code_day_header($code,'PM').":($buyprice:$cur_price:$income)";
 				 _report_code($code,$reportstr);
 			}
@@ -700,8 +702,8 @@ sub _DMI{
 #读取信息文件
 	if(open IN,"<",$monitor_code){
 		while(<IN>){
-			if(index($_,$code)==-1){
-				chomp $code;
+			chomp $_;
+			if(SCOM_is_valid_code($_) && index($_,$code)==-1){
 				push @codes,$_;
 			}
 		}
