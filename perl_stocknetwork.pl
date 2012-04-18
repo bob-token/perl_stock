@@ -1,5 +1,11 @@
 
 $|=1;
+sub SN_get_stock_last_close_price{
+  if(my @info=SN_get_stock_cur_exchange_info(shift)){
+    return $info[2];
+  }
+  return undef;
+} 
 sub SN_get_stock_cur_price{
   if(my @info=SN_get_stock_cur_exchange_info(shift)){
     return $info[3];

@@ -604,6 +604,17 @@ sub _monitor_bought_stock{
 		}
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
+			if($cur_price==0){
+				 my $last_close_price=SN_get_stock_last_close_price($code);
+				 $income= SCOM_calc_income($code,$buyprice,$last_close_price,$total);
+				 $income=sprintf("%.2f",$income);
+				if( !_is_exchange_info_loged($code,_construct_code_day_header($code,'suspension'))){
+					my $reportstr=_construct_code_day_header($code,'suspension').":($buyprice:$last_close_price:$income)";
+					 _report_code($code,$reportstr);
+					$$reported_price=$cur_price;
+				}
+				return;
+			}
 			if($$max <$cur_price){
 			   $$max=$cur_price;	
 			}
