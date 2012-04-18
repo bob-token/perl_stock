@@ -815,6 +815,11 @@ END
 			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
 					_DMI($code);
 					_delete_buy_code($code);
+					#É¾³ýlogÐÅÏ¢
+					my $log=_get_code_monitor_info_file($code,'log');
+					if($log){
+						unlink($log);
+					}
 			}
 		}
 		#list buy stock
