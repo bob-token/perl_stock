@@ -843,8 +843,19 @@ END
 		if ($opt =~ /-show\b/){
 			my $code;
 			my @info;
+			my $dhe=MSH_OpenDB($StockExDb);
 			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-				@info=_get_exchange_info($code,shift @ARGV,shift @ARGV);
+				my $from=shift @ARGV;
+				my $to=shift @ARGV;
+				my $date=COM_today(0);
+				my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,1);
+				if(!$from){
+					$from=$last_exchange_data_day[0];
+				}
+				if(!$to){
+					$to=$last_exchange_data_day[0];
+				}
+				@info=_get_exchange_info($code,$from,$to);
 				last;
 			}
 			print join("\n",@info);
