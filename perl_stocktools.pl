@@ -869,26 +869,19 @@ END
 		}
 		#select codes for exchange
 		if ($opt =~ /-select/){
-			my $tmp;
-			while($tmp=shift @ARGV){
-				if($tmp =~ /macd/){
-					$gflag_selectcode_macd=1;
-					next;
-				}
-				if($tmp =~ /kdj/){
-					$gflag_selectcode_kdj=1;
-					next;
-				}
-				if($tmp =~ /turnover/){
+			if(COM_get_property(\@ARGV,"turnover")){
 					$gflag_selectcode_turnover=1;
-					next;
-				}
-				unshift @ARGV,$tmp;
-				last;
+			}
+			if(COM_get_property(\@ARGV,"kdj")){
+					$gflag_selectcode_kdj=1;
+			}
+			if(COM_get_property(\@ARGV,"macd")){
+					$gflag_selectcode_macd=1;
 			}
 			my $total=20;
+			COM_get_property(\@ARGV,"total",\$total);
 			my @codes=_select_codes($StockCodeFile,$total);
-			print join("\n",@codes);
+			print join("\n","selected:",@codes);
 		}
         #turnover rate
         if($opt =~ /-tor/){

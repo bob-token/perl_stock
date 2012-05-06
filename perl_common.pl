@@ -26,6 +26,33 @@ $|=1;
 sub COM_get_fromcode{
 	return $g_fromcode;
 }
+sub COM_get_property{
+	my ($param,$key,$ref_value)=@_;
+	my @others;
+	my $assignment=':';
+	my $key_ass=$key.$assignment;
+	my $find=0;
+	while($param and $$param[0] and index($$param[0],'-')==-1 and my $opt=shift @$param ){
+		if(index($opt,$key_ass)!=-1 ){
+			my @property=split($assignment,$opt);
+			if ($ref_value){
+				$$ref_value=$property[1];
+			}
+			$find=1;
+			last;
+		}
+		if(index($opt,$key)!=-1 ){
+			if ($ref_value){
+				$$ref_value=();
+			}
+			$find=1;
+			last;
+		}
+		unshift @others,$opt;
+	}
+		unshift @$param,reverse(@others);
+		return $find;
+}
 sub COM_filter_param{
 	my ($param)=@_;
 	my @others;
