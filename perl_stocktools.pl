@@ -605,6 +605,10 @@ sub _monitor_bought_stock{
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($cur_price==0){
+				#检查上证的交易量
+				 if(SN_get_stock_cur_trading_volume("sh000001")==0){
+					return;
+				 }
 				 my $last_close_price=SN_get_stock_last_close_price($code);
 				 $income= SCOM_calc_income($code,$buyprice,$last_close_price,$total);
 				 $income=sprintf("%.2f",$income);

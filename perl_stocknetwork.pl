@@ -12,6 +12,12 @@ sub SN_get_stock_cur_price{
   }
   return undef;
 } 
+sub SN_get_stock_cur_trading_volume{
+  if(my @info=SN_get_stock_cur_exchange_info(shift)){
+    return $info[8];
+  }
+  return undef;
+}
 #0：”大秦铁路”，股票名字；
 #1：”27.55″，今日开盘价；
 #2：”27.25″，昨日收盘价；
