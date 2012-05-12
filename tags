@@ -60,6 +60,7 @@ SCOM_today_is_exchange_day	perl_stockcommon.pl	/^sub SCOM_today_is_exchange_day{
 SN_get_stock_cur_exchange_info	perl_stocknetwork.pl	/^sub SN_get_stock_cur_exchange_info{$/;"	s
 SN_get_stock_cur_price	perl_stocknetwork.pl	/^sub SN_get_stock_cur_price{$/;"	s
 SN_get_stock_last_close_price	perl_stocknetwork.pl	/^sub SN_get_stock_last_close_price{$/;"	s
+SN_get_stock_today_trading_volume	perl_stocknetwork.pl	/^sub SN_get_stock_today_trading_volume{$/;"	s
 Status	pywapfetion/WapFetion.py	/^Status = '4' if Status is '' or (Status.isdigit() and 0<int(2)<5) else Stauts$/;"	v
 Status	pywapfetion/WapFetion.py	/^Status = raw_input()$/;"	v
 StringIO	pywapfetion/PyWapFetion/Fetion.py	/^except:from StringIO import StringIO$/;"	i
