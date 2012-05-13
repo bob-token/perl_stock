@@ -609,7 +609,7 @@ sub _monitor_bought_stock{
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($cur_price==0){
 				#检查上证的交易量
-				 if(SN_get_stock_cur_trading_volume("sh000001")==0){
+				 if( SN_get_stock_today_trading_volume("sh000001")==0){
 					return;
 				 }
 				 my $last_close_price=SN_get_stock_last_close_price($code);
