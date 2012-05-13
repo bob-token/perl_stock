@@ -7,6 +7,7 @@
 AliveKeeper	pywapfetion/PyWapFetion/AliveKeeper.py	/^class AliveKeeper(Thread):$/;"	c
 AliveKeeper	pywapfetion/PyWapFetion/Fetion.py	/^            from AliveKeeper import AliveKeeper$/;"	i
 COM_filter_param	perl_common.pl	/^sub COM_filter_param{$/;"	s
+COM_get_command_line_property	perl_common.pl	/^sub COM_get_command_line_property{$/;"	s
 COM_get_cur_time	perl_common.pl	/^sub COM_get_cur_time{$/;"	s
 COM_get_fromcode	perl_common.pl	/^sub COM_get_fromcode{$/;"	s
 COM_get_page_content	perl_common.pl	/^sub COM_get_page_content{$/;"	s
@@ -97,8 +98,8 @@ __name__	pywapfetion/WapFetion.py	/^__name__ = ''$/;"	v
 __setitem__	pywapfetion/PyWapFetion/Cache.py	/^    __setitem__        = lambda self,k,id:self.dict.__setitem__(k,id)$/;"	v	class:Cache
 __version__	pywapfetion/PyWapFetion/__init__.py	/^__version__ = '0.9'$/;"	v
 __website__	pywapfetion/PyWapFetion/__init__.py	/^__website__ = 'http:\/\/github.com\/bob\/PyWapFetion'$/;"	v
-_add_buy_code	perl_stocktools.pl	/^sub _add_buy_code{$/;"	s
 _add_buy_code_info	perl_stocktools.pl	/^sub _add_buy_code_info{$/;"	s
+_add_property	perl_stocktools.pl	/^sub _add_property{$/;"	s
 _buy	perl_stocktools.pl	/^sub _buy{$/;"	s
 _clean_exchange_db	perl_stock.pl	/^sub _clean_exchange_db{$/;"	s
 _clear_stock_db	perl_stock.pl	/^sub _clear_stock_db{$/;"	s
@@ -127,6 +128,7 @@ _monitor_bought_stocks	perl_stocktools.pl	/^sub _monitor_bought_stocks{$/;"	s
 _new_than	perl_backup.pl	/^sub _new_than{$/;"	s
 _open_stock_db	perl_stock.pl	/^sub _open_stock_db{$/;"	s
 _read_key_value	perl_stocktools.pl	/^sub _read_key_value{$/;"	s
+_remove_property	perl_stocktools.pl	/^sub _remove_property{$/;"	s
 _report	perl_stocktools.pl	/^sub _report{$/;"	s
 _report_code	perl_stocktools.pl	/^sub _report_code{$/;"	s
 _select_codes	perl_stocktools.pl	/^sub _select_codes{$/;"	s

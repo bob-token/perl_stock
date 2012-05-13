@@ -18,6 +18,8 @@ our $gflag_selectcode_macd=0;
 our $gflag_selectcode_kdj=0;
 our $gflag_selectcode_turnover=0;
 our %gall_monitor_info=();
+our $code_property_separator='@';
+our $code_property_assignment=':';
 $|=1;
 
 # calculate moving average
@@ -326,7 +328,7 @@ sub _select_codes{
 		#对流通市值做限制
 		my $billion=1000000000 ;
 		my $million=1000000 ;
-		 if($liutongshizhi>4*$billion or $liutongshizhi <40*$million){
+		 if($liutongshizhi>15*$billion or $liutongshizhi <40*$million){
 			 my $mb=sprintf("%.3f",$liutongshizhi/$billion);
 			 print "Skip $code:market value : $mb billion\n";
 			 next;
@@ -380,42 +382,14 @@ sub _get_all_bought_stocks{
 #读取信息文件
 	open IN,"<",$BuyStockCode;
 	while(<IN>){
-		my @codeinfo=split(':',$_);
-		if(@codeinfo&&SCOM_is_valid_code($codeinfo[0])){
-			push @codes,$codeinfo[0];
+		my @codeinfo=split($code_property_separator,$_);
+		my $code;
+		if(@codeinfo and COM_get_property(\@codeinfo,'code',\$code) and SCOM_is_valid_code($code)){
+			push @codes,$code;
 		}
 	}
 	close IN;	
 	return @codes;
-}
-sub _get_buy_code_info{
-	my ($code,$flag)=@_;
-	my @info;
-#读取信息文件
-	open IN,"<",$BuyStockCode;
-	while(<IN>){
-		if(index($_,$code)==0){
-			@info=split(':',$_);
-		}
-	}
-	close IN;	
-	if(@info){
-		if(!$flag){
-			return @info;
-		}
-		if($flag =~/\bcode\b/){
-			return $info[0];	
-		}elsif($flag =~/\bprice\b/){
-			return $info[1];
-		}elsif($flag =~/\btotal\b/){
-			return $info[2];
-		}elsif($flag =~/\bstoploss\b/){
-			return $info[3];
-		}elsif($flag =~/\bimportantprice\b/){
-			return $info[4];
-		}
-	}
-	return undef;
 }
 sub _delete_buy_code{
 	my ($code)=@_;
@@ -424,8 +398,9 @@ sub _delete_buy_code{
 	if(open IN,"<",$BuyStockCode){
 		while(<IN>){
 			chomp $_;
-			my @info=split(':',$_);
-			if(@info && SCOM_is_valid_code($info[0]) && index($_,$code)!=0){
+			my @info=split($code_property_separator,$_);
+			my $value;
+			if(@info && COM_get_property(\@info,'code',\$value) && index($code,$value)!=0){
 				push @buycodes,$_;
 			}
 		}
@@ -438,7 +413,7 @@ sub _delete_buy_code{
 }
 sub _add_buy_code_info{
 	my (@codeinfo)=@_;
-	my $order=join(':',@codeinfo);
+	my $order=join($code_property_separator,@codeinfo);
 #保存到文件
 	open OUT,">>",$BuyStockCode;
 	syswrite(OUT,"\n");
@@ -446,31 +421,59 @@ sub _add_buy_code_info{
 	close OUT;	
 	return 1;
 }
-sub _add_buy_code{
-	my ($code,$price,$total,$stoploss)=@_;
-	my $order=$code.':'.$price.':'.$total.':'.$stoploss;
-#保存到文件
-	open OUT,">>",$BuyStockCode;
-	syswrite(OUT,$order);
-	syswrite(OUT,"\n");
-	close OUT;	
-	return 1;
+sub _get_buy_code_info{
+	my ($code,$flag)=@_;
+	my @info;
+#读取信息文件
+	open IN,"<",$BuyStockCode;
+	while(<IN>){
+		@info=split($code_property_separator,$_);
+		my $value;
+		if(@info && COM_get_property(\@info,'code',\$value) && index($code,$value)==0){
+			last;	
+		}
+	}
+	close IN;	
+
+	if(@info and !$flag){
+		return @info;
+	}
+	my $value;
+	if(COM_get_property(\@info,$flag,\$value)){
+		return $value;	
+	}
+	return undef;
+}
+sub _add_property{
+	my ($ref_info,$key,$value)=@_;
+	push @{$ref_info},join($code_property_assignment,$key,$value);	
+}
+sub _remove_property{
+	my ($ref_info,$key,$value)=@_;
+	if($ref_info and $key){
+		 COM_get_command_line_property(\@{$ref_info},$key);
+	}
 }
 sub _buy{
 	my ($code,$price,$total,$stoploss,$importantprice)=@_;
 	if(!$importantprice){
-		$importantprice=$price*1.05;#将止损点设在98%
+		$importantprice=$price*1.05;
 	}
 	if(!defined $stoploss){
 		$stoploss=$price*0.98;#将止损点设在98%
 	}
 	_delete_buy_code($code);
 	my @codeinfo;
-	push @codeinfo,$code;
-	push @codeinfo,$price;
-	push @codeinfo,$total;
-	push @codeinfo,$stoploss;
-	push @codeinfo,$importantprice;
+	#push @codeinfo,$code;
+	_add_property(\@codeinfo,'code',$code);
+	#push @codeinfo,$price;
+	_add_property(\@codeinfo,'price',$price);
+	#push @codeinfo,$total;
+	_add_property(\@codeinfo,'total',$total);
+	#push @codeinfo,$stoploss;
+	_add_property(\@codeinfo,'stoploss',$stoploss);
+	#push @codeinfo,$importantprice;
+	_add_property(\@codeinfo,'importantprice',$importantprice);
 	_AMI($code);
 	return _add_buy_code_info(@codeinfo);
 }
@@ -580,6 +583,9 @@ sub _update_stock_status{
 sub _monitor_bought_stock{
 	my ($code,$refarrar_monitor_info)=@_;
 	if($code){
+		if (!SCOM_today_is_exchange_day()){
+			return;
+		}
 		my $tip_percent_average_diff=0.005;
 		my $tip_percent_reported_diff=0.005;
 		my $tip_percent_fore_diff=0.007;
@@ -599,9 +605,6 @@ sub _monitor_bought_stock{
 		my $reported_price=\@{$refarrar_monitor_info}[3];
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
-		if (!SCOM_today_is_exchange_day()){
-			return;
-		}
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($cur_price==0){
@@ -705,8 +708,7 @@ sub _monitor_bought_stocks{
 	while(1){
 		my $i=0;
 		foreach my $code(@codes){
-			my @info=_get_buy_code_info($code);
-			_monitor_bought_stock($info[0],$opt[$i++]);
+			_monitor_bought_stock($code,$opt[$i++]);
 		}
 		sleep 10;
 	}
@@ -801,7 +803,7 @@ END
 			}
 			if(@tmpcodes){
 				foreach $code(@tmpcodes){
-					my @info=_get_buy_code_info($code);
+					my @info=_get_buy_code_info($code,'code');
 					if(@info){
 						push @codes,$code;		
 					}
@@ -873,17 +875,17 @@ END
 		}
 		#select codes for exchange
 		if ($opt =~ /-select/){
-			if(COM_get_property(\@ARGV,"turnover")){
+			if(COM_get_command_line_property(\@ARGV,"turnover")){
 					$gflag_selectcode_turnover=1;
 			}
-			if(COM_get_property(\@ARGV,"kdj")){
+			if(COM_get_command_line_property(\@ARGV,"kdj")){
 					$gflag_selectcode_kdj=1;
 			}
-			if(COM_get_property(\@ARGV,"macd")){
+			if(COM_get_command_line_property(\@ARGV,"macd")){
 					$gflag_selectcode_macd=1;
 			}
 			my $total=20;
-			COM_get_property(\@ARGV,"total",\$total);
+			COM_get_command_line_property(\@ARGV,"total",\$total);
 			my @codes=_select_codes($StockCodeFile,$total);
 			print join("\n","selected:",@codes);
 		}
