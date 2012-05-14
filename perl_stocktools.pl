@@ -336,7 +336,7 @@ sub _select_codes{
 		$code_info=join(':',$code,$date);
 		if($gflag_selectcode_macd){
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
-			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,$data_start_day,$date,-1.0);
+			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,$data_start_day,$date,1);
 			next if(!$macd);
 			my $macd1=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[1]);
 			#next if($macd < 0.03 || $macd <$macd1 );
