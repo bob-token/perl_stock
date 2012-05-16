@@ -504,7 +504,11 @@ sub _get_flag{
 }
 sub _sms{
 	my ($flag0,$flag1,$flag2,$flag3)=@_;
-	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 $flag2 \"$flag3\"");
+	if($flag3){
+		system("python2 pywapfetion/bobfetion.py $flag0 $flag1 $flag2 \"$flag3\"");
+	}else{
+		system("python2 pywapfetion/bobfetion.py $flag0 $flag1 \"$flag2\"");
+	}
 }
 sub _report_code{
 	my ($code,$msg)=@_;
@@ -512,16 +516,13 @@ sub _report_code{
 	my $flag0=_get_flag(0,"flag");
 	my $flag1=_get_flag(1,"flag");
 	my $flag2=_get_flag(2,"flag");
-	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 \"$msg\"");
+#	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 \"$msg\"");
+	_sms($flag0,$flag1,$msg);
+	_sms($flag0,$flag1,'13823510132',$msg);
 	if(index($code,'sh600199') !=-1){
 	#	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 $flag2 \"$msg\"");
 	}
 	_log( _get_code_monitor_info_file($code,'log'),$msg);
-}
-sub _report{
-	my $msg=shift;
-	printf $msg."\n";	
-	_log(COM_today(1),$msg);
 }
 sub _construct_code_day_header{
 	my ($code,$type)=@_;
