@@ -502,6 +502,10 @@ sub _get_flag{
 	chomp $r;
 	return $r;
 }
+sub _sms{
+	my ($flag0,$flag1,$flag2,$flag3)=@_;
+	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 $flag2 \"$flag3\"");
+}
 sub _report_code{
 	my ($code,$msg)=@_;
 	printf $msg."\n";	

@@ -5,4 +5,7 @@ import sys
 #仅作参考，详细了解请参考源码
 
 #快速发送：
-send2self(sys.argv[1],sys.argv[2],sys.argv[3])
+if len(sys.argv)==4:
+	send2self(sys.argv[1],sys.argv[2],sys.argv[3])
+elif len(sys.argv)==5:
+	send(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])
