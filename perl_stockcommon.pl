@@ -81,6 +81,8 @@ sub SCOM_code_get_file_name{
 		return "$code"."_log";		
 	}elsif($flag=~/\bstatus\b/){
 		return "$code"."_status";
+	}elsif($flag=~/\bcus_log\b/){
+		return "$code"."cus_log";
 	}
 	return undef;
 }
