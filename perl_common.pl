@@ -38,6 +38,7 @@ sub COM_get_property{
 			my @property=split($assignment,$opt);
 			if ($ref_value){
 				$$ref_value=$property[1];
+				chomp $$ref_value;
 			}
 			$find=1;
 			last;

@@ -135,8 +135,9 @@ sub _report_code{
 	my $flag1=_get_flag(1,"flag");
 	my $flag2=_get_flag(2,"flag");
 	my $cus_number=_get_cus_code_info($code,'call_number');
+#	chomp $cus_number;
 	if($cus_number){
-		_sms($flag0,$flag1,$cus_number,$msg);
+		_sms($flag0,$flag1,$cus_number,qq{$msg});
 	}
 	_log( _get_code_monitor_info_file($code,'log'),$msg);
 }
@@ -198,6 +199,10 @@ sub _monitor_cus_stock{
 		my $reported_price=\@{$refarrar_monitor_info}[3];
 		my $cur_price=SN_get_stock_cur_price($code);
 		#交易期间检测
+		#my $reported_price_diff=0;
+		#my $reportstr=_construct_code_header($code,'rep_dif').":($cur_price):rep_dif:($reported_price_diff)";
+		#_report_code($code,$reportstr);
+		#$$reported_price=$cur_price;
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			if($cur_price==0){
 				#检查上证的交易量
@@ -228,14 +233,14 @@ sub _monitor_cus_stock{
 			my $average_diff=($cur_price-${$average})/$$average;
 			if(abs($average_diff)>=$tip_percent_average_diff){
 				$average_diff=sprintf("%.4f",$average_diff);
-				my $reportstr=_construct_code_header($code,'ave_dif').":($cur_price):ave_dif:($average_diff))";
+				my $reportstr=_construct_code_header($code,'ave_dif').":($cur_price):ave_dif:($average_diff)";
 				 _report_code($code,$reportstr);
 				$$reported_price=$cur_price;
 			}
 			my $reported_price_diff=(($cur_price-$$reported_price)/$$reported_price);
 			if(abs($reported_price_diff)>$tip_percent_reported_diff){
 				$reported_price_diff=sprintf("%.4f",$reported_price_diff);
-				my $reportstr=_construct_code_header($code,'rep_dif').":($cur_price):rep_dif:$reported_price_diff";
+				my $reportstr=_construct_code_header($code,'rep_dif').":($cur_price):rep_dif:($reported_price_diff)";
 				 _report_code($code,$reportstr);
 				$$reported_price=$cur_price;
 			}
