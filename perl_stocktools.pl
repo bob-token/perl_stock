@@ -610,13 +610,11 @@ sub _monitor_bought_stock{
 		my $reported_price=\@{$refarrar_monitor_info}[3];
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
+		SCOM_is_suspension($code);
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
-			if($cur_price==0){
-				#检查上证的交易量
-				 if( SN_get_stock_today_trading_volume("sh000001")==0){
-					return;
-				 }
+			#为了减少SCOM_is_suspension函数的联网先判断$cur_price是否为0
+			if($cur_price==0 && SCOM_is_suspension($code)){
 				 my $last_close_price=SN_get_stock_last_close_price($code);
 				 $income= SCOM_calc_income($code,$buyprice,$last_close_price,$total);
 				 $income=sprintf("%.2f",$income);

@@ -56,10 +56,12 @@ SCOM_calc_income	.\perl_stockcommon.pl	/^sub SCOM_calc_income{$/;"	s
 SCOM_code_get_file_name	.\perl_stockcommon.pl	/^sub SCOM_code_get_file_name{$/;"	s
 SCOM_get_file_name	.\perl_stockcommon.pl	/^sub SCOM_get_file_name{$/;"	s
 SCOM_is_exchange_duration	.\perl_stockcommon.pl	/^sub SCOM_is_exchange_duration{$/;"	s
+SCOM_is_suspension	.\perl_stockcommon.pl	/^sub SCOM_is_suspension{$/;"	s
 SCOM_is_valid_code	.\perl_stockcommon.pl	/^sub SCOM_is_valid_code{$/;"	s
 SCOM_today_is_exchange_day	.\perl_stockcommon.pl	/^sub SCOM_today_is_exchange_day{$/;"	s
 SN_get_stock_cur_exchange_info	.\perl_stocknetwork.pl	/^sub SN_get_stock_cur_exchange_info{$/;"	s
 SN_get_stock_cur_price	.\perl_stocknetwork.pl	/^sub SN_get_stock_cur_price{$/;"	s
+SN_get_stock_first_buy_price	.\perl_stocknetwork.pl	/^sub SN_get_stock_first_buy_price{$/;"	s
 SN_get_stock_last_close_price	.\perl_stocknetwork.pl	/^sub SN_get_stock_last_close_price{$/;"	s
 SN_get_stock_today_trading_volume	.\perl_stocknetwork.pl	/^sub SN_get_stock_today_trading_volume{$/;"	s
 Status	.\pywapfetion\WapFetion.py	/^Status = '4' if Status is '' or (Status.isdigit() and 0<int(2)<5) else Stauts$/;"	v
@@ -128,7 +130,6 @@ _get_stock_base_info	.\perl_stock.pl	/^sub _get_stock_base_info{$/;"	s
 _get_stock_exchange	.\perl_stock.pl	/^sub _get_stock_exchange{$/;"	s
 _get_turnover	.\perl_stocktools.pl	/^sub _get_turnover{$/;"	s
 _getid	.\pywapfetion\PyWapFetion\Fetion.py	/^    def _getid(self,mobile):$/;"	m	class:Fetion
-_init_code_monitor_info	.\customer_stocktools.pl	/^sub _init_code_monitor_info{$/;"	s
 _init_code_monitor_info	.\perl_stocktools.pl	/^sub _init_code_monitor_info{$/;"	s
 _is_exchange_info_loged	.\customer_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
 _is_exchange_info_loged	.\perl_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
@@ -137,9 +138,9 @@ _is_today_loged	.\perl_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _log	.\customer_stocktools.pl	/^sub _log{$/;"	s
 _log	.\perl_stocktools.pl	/^sub _log{$/;"	s
 _login	.\pywapfetion\PyWapFetion\Fetion.py	/^    _login = lambda self:'登陆' in self.open('im\/login\/inputpasssubmit1.action',{'m':self.mobile,'pass':self.password,'loginstatus':self.status}) $/;"	v	class:Fetion
-_monitor_bought_stock	.\customer_stocktools.pl	/^sub _monitor_bought_stock{$/;"	s
 _monitor_bought_stock	.\perl_stocktools.pl	/^sub _monitor_bought_stock{$/;"	s
 _monitor_bought_stocks	.\perl_stocktools.pl	/^sub _monitor_bought_stocks{$/;"	s
+_monitor_cus_stock	.\customer_stocktools.pl	/^sub _monitor_cus_stock{$/;"	s
 _monitor_cus_stocks	.\customer_stocktools.pl	/^sub _monitor_cus_stocks{$/;"	s
 _new_than	.\perl_backup.pl	/^sub _new_than{$/;"	s
 _open_stock_db	.\perl_stock.pl	/^sub _open_stock_db{$/;"	s
@@ -157,7 +158,6 @@ _update_last_exchange	.\perl_stock.pl	/^sub _update_last_exchange{$/;"	s
 _update_stock_base_info	.\perl_stock.pl	/^sub _update_stock_base_info{$/;"	s
 _update_stock_code	.\perl_stock.pl	/^sub _update_stock_code{$/;"	s
 _update_stock_exchange	.\perl_stock.pl	/^sub _update_stock_exchange{$/;"	s
-_update_stock_status	.\customer_stocktools.pl	/^sub _update_stock_status{$/;"	s
 _update_stock_status	.\perl_stocktools.pl	/^sub _update_stock_status{$/;"	s
 _update_stocks_base_info	.\perl_stock.pl	/^sub _update_stocks_base_info{$/;"	s
 _update_stocks_exchange	.\perl_stock.pl	/^sub _update_stocks_exchange{$/;"	s

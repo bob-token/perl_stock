@@ -203,12 +203,10 @@ sub _monitor_cus_stock{
 		#my $reportstr=_construct_code_header($code,'rep_dif').":($cur_price):rep_dif:($reported_price_diff)";
 		#_report_code($code,$reportstr);
 		#$$reported_price=$cur_price;
+		SCOM_is_suspension($code);
 		if (SCOM_is_exchange_duration($hour,$minute)){
-			if($cur_price==0){
-				#检查上证的交易量
-				 if( SN_get_stock_today_trading_volume("sh000001")==0){
-					return;
-				 }
+			#为了减少SCOM_is_suspension函数的联网先判断$cur_price是否为0
+			if($cur_price==0 && SCOM_is_suspension($code)){
 				 my $last_close_price=SN_get_stock_last_close_price($code);
 				if( !_is_exchange_info_loged($code,_construct_code_day_header($code,'suspension'))){
 					my $reportstr=_construct_code_day_header($code,'suspension').":($last_close_price)";

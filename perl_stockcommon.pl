@@ -21,6 +21,9 @@
 use strict;
 use warnings;
 require "perl_common.pl";
+require "perl_stocknetwork.pl";
+our $suspension_stocks;
+
 $|=1;
 sub SCOM_is_valid_code{
     my $code =shift;
@@ -42,10 +45,22 @@ sub SCOM_today_is_exchange_day{
 	close IN;
 	return 1;
 }
+sub SCOM_is_suspension{
+	my $code=shift;
+	#检查上证的交易量
+	if(SCOM_is_valid_code($code) && SN_get_stock_today_trading_volume("sh000001")>0){
+		#检查买一价格
+		if(SN_get_stock_first_buy_price($code)==0){
+			return 1;
+		}
+		return 0;
+	}
+	return undef;
+}
 sub SCOM_is_exchange_duration{
 	my ($hour,$minute)=@_;
 	#上午9:20-11:20
-	if(9*60+30<= $hour*60+$minute &&11*60+30 >= $hour*60+$minute ){
+	if(9*60+25<= $hour*60+$minute &&11*60+30 >= $hour*60+$minute ){
 		return 1;
 	}
 	#下午13:00-15:00
