@@ -203,7 +203,6 @@ sub _monitor_cus_stock{
 		#my $reportstr=_construct_code_header($code,'rep_dif').":($cur_price):rep_dif:($reported_price_diff)";
 		#_report_code($code,$reportstr);
 		#$$reported_price=$cur_price;
-		SCOM_is_suspension($code);
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			#为了减少SCOM_is_suspension函数的联网先判断$cur_price是否为0
 			if($cur_price==0 && SCOM_is_suspension($code)){

@@ -610,7 +610,6 @@ sub _monitor_bought_stock{
 		my $reported_price=\@{$refarrar_monitor_info}[3];
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
-		SCOM_is_suspension($code);
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			#为了减少SCOM_is_suspension函数的联网先判断$cur_price是否为0
