@@ -613,14 +613,16 @@ sub _monitor_bought_stock{
 		#交易期间检测
 		if (SCOM_is_exchange_duration($hour,$minute)){
 			#为了减少SCOM_is_suspension函数的联网先判断$cur_price是否为0
-			if($cur_price==0 && SCOM_is_suspension($code)){
-				 my $last_close_price=SN_get_stock_last_close_price($code);
-				 $income= SCOM_calc_income($code,$buyprice,$last_close_price,$total);
-				 $income=sprintf("%.2f",$income);
-				if( !_is_exchange_info_loged($code,_construct_code_day_header($code,'suspension'))){
-					my $reportstr=_construct_code_day_header($code,'suspension').":($buyprice:$last_close_price:$income)";
-					 _report_code($code,$reportstr);
-					$$reported_price=$cur_price;
+			if($cur_price==0){
+				if( SCOM_is_suspension($code)){
+					 my $last_close_price=SN_get_stock_last_close_price($code);
+					 $income= SCOM_calc_income($code,$buyprice,$last_close_price,$total);
+					 $income=sprintf("%.2f",$income);
+					if( !_is_exchange_info_loged($code,_construct_code_day_header($code,'suspension'))){
+						my $reportstr=_construct_code_day_header($code,'suspension').":($buyprice:$last_close_price:$income)";
+						 _report_code($code,$reportstr);
+						$$reported_price=$cur_price;
+					}
 				}
 				return;
 			}
