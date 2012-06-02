@@ -17,7 +17,7 @@ our $monitor_code="monitor_stock_code.txt";
 our $gflag_selectcode_macd=0;
 our $gflag_selectcode_kdj=0;
 our $gflag_selectcode_turnover=0;
-our %gall_monitor_info=();
+our $gall_monitor_info={};
 our $code_property_separator='@';
 our $code_property_assignment=':';
 $|=1;
@@ -516,12 +516,8 @@ sub _report_code{
 	my $flag0=_get_flag(0,"flag");
 	my $flag1=_get_flag(1,"flag");
 	my $flag2=_get_flag(2,"flag");
-#	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 \"$msg\"");
 	_sms($flag0,$flag1,$msg);
 	_sms($flag0,$flag1,'13823510132',$msg);
-	if(index($code,'sh600199') !=-1){
-	#	system("python2 pywapfetion/bobfetion.py $flag0 $flag1 $flag2 \"$msg\"");
-	}
 	_log( _get_code_monitor_info_file($code,'log'),$msg);
 }
 sub _construct_code_day_header{
@@ -586,7 +582,7 @@ sub _update_stock_status{
 	}
 }
 sub _monitor_bought_stock{
-	my ($code,$refarrar_monitor_info)=@_;
+	my ($code,$ref_monitor_info)=@_;
 	if($code){
 		if (!SCOM_today_is_exchange_day()){
 			return;
@@ -604,10 +600,9 @@ sub _monitor_bought_stock{
 		my $hour=COM_get_cur_time('hour');
 		my $minute=COM_get_cur_time('minute');
 		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
-		my $average=\@{$refarrar_monitor_info}[0];
-		my $max=\@{$refarrar_monitor_info}[1];
-		my $fore_price=\@{$refarrar_monitor_info}[2];
-		my $reported_price=\@{$refarrar_monitor_info}[3];
+		my $average=\$ref_monitor_info->{average_price};
+		my $fore_price=\$ref_monitor_info->{fore_price};
+		my $reported_price=\$ref_monitor_info->{reported_price};
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
 		#交易期间检测
@@ -625,9 +620,6 @@ sub _monitor_bought_stock{
 					}
 				}
 				return;
-			}
-			if($$max <$cur_price){
-			   $$max=$cur_price;	
 			}
 			if(${$average}==0){
 				${$average}=$cur_price;
@@ -694,25 +686,22 @@ sub _monitor_bought_stock{
 }
 sub _init_code_monitor_info{
 	my ($code,$ref_all_monitor_info)=@_;
-	my %a=(
+	$ref_all_monitor_info->{$code}={
 		average_price =>0,
-		max_price =>0,
-	);	
-	%{$ref_all_monitor_info}={$code=>%a};
+		fore_price=>0,
+		reported_price=>0,
+	};	
 }
 sub _monitor_bought_stocks{
 	my (@codes)=@_;
-	my @opt=();
 #init
 	foreach my $code(@codes){
-		#_init_code_monitor_info($code,\%gall_monitor_info);
-		my @info=[0,0,0,0];
-		push @opt,@info;
+		_init_code_monitor_info($code,$gall_monitor_info);
 	}
 	while(1){
 		my $i=0;
 		foreach my $code(@codes){
-			_monitor_bought_stock($code,$opt[$i++]);
+			_monitor_bought_stock($code,$gall_monitor_info->{$code});
 		}
 		sleep 10;
 	}

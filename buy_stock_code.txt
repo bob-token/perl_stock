@@ -1,2 +1,1 @@
 code:sz002095@price:14.08@total:200@stoploss:13.7984@importantprice:14.784
-code:sh600780@price:6.8@total:100@stoploss:6.664@importantprice:7.14

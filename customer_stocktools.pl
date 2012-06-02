@@ -135,7 +135,6 @@ sub _report_code{
 	my $flag1=_get_flag(1,"flag");
 	my $flag2=_get_flag(2,"flag");
 	my $cus_number=_get_cus_code_info($code,'call_number');
-#	chomp $cus_number;
 	if($cus_number){
 		_sms($flag0,$flag1,$cus_number,qq{$msg});
 	}
