@@ -40,7 +40,7 @@ sub _open{
 		my $status = gunzip \$respone->content => \$out;
 		return $out;
 	}else{
-		print "Require fail:$fun_url","Reason:",$respone->status_line,"\r\n";
+		print "Require fail:$fun_url"," Reason:",$respone->status_line,"\r\n";
 	}
 	return undef;
 }
@@ -60,15 +60,6 @@ sub _login{
 	my $ret = &_open('im/login/inputpasssubmit1.action',['m' => $mobile,'pass' => $password, 'loginstatus' => $loginstatus]);
 	return _string_in("登录",$ret);
 }
-sub send2self {
-	my ($message,$time)=@_;
-	if ($time){
-		return _string_in('成功', _open('im/user/sendTimingMsgToMyselfs.action',['msg' => $message,'timing' => $time]));
-	}else{
-		return _string_in('成功', _open('im/user/sendMsgToMyselfs.action',['msg' => $message])) ;
-
-	}
-}
 sub _get_id_from_cache{
 	return undef;	
 } 
@@ -81,7 +72,7 @@ sub _get_id_from_serv{
 	return undef;
 }
  
-sub findid{
+sub _find_id{
 	my ($mobile) = @_;
 	my $id=_get_id_from_cache($mobile);
 	if (not $id){
@@ -89,7 +80,36 @@ sub findid{
 	}
     return $id; 
 }
-sub sendBYid{
+sub _mark_read {
+    my ($id)=@_;
+	_open('im/box/deleteMessages.action',['fromIdUser' => $id]);
+}
+sub _get_message{
+	my $web      = _open('im/box/alllist.action');
+	my $id_re 		 = qr(<a href="/im/chat/toinputMsg.action\?touserid=(\d*)&amp;);
+	my $name_re 	 = qr(<a href="/im/chat/toinputMsg.action\?touserid=[^"]*">([^/]*)</a>:);
+	my $content_re  = qr(<a href="/im/chat/toinputMsg.action\?touserid=[^"]*">[^/]*</a>:(.*?)<br/>);
+	my @ids=($web =~ m/$id_re/g );	
+	my @names=($web =~ m/$name_re/g );	
+	my @contents=($web =~ m/$content_re/g );	
+	my $msg;
+	my $i=0;
+	for($i=0;$i < @ids;$i++){
+		$msg->{$ids[$i]}->{name}=$names[$i];
+		$msg->{$ids[$i]}->{content}=$contents[$i];
+	}
+	return $msg;
+}
+sub PWF_Send2Self {
+	my ($message,$time)=@_;
+	if ($time){
+		return _string_in('成功', _open('im/user/sendTimingMsgToMyselfs.action',['msg' => $message,'timing' => $time]));
+	}else{
+		return _string_in('成功', _open('im/user/sendMsgToMyselfs.action',['msg' => $message])) ;
+
+	}
+}
+sub PWF_SendById{
 	my ($id,$message,$sm) = @_;
 	my $url;
 	if ($sm){
@@ -100,16 +120,43 @@ sub sendBYid{
 	my $htm = _open($url,['msg' => $message]);
 	return _string_in( '成功',$htm);
 }
-sub send2friend{
+sub PWF_Send2Friend{
 	my ($mobile,$message,$sm)=@_;
 	if ($mobile == $self->{mobile}){
-		return send2self($message);
+		return PWF_Send2Self($message);
 	}
-	return sendBYid(findid($mobile),$message,$sm);
+	return PWF_SendById(_find_id($mobile),$message,$sm);
+}
+sub _add_stock{
+	my ($code)=@_;
+	print "add sotck:$code","\r\n";
+}
+sub _delete_stock{
+	my ($code)=@_;
+	print "delete sotck:$code","\r\n";
+}
+sub _process_message{
+	my ($msg)=@_;
+	print "$msg->{name}:$msg->{content}","\r\n";
+	if($msg->{content} =~ m/添加股票(s[hz]\d{6})\b/){
+		_add_stock($1);
+	}elsif($msg->{content} =~ m/删除股票(s[hz]\d{6})\b/){
+		_delete_stock($1);
+	}
+	#&PWF_Send2Friend(15989589076,'你上飞信了没？');
 }
 sub main{
 	_login('13590216192','15989589076xhb','4');
-	&send2self('你上飞信了没？');
-	#&send2friend(15989589076,'你上飞信了没？');
+#	&PWF_Send2Self('你上飞信了没？');
+	#&PWF_Send2Friend(15989589076,'你上飞信了没？');
+	while(1){
+		if (my $msgs=_get_message()){
+			foreach my $id ( keys %$msgs ){
+				_process_message($msgs->{$id});
+				_mark_read($id);
+			}
+			sleep 1;
+		}
+	}
 }
 &main;
