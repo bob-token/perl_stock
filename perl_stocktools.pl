@@ -488,7 +488,7 @@ sub _log{
 	syswrite(OUT,$msg);
 	close OUT; 
 }
-sub _get_flag{
+sub COM_get_flag{
 	my ($flag,$flagfile)=@_;
 	open IN,"<",$flagfile;
 	my $i=0;
@@ -513,9 +513,9 @@ sub _sms{
 sub _report_code{
 	my ($code,$msg)=@_;
 	printf $msg."\n";	
-	my $flag0=_get_flag(0,"flag");
-	my $flag1=_get_flag(1,"flag");
-	my $flag2=_get_flag(2,"flag");
+	my $flag0=COM_get_flag(0,"flag");
+	my $flag1=COM_get_flag(1,"flag");
+	my $flag2=COM_get_flag(2,"flag");
 	_sms($flag0,$flag1,$msg);
 	_sms($flag0,$flag1,'13823510132',$msg);
 	_log( _get_code_monitor_info_file($code,'log'),$msg);

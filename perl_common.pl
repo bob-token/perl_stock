@@ -197,3 +197,17 @@ sub COM_today{
 		return join('',$year,$mon,$day);	
 	}
 }
+sub COM_get_flag{
+	my ($flag,$flagfile)=@_;
+	open IN,"<",$flagfile;
+	my $i=0;
+	my $r;
+	while(<IN>){
+		if($i++<=$flag){
+			$r=$_;
+		}
+	}
+	close IN;
+	chomp $r;
+	return $r;
+}
