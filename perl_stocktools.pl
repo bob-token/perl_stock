@@ -488,20 +488,6 @@ sub _log{
 	syswrite(OUT,$msg);
 	close OUT; 
 }
-sub COM_get_flag{
-	my ($flag,$flagfile)=@_;
-	open IN,"<",$flagfile;
-	my $i=0;
-	my $r;
-	while(<IN>){
-		if($i++<=$flag){
-			$r=$_;
-		}
-	}
-	close IN;
-	chomp $r;
-	return $r;
-}
 sub _sms{
 	my ($flag0,$flag1,$flag2,$flag3)=@_;
 	if($flag3){

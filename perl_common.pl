@@ -21,8 +21,21 @@
 use strict;
 use warnings;
 our $g_fromcode;
-
 $|=1;
+sub COM_get_string{
+	my ($flag)=@_;
+	if($flag =~ "code_property_separator"){
+		return "@";
+	}elsif($flag =~ "code_property_assignment"){
+		return ":";
+	}elsif($flag =~ "user_property_separator"){
+		return "@";
+	}elsif($flag =~ "user_property_assignment"){
+		return ":";
+	}
+
+	return undef;
+}
 sub COM_get_fromcode{
 	return $g_fromcode;
 }
