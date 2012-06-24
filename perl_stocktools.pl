@@ -759,7 +759,7 @@ sub main{
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
-		-select [macd][kdj][turnover]:select stock by some flag
+		-select [macd][kdj][turnover][total:]:select stock by some flag
 		-ufc <code> :from code
 		-buy <code> <price> <total> <stop loss order>:buy a stock 
 		-lb[code [code ..]]:list bought stock(s)

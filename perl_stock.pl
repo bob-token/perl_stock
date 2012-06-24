@@ -192,6 +192,7 @@ sub _update_stock_exchange{
 	}
 }
 sub _smart_update_stocks_exchange{
+		my @info=_get_stock_exchange('sh600000',2012,2);
 	my $dbh=_open_stock_db();
 	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
 	open(IN,shift);
