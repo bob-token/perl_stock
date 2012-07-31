@@ -70,12 +70,51 @@ sub DBT_get_season_exchage_days{
 	}
 	return undef;
 }
+sub DBT_get_min_price{
+	my @value;
+	my $code=shift;
+	my $date=shift;
+	my $dhe=shift;
+    my $condition="DATE=\"$date\"";
+	return MSH_GetValueFirst($dhe,$code,"ZUIDIJIA",$condition); 
+}
+sub DBT_get_max_price{
+	my @value;
+	my $code=shift;
+	my $date=shift;
+	my $dhe=shift;
+    my $condition="DATE=\"$date\"";
+	return MSH_GetValueFirst($dhe,$code,"ZUIGAOJIA",$condition); 
+}
+sub DBT_get_opening_price{
+	my @value;
+	my $code=shift;
+	my $date=shift;
+	my $dhe=shift;
+    my $condition="DATE=\"$date\"";
+	return MSH_GetValueFirst($dhe,$code,"KAIPANJIA",$condition); 
+}
 sub DBT_get_closing_price{
 	my $code=shift;
 	my $date=shift;
 	my $dhe=shift;
     my $condition="DATE=\"$date\"";
 	return MSH_GetValueFirst($dhe,$code,"SHOUPANJIA",$condition); 
+}
+sub DBT_get_rise{
+	my ($code,$dhe,$datefrom,$dateto)=@_;
+	my @earlier_datefroms=DBT_get_earlier_exchange_days($dhe,$code,$datefrom,2);
+	my $from_open_price = DBT_get_opening_price($code,$datefrom,$dhe);
+	#use fore-closing price
+	if (@earlier_datefroms){
+		$from_open_price  = DBT_get_closing_price($code,$earlier_datefroms[1],$dhe);
+	}
+	my $to_close_price = DBT_get_closing_price($code,$dateto,$dhe);
+	if ($from_open_price and $to_close_price){
+		my $rise = ($to_close_price - $from_open_price )/$from_open_price;
+		return $rise;
+	}
+	return 0;
 }
 sub DBT_get_exchange_stockts{
 	my $code=shift;

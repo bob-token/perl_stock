@@ -73,7 +73,7 @@ sub COM_get_command_line_property{
 	my $assignment=':';
 	my $key_ass=$key.$assignment;
 	my $find=0;
-	while($param and $$param[0] and index($$param[0],'-')==-1 and my $opt=shift @$param ){
+	while($param and $$param[0] and index($$param[0],' -')==-1 and my $opt=shift @$param ){
 		if(index($opt,$key_ass)!=-1 ){
 			my @property=split($assignment,$opt);
 			if ($ref_value){

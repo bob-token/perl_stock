@@ -14,6 +14,8 @@ our $BuyStockCode="buy_stock_code.txt";
 our $StockCodeFile="stock_code.txt";
 our $monitor_code="monitor_stock_code.txt";
 #选择股票代码的技术指标开关
+our $g_selectcode_date;
+our $gflag_selectcode_dig=0;
 our $gflag_selectcode_macd=0;
 our $gflag_selectcode_kdj=0;
 our $gflag_selectcode_turnover=0;
@@ -275,7 +277,7 @@ sub _turnover_get_codes{
 	    my $deh=MSH_OpenDB($StockExDb);
 	    my $dih=MSH_OpenDB($StockInfoDb);
 	    my $condition="DATE>=\"$datefrom\" && DATE<=\"$dateto\" ";
-	    my @code =MSH_GetAllTablesName1($deh);
+	    my @code =MSH_GetAllTablesName1($deh);	
 		my @codes;
 	    foreach my $code(@code){
 			my @date=MSH_GetValue($deh,$code,"DATE",$condition);
@@ -292,6 +294,16 @@ sub _turnover_get_codes{
 	    $deh->disconnect;
 	    $dih->disconnect;
 	return @codes;
+}
+sub _is_diging{
+	my ($dhe,$code,$date)=@_;
+	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
+	if(@days){
+		if(DBT_get_rise($code,$dhe,$days[1],$days[1]) < -0.04){
+			return 1;
+		}
+	}
+	return 0;
 }
 sub _select_codes{
 	my $stockcodefile=shift;
@@ -365,6 +377,11 @@ sub _select_codes{
 				#push @codes,join(":",$code,$date,"K",$K,"D",$D,"J",$J);
 				$code_info=join(":",$code_info,"K",$K,"D",$D,"J",$J);
 			}else{
+				next;
+			}
+		}
+		if($gflag_selectcode_dig){
+			if(!_is_diging($dhe,$code,$g_selectcode_date)){
 				next;
 			}
 		}
@@ -863,6 +880,11 @@ END
 			if(COM_get_command_line_property(\@ARGV,"macd")){
 					$gflag_selectcode_macd=1;
 			}
+			if(COM_get_command_line_property(\@ARGV,"dig")){
+					$gflag_selectcode_dig=1;
+			}
+			$g_selectcode_date = COM_today(0);
+			COM_get_command_line_property(\@ARGV,"date",\$g_selectcode_date);
 			my $total=20;
 			COM_get_command_line_property(\@ARGV,"total",\$total);
 			my @codes=_select_codes($StockCodeFile,$total);
