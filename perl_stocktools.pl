@@ -15,6 +15,7 @@ our $StockCodeFile="stock_code.txt";
 our $monitor_code="monitor_stock_code.txt";
 #选择股票代码的技术指标开关
 our $g_selectcode_date;
+our $gflag_selectcode_lift=0;
 our $gflag_selectcode_dig=0;
 our $gflag_selectcode_macd=0;
 our $gflag_selectcode_kdj=0;
@@ -295,11 +296,24 @@ sub _turnover_get_codes{
 	    $dih->disconnect;
 	return @codes;
 }
+sub _is_lift{
+	my ($dhe,$code,$date)=@_;
+	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
+	if(@days){
+		my $todayrise = DBT_get_rise($code,$dhe,$days[0]); 
+		my $volume= DBT_get_volume($code,$dhe,$days[1]); 
+		if($todayrise > 0.06 && $volume < 50000*100){
+			return 1;
+		}
+	}
+	return 0;
+}
 sub _is_diging{
 	my ($dhe,$code,$date)=@_;
 	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
 	if(@days){
-		if(DBT_get_rise($code,$dhe,$days[1],$days[1]) < -0.04){
+		my $rise = DBT_get_rise($code,$dhe,$days[1]); 
+		if($rise < -0.04 && $rise > -0.09){
 			return 1;
 		}
 	}
@@ -340,7 +354,7 @@ sub _select_codes{
 		#对流通市值做限制
 		my $billion=1000000000 ;
 		my $million=1000000 ;
-		 if($liutongshizhi>15*$billion or $liutongshizhi <40*$million){
+		 if($liutongshizhi>8*$billion or $liutongshizhi <40*$million){
 			 my $mb=sprintf("%.3f",$liutongshizhi/$billion);
 			 print "Skip $code:market value : $mb billion\n";
 			 next;
@@ -382,6 +396,11 @@ sub _select_codes{
 		}
 		if($gflag_selectcode_dig){
 			if(!_is_diging($dhe,$code,$g_selectcode_date)){
+				next;
+			}
+		}
+		if($gflag_selectcode_lift){
+			if(!_is_lift($dhe,$code,$g_selectcode_date)){
 				next;
 			}
 		}
@@ -776,7 +795,7 @@ sub main{
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
-		-select [macd][kdj][turnover][total:]:select stock by some flag
+		-select [macd][kdj][turnover][total:][dig][lift]:select stock by some flag
 		-ufc <code> :from code
 		-buy <code> <price> <total> <stop loss order>:buy a stock 
 		-lb[code [code ..]]:list bought stock(s)
@@ -882,6 +901,9 @@ END
 			}
 			if(COM_get_command_line_property(\@ARGV,"dig")){
 					$gflag_selectcode_dig=1;
+			}
+			if(COM_get_command_line_property(\@ARGV,"lift")){
+					$gflag_selectcode_lift=1;
 			}
 			$g_selectcode_date = COM_today(0);
 			COM_get_command_line_property(\@ARGV,"date",\$g_selectcode_date);

@@ -30,9 +30,12 @@ Cache	pywapfetion/PyWapFetion/Fetion.py	/^from Cache import Cache$/;"	i
 Check	pywapfetion/WapFetion.py	/^def Check(bool):$/;"	f
 CookieJar	pywapfetion/PyWapFetion/Fetion.py	/^from cookielib import CookieJar$/;"	i
 DBT_get_closing_price	perl_database_tools.pl	/^sub DBT_get_closing_price{$/;"	s
+DBT_get_days_rise	perl_database_tools.pl	/^sub DBT_get_days_rise{$/;"	s
 DBT_get_earlier_exchange_days	perl_database_tools.pl	/^sub DBT_get_earlier_exchange_days{$/;"	s
 DBT_get_exchange_info	perl_database_tools.pl	/^sub DBT_get_exchange_info{$/;"	s
 DBT_get_exchange_stockts	perl_database_tools.pl	/^sub DBT_get_exchange_stockts{$/;"	s
+DBT_get_fore_date_closing_price	perl_database_tools.pl	/^sub DBT_get_fore_date_closing_price{$/;"	s
+DBT_get_fore_exchange_day	perl_database_tools.pl	/^sub DBT_get_fore_exchange_day{$/;"	s
 DBT_get_max_price	perl_database_tools.pl	/^sub DBT_get_max_price{$/;"	s
 DBT_get_min_price	perl_database_tools.pl	/^sub DBT_get_min_price{$/;"	s
 DBT_get_next_date_closing_price	perl_database_tools.pl	/^sub DBT_get_next_date_closing_price{$/;"	s
@@ -40,6 +43,7 @@ DBT_get_next_exchange_day	perl_database_tools.pl	/^sub DBT_get_next_exchange_day
 DBT_get_opening_price	perl_database_tools.pl	/^sub DBT_get_opening_price{$/;"	s
 DBT_get_rise	perl_database_tools.pl	/^sub DBT_get_rise{$/;"	s
 DBT_get_season_exchage_days	perl_database_tools.pl	/^sub DBT_get_season_exchage_days{$/;"	s
+DBT_get_volume	perl_database_tools.pl	/^sub DBT_get_volume{$/;"	s
 Fetion	pywapfetion/PyWapFetion/Fetion.py	/^class Fetion(object):$/;"	c
 Fetion	pywapfetion/PyWapFetion/__init__.py	/^from Fetion import Fetion$/;"	i
 Fetion	pywapfetion/WapFetion.py	/^from PyWapFetion import Fetion$/;"	i
@@ -156,6 +160,7 @@ _init_code_monitor_info	perl_stocktools.pl	/^sub _init_code_monitor_info{$/;"	s
 _is_diging	perl_stocktools.pl	/^sub _is_diging{$/;"	s
 _is_exchange_info_loged	customer_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
 _is_exchange_info_loged	perl_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
+_is_lift	perl_stocktools.pl	/^sub _is_lift{$/;"	s
 _is_today_loged	customer_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _is_today_loged	perl_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _log	customer_stocktools.pl	/^sub _log{$/;"	s
