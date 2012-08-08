@@ -300,9 +300,21 @@ sub _is_lift{
 	my ($dhe,$code,$date)=@_;
 	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
 	if(@days){
+		my $maxrise=0.05;
+		my $durationrise = 0;
+		my @durationdays= DBT_get_earlier_exchange_days($dhe,$code,$days[1],8);
+		foreach my $one(@durationdays){
+			my $rise = DBT_get_rise($code,$dhe,$one);
+			if (abs($rise) > $maxrise){
+				return 0;
+			}
+		}
+		if (@durationdays && scalar(@durationdays) > 1){
+			$durationrise = DBT_get_days_rise($code,$dhe,$durationdays[$#durationdays],$durationdays[0]); 
+		}
 		my $todayrise = DBT_get_rise($code,$dhe,$days[0]); 
 		my $volume= DBT_get_volume($code,$dhe,$days[1]); 
-		if($todayrise > 0.06 && $volume < 50000*100){
+		if($todayrise > 0.06 && $volume < 50000*100 && abs($durationrise)< 0.08){
 			return 1;
 		}
 	}
@@ -343,6 +355,7 @@ sub _select_codes{
 		if(!$start){
 			next if(index(COM_get_fromcode(),$code)==-1);
 			$start=1;
+			next;
 		}
 		my $date="2052-12-31";
 		my $data_start_day="2012-01-01";
@@ -359,8 +372,8 @@ sub _select_codes{
 			 print "Skip $code:market value : $mb billion\n";
 			 next;
 		 }
-		$code_info=join(':',$code,$date);
 		if($gflag_selectcode_macd){
+			$code_info=join(':',$code,$date);
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
 			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,$data_start_day,$date,1);
 			next if(!$macd);
@@ -374,6 +387,7 @@ sub _select_codes{
 			$code_info=join(":",$code_info,"MACD",$macd);
 		}
 		if($gflag_selectcode_kdj){
+			$code_info=join(':',$code,$date);
 			my $period=9;
 			my @days=DBT_get_earlier_exchange_days($dhe,$code,$date,30);
 			@days=reverse @days;
@@ -395,11 +409,13 @@ sub _select_codes{
 			}
 		}
 		if($gflag_selectcode_dig){
+			$code_info=join(':',$code,$g_selectcode_date);
 			if(!_is_diging($dhe,$code,$g_selectcode_date)){
 				next;
 			}
 		}
 		if($gflag_selectcode_lift){
+			$code_info=join(':',$code,$g_selectcode_date);
 			if(!_is_lift($dhe,$code,$g_selectcode_date)){
 				next;
 			}
@@ -526,6 +542,13 @@ sub _log{
 }
 sub _sms{
 	my ($flag0,$flag1,$flag2,$flag3)=@_;
+	#cliofetion
+	#if($flag3){
+	#	system("cliofetion -f $flag0 -p $flag1 -t $flag2 -d \"$flag3\"");
+	#}else{
+	#	system("cliofetion -f $flag0 -p $flag1  -d \"$flag2\"");
+	#}
+	#python
 	if($flag3){
 		system("python2 pywapfetion/bobfetion.py $flag0 $flag1 $flag2 \"$flag3\"");
 	}else{
@@ -539,7 +562,7 @@ sub _report_code{
 	my $flag1=COM_get_flag(1,"flag");
 	my $flag2=COM_get_flag(2,"flag");
 	_sms($flag0,$flag1,$msg);
-	_sms($flag0,$flag1,'13823510132',$msg);
+	#_sms($flag0,$flag1,'13823510132',$msg);
 	_log( _get_code_monitor_info_file($code,'log'),$msg);
 }
 sub _construct_code_day_header{
@@ -728,6 +751,57 @@ sub _monitor_bought_stocks{
 		sleep 10;
 	}
 }
+sub _monitor_exchange_stocks
+{
+	open(IN,"<",$StockCodeFile);
+	my $dhe=MSH_OpenDB($StockExDb);
+	my @monitor_stocks;
+	my $code;
+	print "searching codes..."."\n";
+	#Ñ°ÕÒºÏÊÊµÄ¹ÉÆ±
+	while(<IN> ){
+		$code=$_;
+		chomp $code;
+		my $today = COM_today(0); 
+		my $foreday = DBT_get_fore_exchange_day($code,$today,$dhe);
+		next if(!$foreday);
+		my $rise = DBT_get_rise($code,$dhe,$foreday);
+		my $volume = DBT_get_volume($code,$dhe,$foreday);
+		if($rise > 0.09 && $volume < 50000*100){
+			push @monitor_stocks,$code;	
+		}
+	}
+	close IN;
+	$dhe->disconnect;
+	my @prepare_stocks;
+	print "waiting for exchange..."."\n";
+	while(1){
+		my $hour=COM_get_cur_time('hour');
+		my $minute=COM_get_cur_time('minute');
+		if (SCOM_is_exchange_duration($hour,$minute)){ 
+			last;
+		}
+		sleep 10;
+	}
+	print "start:"."\n";
+	while(@monitor_stocks){
+		foreach $code(@monitor_stocks){
+			if(SN_get_stock_cur_rise($code)>9.5){
+				push @prepare_stocks,$code;	
+				COM_remove(\@monitor_stocks,$code);
+			}
+		}
+		sleep 1;
+		foreach $code(@prepare_stocks){
+			my $rise =  SN_get_stock_cur_rise($code);
+			printf "monitor prepare $code:$rise"."\n";
+			if(!_is_exchange_info_loged($code,_construct_code_day_header($code,'buytip')) && $rise<9.8){
+				my $reportstr=_construct_code_day_header($code,'buytip').":($rise)";
+				 _report_code($code,$reportstr);
+			}
+		}
+	}
+}
 sub _DMI{
 	my $code=shift;
 	my @codes;
@@ -796,11 +870,12 @@ sub main{
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
 		-select [macd][kdj][turnover][total:][dig][lift]:select stock by some flag
-		-ufc <code> :from code
+		-fc <code> :from code
 		-buy <code> <price> <total> <stop loss order>:buy a stock 
 		-lb[code [code ..]]:list bought stock(s)
 		-sell <code> sell a stock 
 		-mbs [code [code ..]]:monitor bought stock(s)
+		-mes monitor exchange stock(s)
 		-show <code> [fromdate] [todate]:show exchange info in the days
 END
 	}
@@ -829,6 +904,9 @@ END
 			if(@codes){
 				_monitor_bought_stocks(@codes);
 			}
+		}
+		if ($opt =~ /-mes\b/){
+			_monitor_exchange_stocks();
 		}
 		#sell stock
 		if ($opt =~ /-sell\b/){

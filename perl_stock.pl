@@ -228,7 +228,8 @@ sub _smart_update_stocks_exchange{
 				_update_stock_exchange($dbh,$code,$year,'1',$total);
 			}else{
 				for(my $season=0;$season<$total;$season++){
-					my @days=DBT_get_season_exchage_days($dbh,$code,$year,$season);
+					#如果下个季度交易日为空从本季度开始更新数据
+					my @days=DBT_get_season_exchage_days($dbh,$code,$year,$season+1);
 					if(!@days){
 						_update_stock_exchange($dbh,$code,$year,$season+1,1);
 					}elsif($year==$cyear && $season+1==$total){
@@ -287,6 +288,58 @@ sub _update_stocks_exchange{
 	$dbh->disconnect;
 	return 1;	
 }
+sub _USDE{
+	my ($ref_years,$ref_seasons)=@_;
+	my $dbh=_open_stock_db();
+	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
+	open(IN,$StockCodeFile);
+	my $year;
+	my $csec;
+	my $cmin;
+	my $chour;
+	my $cday;
+	my $cmon;
+	my $cyear;
+	my $cwday;
+	my $cyday;
+	my $cisdst;
+	my $start = 1;
+	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
+	$cyear=$cyear+1900;
+	$cmon+=1;
+	$fromcode = COM_get_fromcode();
+	if(defined $fromcode){
+		$start=0;	
+	}
+	foreach my $code (<IN>) {
+		chop $code;
+		if(!$start){
+			next if(index($fromcode,$code)==-1);
+			$start=1;
+		}
+		foreach $year(@$ref_years){
+			if($cyear >= $year){
+				my $total=4;
+				my $start=1;
+				if($cyear == $year){
+					$total=int(($cmon-1)/3)+1;
+				}
+				if(index (uc($tablesname),uc($code)) < 0){
+					#create tables;
+					my $table_p="DATE DATE,KAIPANJIA FLOAT,ZUIGAOJIA FLOAT,SHOUPANJIA FLOAT,ZUIDIJIA FLOAT,JIAOYIGUSHU BIGINT,JIAOYIJINE BIGINT";
+					MSH_CreateTableIfNotExist($dbh,$code,$table_p);
+					MSH_SetUniqueKey($dbh,$code,"DATE");
+				}
+				foreach my $jd(@$ref_seasons){
+					_update_stock_exchange($dbh,$code,$year,$jd,1);
+				}
+			}
+		}
+	}
+	close(IN);
+	$dbh->disconnect;
+	return 1;	
+}
 sub _UCYE{
 	my ($code,@years)=@_;
 	my $dbh=MSH_OpenDB($StockExDb);
@@ -308,7 +361,7 @@ sub _UCYE{
 			my $total=4;
 			my $start=1;
 			if($cyear == $year){
-				$total=$cmon;
+				$total=int(($cmon-1)/3)+1;
 			}
 			if($code){
 				chomp $code;
@@ -400,10 +453,11 @@ sub main{
 		-udi: update stock base info
 		-cde: create  database for stock daily exchange
 		-cre: drop stock daily excange database
-		-ude[year1 [year2...]]: update stock daily excange
+		-ude[year1 [year2...]]: update stock daily exchange
 		-ulde: update stock last daily excange
-		-sude[year1 [year2...]]: smart update stock daily excange,before get data from internet ,query database;
-		-ucye code [year1 [year2...]]: update stock daily excange
+		-sude[year1 [year2...]]: smart update stock daily exchange,before get data from internet ,query database;
+		-ucye code [year1 [year2...]]: update stock daily exchange
+		-usde[season1 [season2...]]: update stock season exchange
 		-ufc:<code> from code
 		-clearexdb:clear exchange database
 END
@@ -442,6 +496,25 @@ END
 			}
 			_UCYE($code,@years);
 			print $code." ",join(":",@years)," exchange data update success !","\n";
+		}
+		#-usde[season1 [season2...]]: update stock season exchange
+		if($opt =~ /-usde\b/){
+			my $year;
+			my @season;
+			while($year=shift @ARGV and $year =~ /\b\d{4}\b/){
+				push @years,$year;
+			}
+			if(defined $year){
+				unshift(@ARGV,$year);
+			}
+			while($year=shift @ARGV and $year =~ /\b\d\b/){
+				push @season,$year;
+			}
+			if(defined $year){
+				unshift(@ARGV,$year);
+			}
+			 _USDE(\@years,\@season);
+			print join(":",@years,@season)," exchange data update success !","\n";
 		}
 		#start update stock daily excange
 		if($opt =~ /-sude\b/){

@@ -7,6 +7,7 @@
 AliveKeeper	pywapfetion/PyWapFetion/AliveKeeper.py	/^class AliveKeeper(Thread):$/;"	c
 AliveKeeper	pywapfetion/PyWapFetion/Fetion.py	/^            from AliveKeeper import AliveKeeper$/;"	i
 COM_filter_param	perl_common.pl	/^sub COM_filter_param{$/;"	s
+COM_find	perl_common.pl	/^sub COM_find{$/;"	s
 COM_get_command_line_property	perl_common.pl	/^sub COM_get_command_line_property{$/;"	s
 COM_get_cur_time	perl_common.pl	/^sub COM_get_cur_time{$/;"	s
 COM_get_flag	perl_common.pl	/^sub COM_get_flag{$/;"	s
@@ -17,6 +18,7 @@ COM_get_string	perl_common.pl	/^sub COM_get_string{$/;"	s
 COM_is_earlier_than	perl_common.pl	/^sub COM_is_earlier_than{$/;"	s
 COM_is_same_day	perl_common.pl	/^sub COM_is_same_day{$/;"	s
 COM_is_valid_attribute	perl_common.pl	/^sub COM_is_valid_attribute{$/;"	s
+COM_remove	perl_common.pl	/^sub COM_remove{$/;"	s
 COM_today	perl_common.pl	/^sub COM_today{$/;"	s
 CUS_AddProperty	perl_customer.pl	/^sub CUS_AddProperty{$/;"	s
 CUS_AddUser	perl_customer.pl	/^sub CUS_AddUser{$/;"	s
@@ -81,6 +83,7 @@ SCOM_is_valid_code	perl_stockcommon.pl	/^sub SCOM_is_valid_code{$/;"	s
 SCOM_today_is_exchange_day	perl_stockcommon.pl	/^sub SCOM_today_is_exchange_day{$/;"	s
 SN_get_stock_cur_exchange_info	perl_stocknetwork.pl	/^sub SN_get_stock_cur_exchange_info{$/;"	s
 SN_get_stock_cur_price	perl_stocknetwork.pl	/^sub SN_get_stock_cur_price{$/;"	s
+SN_get_stock_cur_rise	perl_stocknetwork.pl	/^sub SN_get_stock_cur_rise{$/;"	s
 SN_get_stock_first_buy_price	perl_stocknetwork.pl	/^sub SN_get_stock_first_buy_price{$/;"	s
 SN_get_stock_last_close_price	perl_stocknetwork.pl	/^sub SN_get_stock_last_close_price{$/;"	s
 SN_get_stock_today_trading_volume	perl_stocknetwork.pl	/^sub SN_get_stock_today_trading_volume{$/;"	s
@@ -103,6 +106,7 @@ _MACD_DEALITTLETHAN	perl_stocktools.pl	/^sub _MACD_DEALITTLETHAN{$/;"	s
 _MACD_DIFFLITTLETHANZERO	perl_stocktools.pl	/^sub _MACD_DIFFLITTLETHANZERO{$/;"	s
 _RSV_OF_KDJ	perl_stocktools.pl	/^sub _RSV_OF_KDJ{$/;"	s
 _UCYE	perl_stock.pl	/^sub _UCYE{$/;"	s
+_USDE	perl_stock.pl	/^sub _USDE{$/;"	s
 __all__	pywapfetion/PyWapFetion/AliveKeeper.py	/^__all__ = ['AliveKeeper']$/;"	v
 __all__	pywapfetion/PyWapFetion/Cache.py	/^__all__ = ['Cache']$/;"	v
 __all__	pywapfetion/PyWapFetion/Fetion.py	/^__all__ = ['Fetion']$/;"	v
@@ -137,6 +141,7 @@ _create_stock_db	perl_stock.pl	/^sub _create_stock_db{$/;"	s
 _delete_buy_code	perl_stocktools.pl	/^sub _delete_buy_code{$/;"	s
 _delete_cus_stock_info	customer_stocktools.pl	/^sub _delete_cus_stock_info{$/;"	s
 _delete_stock	plwapfetion.pl	/^sub _delete_stock{$/;"	s
+_find_all	plwapfetion.pl	/^sub _find_all{$/;"	s
 _find_id	plwapfetion.pl	/^sub _find_id{$/;"	s
 _get_all_bought_stocks	perl_stocktools.pl	/^sub _get_all_bought_stocks{$/;"	s
 _get_all_cus_stocks	customer_stocktools.pl	/^sub _get_all_cus_stocks{$/;"	s
@@ -166,12 +171,13 @@ _is_today_loged	perl_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _log	customer_stocktools.pl	/^sub _log{$/;"	s
 _log	perl_stocktools.pl	/^sub _log{$/;"	s
 _login	plwapfetion.pl	/^sub _login{$/;"	s
-_login	pywapfetion/PyWapFetion/Fetion.py	/^    _login = lambda self:'登陆' in self.open('im\/login\/inputpasssubmit1.action',{'m':self.mobile,'pass':self.password,'loginstatus':self.status}) $/;"	v	class:Fetion
+_login	pywapfetion/PyWapFetion/Fetion.py	/^    def _login(self):$/;"	m	class:Fetion
 _mark_read	plwapfetion.pl	/^sub _mark_read {$/;"	s
 _monitor_bought_stock	perl_stocktools.pl	/^sub _monitor_bought_stock{$/;"	s
 _monitor_bought_stocks	perl_stocktools.pl	/^sub _monitor_bought_stocks{$/;"	s
 _monitor_cus_stock	customer_stocktools.pl	/^sub _monitor_cus_stock{$/;"	s
 _monitor_cus_stocks	customer_stocktools.pl	/^sub _monitor_cus_stocks{$/;"	s
+_monitor_exchange_stocks	perl_stocktools.pl	/^sub _monitor_exchange_stocks$/;"	s
 _new_than	perl_backup.pl	/^sub _new_than{$/;"	s
 _open	plwapfetion.pl	/^sub _open{$/;"	s
 _open_stock_db	perl_stock.pl	/^sub _open_stock_db{$/;"	s
@@ -202,11 +208,13 @@ allusers	pywapfetion/example.py	/^allusers=myfetion.getallusers() #取得所有�
 allusersinfo	pywapfetion/example.py	/^allusersinfo=myfetion.getallusersinfo()$/;"	v
 avatarfinder	pywapfetion/PyWapFetion/Fetion.py	/^avatarfinder = compile('<div class="mybox_info_pic"><a href="#"><img src="(.*?)"')$/;"	v
 backup	perl_backup.pl	/^sub backup{$/;"	s
+base64	pywapfetion/PyWapFetion/Fetion.py	/^import base64$/;"	i
 build_opener	pywapfetion/PyWapFetion/Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
 changeimpresa	pywapfetion/PyWapFetion/Fetion.py	/^    changeimpresa = lambda self,impresa: impresa in self.open('im\/user\/editimpresaSubmit.action',{'impresa':impresa})$/;"	v	class:Fetion
 checkmessage	pywapfetion/WapFetion.py	/^def checkmessage(Fetion):$/;"	f
 classifiers	pywapfetion/setup.py	/^classifiers = [$/;"	v
 clear	pywapfetion/WapFetion.py	/^clear = lambda :system("clear") if name is "posix" else system("cls")$/;"	v
+codekey	pywapfetion/PyWapFetion/Fetion.py	/^codekey = compile('name="codekey" value="(.*?)">')$/;"	v
 command	pywapfetion/WapFetion.py	/^    command = raw_input('Fetion>').split()$/;"	v
 compile	pywapfetion/PyWapFetion/Fetion.py	/^from re import compile$/;"	i
 deletefriend	pywapfetion/PyWapFetion/Fetion.py	/^    deletefriend = lambda self,id: '删除好友成功!' in self.open('im\/user\/deletefriendsubmit.action?touserid=%s' % id)$/;"	v	class:Fetion
@@ -243,12 +251,13 @@ myfetion	pywapfetion/example.py	/^myfetion = Fetion('手机号','密码',keepali
 name	pywapfetion/WapFetion.py	/^from os import system,name$/;"	i
 name	pywapfetion/setup.py	/^name = PyWapFetion.__name__,$/;"	v
 namefinder	pywapfetion/PyWapFetion/Fetion.py	/^namefinder = compile('<div class="mybox_info_text"><span>(.*?)<\/span>')$/;"	v
-open	pywapfetion/PyWapFetion/Fetion.py	/^    def open(self,url,data=''):$/;"	m	class:Fetion
+open	pywapfetion/PyWapFetion/Fetion.py	/^    def open(self, url, data=''):$/;"	m	class:Fetion
 packages	pywapfetion/setup.py	/^packages = ['PyWapFetion'],$/;"	v
 printl	pywapfetion/WapFetion.py	/^def printl(msg,newline=True):$/;"	f
 relieveblack	pywapfetion/PyWapFetion/Fetion.py	/^    relieveblack = lambda self,id: '对不起,操作失败,请重新访问此页面' in self.open('im\/blackmanage\/relieveBlack.action?touserid=%s' % id)#我也不知道为什么操作成功它提示这个。。$/;"	v	class:Fetion
 run	pywapfetion/PyWapFetion/AliveKeeper.py	/^    def run(self):$/;"	m	class:AliveKeeper
 send	pywapfetion/PyWapFetion/__init__.py	/^def send(mobile,password,to,message):$/;"	f
+send2self	pywapfetion/PyWapFetion/Fetion.py	/^    def send2self(self, message, time=None):$/;"	m	class:Fetion
 send2self	pywapfetion/PyWapFetion/__init__.py	/^def send2self(mobile,password,message):$/;"	f
 sendBYid	pywapfetion/PyWapFetion/Fetion.py	/^    def sendBYid(self,id,message,sm=False):$/;"	m	class:Fetion
 setup	pywapfetion/setup.py	/^from setuptools import setup$/;"	i

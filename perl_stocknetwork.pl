@@ -13,6 +13,13 @@ sub SN_get_stock_first_buy_price{
   }
   return undef;
 } 
+sub SN_get_stock_cur_rise{
+  if(my @info=SN_get_stock_cur_exchange_info(shift)){
+	my $percent =($info[3]-$info[2])*100/$info[2];
+    return $percent;
+  }
+  return undef;
+} 
 sub SN_get_stock_cur_price{
   if(my @info=SN_get_stock_cur_exchange_info(shift)){
     return $info[3];

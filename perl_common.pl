@@ -98,7 +98,7 @@ sub COM_filter_param{
 	my ($param)=@_;
 	my @others;
 	while(my $opt=shift @$param){
-		if($opt =~ /-ufc\b/){
+		if($opt =~ /-fc\b/){
 			$g_fromcode=shift @$param;
 			next;
 		}
@@ -223,4 +223,28 @@ sub COM_get_flag{
 	close IN;
 	chomp $r;
 	return $r;
+}
+sub COM_remove{
+	my ($ref_array,$val) = @_;
+	if($val && $ref_array){
+		my $index=0;
+		foreach my $one(@$ref_array){
+			if (index($val,$one)!=-1){
+				return splice(@$ref_array,$index,1);
+			}
+			$index++;
+		}
+	}
+	return 0;
+}
+sub COM_find{
+	my ($ref_array,$val) = @_;
+	if($val && $ref_array){
+		foreach my $one(@$ref_array){
+			if (index($val,$one)!=-1){
+				return 1;
+			}
+		}
+	}
+	return 0;
 }

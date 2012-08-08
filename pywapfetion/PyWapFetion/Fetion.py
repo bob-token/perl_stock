@@ -2,6 +2,7 @@
 from cookielib import CookieJar
 from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor
 from urllib import urlencode
+import base64
 from Errors import *
 from re import compile
 from Cache import Cache
@@ -14,6 +15,7 @@ userstatus = compile('<a href="/im/user/userinfoByuserid.action\?touserid=\d*&am
 infofinder = compile('<dd>(.*?)</dd>')
 avatarfinder = compile('<div class="mybox_info_pic"><a href="#"><img src="(.*?)"')
 namefinder = compile('<div class="mybox_info_text"><span>(.*?)</span>')
+codekey = compile('name="codekey" value="(.*?)">')
 
 msg_re = {
 'id'     : compile('<a href="/im/chat/toinputMsg.action\?touserid=(\d*)&amp;'),
@@ -44,12 +46,31 @@ class Fetion(object):
             from AliveKeeper import AliveKeeper
             self.alivekeeper = AliveKeeper(self)
 
-    send2self = lambda self,message,time=None:'成功' in (self.open('im/user/sendMsgToMyselfs.action',{'msg':message}) if time is None else self.open('im/user/sendTimingMsgToMyselfs.action',{'msg':message,'timing':time}))
+    #send2self = lambda self,message,time=None:'成功' in (self.open('im/user/sendMsgToMyselfs.action',{'msg':message}) if time is None else self.open('im/user/sendTimingMsgToMyselfs.action',{'msg':message,'timing':time}))
+    def send2self(self, message, time=None):
+        if time:
+            htm = self.open('im/user/sendTimingMsgToMyselfs.action',
+                {'msg': message, 'timing': time})
+        else:
+            htm = self.open('im/user/sendMsgToMyselfs.action',
+                {'msg': message})
+        return '成功' in htm
     sendBYlist = lambda self,mobile,message,sm=False:dict([[x,self.send(x,message,sm)] for x in mobile])
     changeimpresa = lambda self,impresa: impresa in self.open('im/user/editimpresaSubmit.action',{'impresa':impresa})
     addfriend = lambda self,phone,name='xx':'成功' in self.open('im/user/insertfriendsubmit.action',{'nickname':name,'number':phone,'type':'0'})
     send = lambda self,mobile,message,sm=False:self.send2self(message) if mobile == self.mobile else self.sendBYid(self.findid(mobile),message,sm)
-    _login = lambda self:'登陆' in self.open('im/login/inputpasssubmit1.action',{'m':self.mobile,'pass':self.password,'loginstatus':self.status}) 
+    #_login = lambda self:'登陆' in self.open('im/login/inputpasssubmit1.action',{'m':self.mobile,'pass':self.password,'loginstatus':self.status}) 
+    def _login(self):
+        page = self.open('/im5/login/loginHtml5.action')
+        captcha = codekey.findall(page)[0]
+        data = {
+            'm': self.mobile,
+            'pass': self.password,
+            'checkCode': base64.b64decode(captcha),
+            'codekey': captcha,
+        }
+        self.open('/im5/login/loginHtml5.action', data)
+	return self.open('/im/login/cklogin.action')
     tweet = lambda self,content:'成功' in self.open('space/microblog/create.action',{'content':content,'checkCode':'','from':'myspace'})
     markread = lambda self,id:' ' in self.open('im/box/deleteMessages.action',{'fromIdUser':id})
     alive = lambda self:'心情' in self.open('im/index/indexcenter.action')
@@ -129,11 +150,13 @@ class Fetion(object):
         [users.extend(self.getgroupusers(v)) for k,v in self.getgroups().items()]
         return tuple(set(users))
            
-    def open(self,url,data=''):
-        try: html = GzipFile(fileobj=StringIO(self.opener.open(Request('http://f.10086.cn/%s' % url,data=urlencode(data),headers={'Accept-encoding':'gzip'})).read())).read()
-        except: html = self.opener.open(Request('http://f.10086.cn/%s' % url,data=urlencode(data))).read()
-        if '登录' in html and '您正在登录中国移动WAP飞信' not in html: raise FetionNotLogin
-        return html
+    def open(self, url, data=''):
+        request = Request('http://f.10086.cn/%s' % url, data=urlencode(data))
+        htm = self.opener.open(request).read()
+        try:
+            htm = GzipFile(fileobj=StringIO(htm)).read()
+        finally:
+            return htm
     
     def getuserstatus(self,id):
         web = self.open('im/chat/toinputMsg.action?touserid=%s' % id)
