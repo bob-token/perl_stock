@@ -11,6 +11,7 @@ require "perl_stocknetwork.pl";
 
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
+our $StockProfitDb="StockProfitDb";
 our $StockCodeFile="stock_code.txt";
 our $fromcode;
 
@@ -57,7 +58,6 @@ sub _update_stock_code{
 }
 
 sub _open_stock_db{
-	#return DBI->connect("DBI:mysql:database=mysql;host=localhost", "root", "1983410", {'RaiseError' => 1});
 	return MSH_OpenDB("mysql");
 }
 
@@ -136,6 +136,46 @@ sub _get_stock_base_info{
 		}
 	}
 }
+sub _update_stock_season_exchange_info{
+	my ($code,$dhp)=@_;
+	my $index = SCOM_get_part($code,'index');
+	my $url = "http://money.finance.sina.com.cn/corp/go.php/vFD_FinanceSummary/stockid/$index/displaytype/4.phtml";
+	open(IN,$StockCodeFile);
+	my $content = COM_get_page_content($url,5);
+	#截至日期
+	my @date =($$content =~ /<a name=\"([\d-].*)\"><\/a><strong>/);
+	#每股净资产
+	my @mgjzc =($$content =~ /type=mgjzc\">([-\.\d]*).*<\/a>/);
+	#每股收益
+	my @mgsy =($$content =~ /type=mgsy\">([-\.\d]*).*<\/a>/);
+	if(@date && @mgjzc && @mgsy){
+		my $date ='"'.$date[0].'"';
+		my $info = join(',',$date,$mgjzc[0],$mgsy[0]);
+		print "$code :$info\n";
+		my $sql=sprintf("INSERT IGNORE INTO  %s VALUES (%s) ;",$code,$info);
+		$dhp->do($sql) or print $!;
+		
+	}
+	close IN;
+}
+sub _update_stocks_season_exchange_info{
+	my $dhp = MSH_OpenDB($StockProfitDb);
+	my $tablesname=MSH_GetAllTablesName($dhp,$StockProfitDb);
+	my $codeiterator;
+	#foreach my $code (<IN>) {
+	SCOM_start_code_iterate(\$codeiterator,COM_get_fromcode());
+	while(my $code =SCOM_iterator_get_code(\$codeiterator)) {
+		chomp $code;
+		if(index (uc($tablesname),uc($code)) < 0){
+			#create tables;
+			my $table_p="DATE DATE,MEIGUJINGZICHAN FLOAT,MEIGUSHOUYI FLOAT";
+			MSH_CreateTableIfNotExist($dhp,$code,$table_p);
+			MSH_SetUniqueKey($dhp,$code,"DATE");
+		}
+		_update_stock_season_exchange_info($code,$dhp);
+	}
+	$dhp->disconnect;
+}
 sub _update_stock_base_info{
 	my $dbh=shift;
 	my $code=shift;
@@ -157,7 +197,7 @@ sub _update_stocks_base_info{
 	my $tablesname=MSH_GetAllTablesName($dbh,$StockInfoDb);
 	open(IN,shift);
 	foreach my $code (<IN>) {
-	chop $code;
+		chop $code;
 		if(index (uc($tablesname),uc($code)) < 0){
 			#create tables;
 			my $table_p="STOCKNAME VARCHAR(20) CHARACTER SET utf8,LIUTONGGU BIGINT,ZONGGUBEN BIGINT";
@@ -192,7 +232,6 @@ sub _update_stock_exchange{
 	}
 }
 sub _smart_update_stocks_exchange{
-		my @info=_get_stock_exchange('sh600000',2012,2);
 	my $dbh=_open_stock_db();
 	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
 	open(IN,shift);
@@ -242,6 +281,25 @@ sub _smart_update_stocks_exchange{
 	close(IN);
 	$dbh->disconnect;
 	return 1;	
+}
+sub _delete_date_exchange_info
+{
+	my ($date)=@_;
+	open(IN,"<",$StockCodeFile);	
+	my $dbh=MSH_OpenDB($StockExDb);
+	foreach my $code (<IN>) {
+		chomp $code;
+		print "$code:$date exchange info"."\n";
+		_delete_stock_exchange_info($code,$date,$dbh);
+	}
+	close(IN);
+	$dbh->disconnect;
+}
+sub _delete_stock_exchange_info
+{
+	my ($code,$date,$dbh)=@_;
+   	my $condition="DATE=\"$date\"";
+ 	MSH_Delete($dbh,$code,$condition);
 }
 sub _update_stocks_exchange{
 	my $dbh=_open_stock_db();
@@ -401,8 +459,8 @@ sub _update_last_exchange{
 	my $zuidi=5;
 	my $jiaoyigushu=8;
 	my $jiaoyijine=9;
-	my $jiaoyidate=-2;
-	my $jiaoyitime=-1;
+	my $jiaoyidate=-3;
+	my $jiaoyitime=-2;
 	my $start=1;
 	if(COM_get_fromcode()){
 		$start=0;	
@@ -451,8 +509,12 @@ sub main{
 		-cdi: create  database for stock base info
 		-cri: drop stock base info database
 		-udi: update stock base info
+		-cdsi: create  database for stock season exchange info
+		-crsi: drop stock season exchange database
+		-udsi: update stock season exchange  info
 		-cde: create  database for stock daily exchange
 		-cre: drop stock daily excange database
+		-dde: delete exchange info in date
 		-ude[year1 [year2...]]: update stock daily exchange
 		-ulde: update stock last daily excange
 		-sude[year1 [year2...]]: smart update stock daily exchange,before get data from internet ,query database;
@@ -476,6 +538,14 @@ END
 		$opt =~ /-cde\b/ && _create_stock_db($StockExDb)&&print "create stock exchange database:$StockExDb success\n";
 		#drop stock daily excange database
 		$opt =~ /-cre\b/ && _clear_stock_db($StockExDb)&& print "$StockExDb cleared!\n";
+		#delete exchange info in date
+		$opt =~ /-dde\b/ && _delete_date_exchange_info(shift @ARGV);
+		#-cdsi: create  database for stock season profit info
+		$opt =~ /-cdsi\b/ && _create_stock_db($StockProfitDb)&&print "create stock season profit database:$StockProfitDb success\n";
+		#-crsi: drop stock season exchange database
+		$opt =~ /-crsi\b/ &&_clear_stock_db($StockProfitDb)&& print "$StockProfitDb cleared!\n";
+		#-udsi: update stock season exchange  info
+		$opt =~ /-udsi\b/ &&  _update_stocks_season_exchange_info()&& print "update stock profit info success\n";
 		#update from the code
 		if($opt =~ /-ufc\b/){
 			$fromcode=shift @ARGV;

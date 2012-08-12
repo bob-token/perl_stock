@@ -43,6 +43,7 @@ DBT_get_min_price	perl_database_tools.pl	/^sub DBT_get_min_price{$/;"	s
 DBT_get_next_date_closing_price	perl_database_tools.pl	/^sub DBT_get_next_date_closing_price{$/;"	s
 DBT_get_next_exchange_day	perl_database_tools.pl	/^sub DBT_get_next_exchange_day{$/;"	s
 DBT_get_opening_price	perl_database_tools.pl	/^sub DBT_get_opening_price{$/;"	s
+DBT_get_profit	perl_database_tools.pl	/^sub DBT_get_profit{$/;"	s
 DBT_get_rise	perl_database_tools.pl	/^sub DBT_get_rise{$/;"	s
 DBT_get_season_exchage_days	perl_database_tools.pl	/^sub DBT_get_season_exchage_days{$/;"	s
 DBT_get_volume	perl_database_tools.pl	/^sub DBT_get_volume{$/;"	s
@@ -57,6 +58,7 @@ HTTPHandler	pywapfetion/PyWapFetion/Fetion.py	/^from urllib2 import Request,buil
 MSH_CreateDB	perl_database.pl	/^sub MSH_CreateDB{$/;"	s
 MSH_CreateTable	perl_database.pl	/^sub MSH_CreateTable{$/;"	s
 MSH_CreateTableIfNotExist	perl_database.pl	/^sub MSH_CreateTableIfNotExist{$/;"	s
+MSH_Delete	perl_database.pl	/^sub MSH_Delete$/;"	s
 MSH_DropDB	perl_database.pl	/^sub MSH_DropDB{$/;"	s
 MSH_GetAllTablesName	perl_database.pl	/^sub MSH_GetAllTablesName{$/;"	s
 MSH_GetAllTablesName1	perl_database.pl	/^sub MSH_GetAllTablesName1{$/;"	s
@@ -76,10 +78,14 @@ Python2	pywapfetion/example.py	/^from __future__ import with_statement #在Pytho
 Request	pywapfetion/PyWapFetion/Fetion.py	/^from urllib2 import Request,build_opener,HTTPHandler,HTTPCookieProcessor$/;"	i
 SCOM_calc_income	perl_stockcommon.pl	/^sub SCOM_calc_income{$/;"	s
 SCOM_code_get_file_name	perl_stockcommon.pl	/^sub SCOM_code_get_file_name{$/;"	s
+SCOM_end_code_iterate	perl_stockcommon.pl	/^sub SCOM_end_code_iterate{$/;"	s
 SCOM_get_file_name	perl_stockcommon.pl	/^sub SCOM_get_file_name{$/;"	s
+SCOM_get_part	perl_stockcommon.pl	/^sub SCOM_get_part$/;"	s
 SCOM_is_exchange_duration	perl_stockcommon.pl	/^sub SCOM_is_exchange_duration{$/;"	s
 SCOM_is_suspension	perl_stockcommon.pl	/^sub SCOM_is_suspension{$/;"	s
 SCOM_is_valid_code	perl_stockcommon.pl	/^sub SCOM_is_valid_code{$/;"	s
+SCOM_iterator_get_code	perl_stockcommon.pl	/^sub SCOM_iterator_get_code{$/;"	s
+SCOM_start_code_iterate	perl_stockcommon.pl	/^sub SCOM_start_code_iterate{$/;"	s
 SCOM_today_is_exchange_day	perl_stockcommon.pl	/^sub SCOM_today_is_exchange_day{$/;"	s
 SN_get_stock_cur_exchange_info	perl_stocknetwork.pl	/^sub SN_get_stock_cur_exchange_info{$/;"	s
 SN_get_stock_cur_price	perl_stocknetwork.pl	/^sub SN_get_stock_cur_price{$/;"	s
@@ -140,7 +146,9 @@ _construct_code_header	perl_stocktools.pl	/^sub _construct_code_header{$/;"	s
 _create_stock_db	perl_stock.pl	/^sub _create_stock_db{$/;"	s
 _delete_buy_code	perl_stocktools.pl	/^sub _delete_buy_code{$/;"	s
 _delete_cus_stock_info	customer_stocktools.pl	/^sub _delete_cus_stock_info{$/;"	s
+_delete_date_exchange_info	perl_stock.pl	/^sub _delete_date_exchange_info$/;"	s
 _delete_stock	plwapfetion.pl	/^sub _delete_stock{$/;"	s
+_delete_stock_exchange_info	perl_stock.pl	/^sub _delete_stock_exchange_info$/;"	s
 _find_all	plwapfetion.pl	/^sub _find_all{$/;"	s
 _find_id	plwapfetion.pl	/^sub _find_id{$/;"	s
 _get_all_bought_stocks	perl_stocktools.pl	/^sub _get_all_bought_stocks{$/;"	s
@@ -197,9 +205,11 @@ _update_last_exchange	perl_stock.pl	/^sub _update_last_exchange{$/;"	s
 _update_stock_base_info	perl_stock.pl	/^sub _update_stock_base_info{$/;"	s
 _update_stock_code	perl_stock.pl	/^sub _update_stock_code{$/;"	s
 _update_stock_exchange	perl_stock.pl	/^sub _update_stock_exchange{$/;"	s
+_update_stock_season_exchange_info	perl_stock.pl	/^sub _update_stock_season_exchange_info{$/;"	s
 _update_stock_status	perl_stocktools.pl	/^sub _update_stock_status{$/;"	s
 _update_stocks_base_info	perl_stock.pl	/^sub _update_stocks_base_info{$/;"	s
 _update_stocks_exchange	perl_stock.pl	/^sub _update_stocks_exchange{$/;"	s
+_update_stocks_season_exchange_info	perl_stock.pl	/^sub _update_stocks_season_exchange_info{$/;"	s
 _write_key_value	perl_stocktools.pl	/^sub _write_key_value{$/;"	s
 addblacklist	pywapfetion/PyWapFetion/Fetion.py	/^    addblacklist = lambda self,id: '加入黑名单成功!' in self.open('im\/user\/Addblacklist.action?touserid=%s' % id)$/;"	v	class:Fetion
 alive	pywapfetion/PyWapFetion/Fetion.py	/^    alive = lambda self:'心情' in self.open('im\/index\/indexcenter.action')$/;"	v	class:Fetion

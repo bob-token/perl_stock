@@ -112,4 +112,10 @@ sub MSH_SetUniqueKey{
 	my $sql=sprintf("ALTER TABLE  %s ADD UNIQUE (%s);",$TableName,$Key);
 	$dbh->do($sql);
 }
+sub MSH_Delete
+{
+	my ($dbh,$TableName,$Condition)=@_;
+	my $sql = sprintf("DELETE FROM %s WHERE %s;",$TableName,$Condition);
+	$dbh->do($sql);
+}
 1;

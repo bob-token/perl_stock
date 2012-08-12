@@ -163,3 +163,13 @@ sub DBT_get_exchange_stockts{
 	my $dhe=shift;
 	return MSH_GetValueFirst($dhe,$code,"LIUTONGGU"); 
 }
+sub DBT_get_profit{
+	my ($code,$dhp,$before_end_date)=@_;
+	#before_end_date是指在这个日期上的截至日或者在这个日期之前的上一个截至日时
+	#例如：2012-03-31或者 2012-04-22 都会获取2012-03-31这个截至日发布的每股收益
+	if($before_end_date){
+    	my $condition="DATE<=\"$before_end_date\"";
+		return MSH_GetValueFirst($dhp,$code,"MEIGUSHOUYI",$condition);
+	}
+	return MSH_GetValueFirst($dhp,$code,"MEIGUSHOUYI");
+}

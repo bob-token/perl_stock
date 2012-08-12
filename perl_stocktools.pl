@@ -9,6 +9,7 @@ require "perl_database.pl";
 require "perl_database_tools.pl";
 require "perl_stocknetwork.pl";
 our $StockExDb="StockExchangeDb";
+our $StockProfitDb="StockProfitDb";
 our $StockInfoDb="StockInfoDb";
 our $BuyStockCode="buy_stock_code.txt";
 our $StockCodeFile="stock_code.txt";
@@ -300,21 +301,33 @@ sub _is_lift{
 	my ($dhe,$code,$date)=@_;
 	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
 	if(@days){
+		my $day_count=20;
 		my $maxrise=0.05;
 		my $durationrise = 0;
-		my @durationdays= DBT_get_earlier_exchange_days($dhe,$code,$days[1],8);
+		my @durationdays= DBT_get_earlier_exchange_days($dhe,$code,$days[0],$day_count);
+		my @daysbig;
+		my @dayslittle;
+		my @daysother;
 		foreach my $one(@durationdays){
 			my $rise = DBT_get_rise($code,$dhe,$one);
-			if (abs($rise) > $maxrise){
-				return 0;
+			if (abs($rise) < 0.03){
+				push @dayslittle,$rise;
+			}elsif (abs($rise < 0.05)){
+				push @daysbig,$rise;
+			}else{
+				push @daysother,$rise;
 			}
+		}
+		if (scalar(@daysother) >= $day_count/6 || scalar(@daysbig) > $day_count/4){
+			return 0;	
 		}
 		if (@durationdays && scalar(@durationdays) > 1){
 			$durationrise = DBT_get_days_rise($code,$dhe,$durationdays[$#durationdays],$durationdays[0]); 
 		}
 		my $todayrise = DBT_get_rise($code,$dhe,$days[0]); 
 		my $volume= DBT_get_volume($code,$dhe,$days[1]); 
-		if($todayrise > 0.06 && $volume < 50000*100 && abs($durationrise)< 0.08){
+		#if($todayrise > 0.06 && $volume < 50000*100 && abs($durationrise)< 0.08){
+		if($volume < 50000*100 && abs($durationrise)< 0.08){
 			return 1;
 		}
 	}
@@ -336,27 +349,13 @@ sub _select_codes{
 	my $stock_cnt=shift;
 	my @codes;
 	my $code;
-	my $start=1;
 	my $dhe=MSH_OpenDB($StockExDb);
 	my $dhi=MSH_OpenDB($StockInfoDb);
-	open(IN,"<",$StockCodeFile);
-	if(COM_get_fromcode()){
-		$start=0;
-	}
-#	my $page=COM_get_page_content("http://vip.stock.finance.sina.com.cn/mkt/#hangye_GE002");
-#	open IN,'>',"page.txt";
-#	print IN $$page; 
-#	close IN;
-#	return ;
-	while(<IN> ){
-		$code=$_;
+	my $codeiterator;
+	SCOM_start_code_iterate(\$codeiterator,COM_get_fromcode());
+	while($code = SCOM_iterator_get_code(\$codeiterator)){
 		my $code_info=();
 		chomp $code;
-		if(!$start){
-			next if(index(COM_get_fromcode(),$code)==-1);
-			$start=1;
-			next;
-		}
 		my $date="2052-12-31";
 		my $data_start_day="2012-01-01";
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
@@ -426,7 +425,6 @@ sub _select_codes{
 	}
 	$dhe->disconnect;
 	$dhi->disconnect;
-	close IN;
 	return @codes;
 }
 sub _get_all_bought_stocks{
@@ -773,8 +771,23 @@ sub _monitor_exchange_stocks
 	}
 	close IN;
 	$dhe->disconnect;
+	if(@monitor_stocks){
+		my $i=0;
+		print "find code(s):"."\n";
+		foreach my $one(@monitor_stocks){
+			$i++;
+			if (not $i%5){
+				print "\n";
+			}
+			print "$one  "; 
+		}
+		
+	}else{
+		print "no code(s) meet requirements"."\n";
+		return 1;
+	}
 	my @prepare_stocks;
-	print "waiting for exchange..."."\n";
+	print "\nwaiting for exchange..."."\n";
 	while(1){
 		my $hour=COM_get_cur_time('hour');
 		my $minute=COM_get_cur_time('minute');
@@ -786,20 +799,24 @@ sub _monitor_exchange_stocks
 	print "start:"."\n";
 	while(@monitor_stocks){
 		foreach $code(@monitor_stocks){
-			if(SN_get_stock_cur_rise($code)>9.5){
+			if(SN_get_stock_cur_rise($code)>9.7){
 				push @prepare_stocks,$code;	
 				COM_remove(\@monitor_stocks,$code);
 			}
 		}
 		sleep 1;
+		my $dhp = MSH_OpenDB($StockProfitDb);
 		foreach $code(@prepare_stocks){
 			my $rise =  SN_get_stock_cur_rise($code);
 			printf "monitor prepare $code:$rise"."\n";
-			if(!_is_exchange_info_loged($code,_construct_code_day_header($code,'buytip')) && $rise<9.8){
-				my $reportstr=_construct_code_day_header($code,'buytip').":($rise)";
-				 _report_code($code,$reportstr);
+			if(!_is_exchange_info_loged($code,_construct_code_day_header($code,'buytip')) && $rise<=9.7){
+				my $profit = DBT_get_profit($code,$dhp);
+				my $reportstr=_construct_code_day_header($code,'buytip').":rise($rise)"."profit:$profit:";
+			    _report_code($code,$reportstr);
+				COM_remove(\@prepare_stocks,$code);
 			}
 		}
+		$dhp->disconnect;
 	}
 }
 sub _DMI{
