@@ -14,16 +14,17 @@ our $StockInfoDb="StockInfoDb";
 our $BuyStockCode="buy_stock_code.txt";
 our $StockCodeFile="stock_code.txt";
 our $monitor_code="monitor_stock_code.txt";
-#选择股票代码的技术指标开关
-our $g_selectcode_date;
-our $gflag_selectcode_lift=0;
-our $gflag_selectcode_dig=0;
-our $gflag_selectcode_macd=0;
-our $gflag_selectcode_kdj=0;
-our $gflag_selectcode_turnover=0;
 our $gall_monitor_info={};
 our $code_property_separator='@';
 our $code_property_assignment=':';
+#选择股票代码的技术指标开关
+our $g_selectcode_date;
+our $gflag_selectcode_lift=0;#拉升
+our $gflag_selectcode_dig=0;#挖坑
+our $gflag_selectcode_macd=0;#macd指数
+our $gflag_selectcode_kdj=0;#kdj指数
+our $gflag_selectcode_break_surge=0;#突破平台振荡
+our $gflag_selectcode_turnover=0;#换手率
 $|=1;
 
 # calculate moving average
@@ -58,7 +59,6 @@ sub _DEA{
     my $condition="DATE<=\"$dea_day\" ORDER BY DATE DESC LIMIT $dea_day_cnt";
 	#获取需要计算diff的日期
 	my @diff_days= DBT_get_earlier_exchange_days($dhe,$code,$dea_day,$dea_day_cnt);
-#	my @diff_days=MSH_GetValue($dhe,$code,"DATE",$condition); 
 	my $sum_diff;
 	foreach my $diff_date(@diff_days){
 		$sum_diff+=_DIFF($diff_s_day,$diff_l_day,$code,$dhe,$day_exchange_start,$diff_date);
@@ -297,19 +297,62 @@ sub _turnover_get_codes{
 	    $dih->disconnect;
 	return @codes;
 }
+sub _get_surge_days{
+	my ($dhe,$code,$date)=@_;
+	my $day_count=30;
+	my $surge_min_day = 3;
+	my $foreday = DBT_get_fore_exchange_day($code,$date,$dhe);
+	my @durationdays= DBT_get_earlier_exchange_days($dhe,$code,$foreday,$day_count);
+	my @days;
+	if (@durationdays){
+		foreach my $one(@durationdays){
+			my $rise = DBT_get_days_rise($code,$dhe,$one,$date);
+			if(abs($rise)>0.2){
+				last;
+			}
+			push @days,$one;
+		}
+		if(scalar(@days)<$surge_min_day){
+			return undef;
+		}
+		return @days;
+	}
+	return undef;
+}
+sub _is_break_surge{
+	my ($dhe,$code,$date)=@_;
+	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
+	my $rise = DBT_get_rise($code,$dhe,$days[0]);
+	@days = _get_surge_days($dhe,$code,$days[1]);
+	if($rise > 0.05  && $days[0]){
+		my $max_closing_price = DBT_get_max_closing_price($code,$dhe,$days[$#days],$days[0]);
+		my $closing_price = DBT_get_closing_price($code,$days[0],$dhe);
+		if ($closing_price && ($closing_price - $max_closing_price)/$closing_price > 0.05){
+			return 1;
+		}
+	}
+	return 0;
+}
 sub _is_lift{
 	my ($dhe,$code,$date)=@_;
 	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
 	if(@days){
-		my $day_count=20;
 		my $maxrise=0.05;
 		my $durationrise = 0;
+		my $day_count=20;
 		my @durationdays= DBT_get_earlier_exchange_days($dhe,$code,$days[0],$day_count);
 		my @daysbig;
 		my @dayslittle;
 		my @daysother;
+		my @daysup;
+		my @daysdown;
 		foreach my $one(@durationdays){
 			my $rise = DBT_get_rise($code,$dhe,$one);
+			if ($rise > 0){
+				push @daysup,$rise;
+			}else{
+				push @daysdown,$rise;
+			}
 			if (abs($rise) < 0.03){
 				push @dayslittle,$rise;
 			}elsif (abs($rise < 0.05)){
@@ -318,7 +361,7 @@ sub _is_lift{
 				push @daysother,$rise;
 			}
 		}
-		if (scalar(@daysother) >= $day_count/6 || scalar(@daysbig) > $day_count/4){
+		if (scalar(@daysother) >= $day_count/6 || scalar(@daysbig) > $day_count/4 || (($#daysup+1) < 3 * ($#daysdown+1))){
 			return 0;	
 		}
 		if (@durationdays && scalar(@durationdays) > 1){
@@ -351,6 +394,8 @@ sub _select_codes{
 	my $code;
 	my $dhe=MSH_OpenDB($StockExDb);
 	my $dhi=MSH_OpenDB($StockInfoDb);
+	#流通市值限制
+	my $circulation_value_limit=0;
 	my $codeiterator;
 	SCOM_start_code_iterate(\$codeiterator,COM_get_fromcode());
 	while($code = SCOM_iterator_get_code(\$codeiterator)){
@@ -361,16 +406,18 @@ sub _select_codes{
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
 		my $yesterday=$last_exchange_data_day[1];
-		my $cur_price=SN_get_stock_cur_price($code);
-		my $liutongshizhi=$cur_price*DBT_get_exchange_stockts($code,$dhi);
-		#对流通市值做限制
-		my $billion=1000000000 ;
-		my $million=1000000 ;
-		 if($liutongshizhi>8*$billion or $liutongshizhi <40*$million){
-			 my $mb=sprintf("%.3f",$liutongshizhi/$billion);
-			 print "Skip $code:market value : $mb billion\n";
-			 next;
-		 }
+		if($circulation_value_limit){
+			#对流通市值做限制
+			my $cur_price=SN_get_stock_cur_price($code);
+			my $liutongshizhi=$cur_price*DBT_get_exchange_stockts($code,$dhi);
+			my $billion=1000000000 ;
+			my $million=1000000 ;
+			 if($liutongshizhi>8*$billion or $liutongshizhi <40*$million){
+				 my $mb=sprintf("%.3f",$liutongshizhi/$billion);
+				 print "Skip $code:market value : $mb billion\n";
+				 next;
+			 }
+		}
 		if($gflag_selectcode_macd){
 			$code_info=join(':',$code,$date);
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
@@ -418,6 +465,14 @@ sub _select_codes{
 			if(!_is_lift($dhe,$code,$g_selectcode_date)){
 				next;
 			}
+		}
+
+		if($gflag_selectcode_break_surge){
+			$code_info=join(':',$code,$g_selectcode_date);
+			if(!_is_break_surge($dhe,$code,$g_selectcode_date)){
+				next;
+			}
+
 		}
 
 		push @codes,$code_info;
@@ -753,6 +808,7 @@ sub _monitor_exchange_stocks
 {
 	open(IN,"<",$StockCodeFile);
 	my $dhe=MSH_OpenDB($StockExDb);
+	my $dih=MSH_OpenDB($StockInfoDb);
 	my @monitor_stocks;
 	my $code;
 	print "searching codes..."."\n";
@@ -765,12 +821,15 @@ sub _monitor_exchange_stocks
 		next if(!$foreday);
 		my $rise = DBT_get_rise($code,$dhe,$foreday);
 		my $volume = DBT_get_volume($code,$dhe,$foreday);
-		if($rise > 0.09 && $volume < 50000*100){
+		my $turnover = _get_turnover($foreday,$code,$dhe,$dih);
+		if($rise > 0.09 && $volume < 50000*100 && $turnover <0.01){
 			push @monitor_stocks,$code;	
 		}
 	}
 	close IN;
 	$dhe->disconnect;
+	$dhe->disconnect;
+	$dih->disconnect;
 	if(@monitor_stocks){
 		my $i=0;
 		print "find code(s):"."\n";
@@ -886,7 +945,7 @@ sub main{
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
-		-select [macd][kdj][turnover][total:][dig][lift]:select stock by some flag
+		-select [macd][kdj][turnover][total:][date:][dig][lift][break_surge]:select stock by some flag
 		-fc <code> :from code
 		-buy <code> <price> <total> <stop loss order>:buy a stock 
 		-lb[code [code ..]]:list bought stock(s)
@@ -999,6 +1058,9 @@ END
 			}
 			if(COM_get_command_line_property(\@ARGV,"lift")){
 					$gflag_selectcode_lift=1;
+			}
+			if(COM_get_command_line_property(\@ARGV,"break_surge")){
+					$gflag_selectcode_break_surge=1;
 			}
 			$g_selectcode_date = COM_today(0);
 			COM_get_command_line_property(\@ARGV,"date",\$g_selectcode_date);

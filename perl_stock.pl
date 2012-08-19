@@ -515,10 +515,10 @@ sub main{
 		-cde: create  database for stock daily exchange
 		-cre: drop stock daily excange database
 		-dde: delete exchange info in date
-		-ude[year1 [year2...]]: update stock daily exchange
+		-ude[year1 [year2...]]: update stock year(s) exchange
 		-ulde: update stock last daily excange
 		-sude[year1 [year2...]]: smart update stock daily exchange,before get data from internet ,query database;
-		-ucye code [year1 [year2...]]: update stock daily exchange
+		-ucye code [year1 [year2...]]: update stock year(s) exchange
 		-usde[season1 [season2...]]: update stock season exchange
 		-ufc:<code> from code
 		-clearexdb:clear exchange database

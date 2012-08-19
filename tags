@@ -38,6 +38,8 @@ DBT_get_exchange_info	perl_database_tools.pl	/^sub DBT_get_exchange_info{$/;"	s
 DBT_get_exchange_stockts	perl_database_tools.pl	/^sub DBT_get_exchange_stockts{$/;"	s
 DBT_get_fore_date_closing_price	perl_database_tools.pl	/^sub DBT_get_fore_date_closing_price{$/;"	s
 DBT_get_fore_exchange_day	perl_database_tools.pl	/^sub DBT_get_fore_exchange_day{$/;"	s
+DBT_get_last_exchange_day	perl_database_tools.pl	/^sub DBT_get_last_exchange_day{$/;"	s
+DBT_get_max_closing_price	perl_database_tools.pl	/^sub DBT_get_max_closing_price{$/;"	s
 DBT_get_max_price	perl_database_tools.pl	/^sub DBT_get_max_price{$/;"	s
 DBT_get_min_price	perl_database_tools.pl	/^sub DBT_get_min_price{$/;"	s
 DBT_get_next_date_closing_price	perl_database_tools.pl	/^sub DBT_get_next_date_closing_price{$/;"	s
@@ -166,10 +168,12 @@ _get_id_from_serv	plwapfetion.pl	/^sub _get_id_from_serv{$/;"	s
 _get_message	plwapfetion.pl	/^sub _get_message{$/;"	s
 _get_stock_base_info	perl_stock.pl	/^sub _get_stock_base_info{$/;"	s
 _get_stock_exchange	perl_stock.pl	/^sub _get_stock_exchange{$/;"	s
+_get_surge_days	perl_stocktools.pl	/^sub _get_surge_days{$/;"	s
 _get_turnover	perl_stocktools.pl	/^sub _get_turnover{$/;"	s
 _getid	pywapfetion/PyWapFetion/Fetion.py	/^    def _getid(self,mobile):$/;"	m	class:Fetion
 _init	plwapfetion.pl	/^sub _init{$/;"	s
 _init_code_monitor_info	perl_stocktools.pl	/^sub _init_code_monitor_info{$/;"	s
+_is_break_surge	perl_stocktools.pl	/^sub _is_break_surge{$/;"	s
 _is_diging	perl_stocktools.pl	/^sub _is_diging{$/;"	s
 _is_exchange_info_loged	customer_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
 _is_exchange_info_loged	perl_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s

@@ -20,9 +20,20 @@
 
 use strict;
 use warnings;
+require "perl_common.pl";
 require "perl_database.pl";
 
 $|=1;
+sub DBT_get_last_exchange_day{
+	my ($dhe,$code)=@_;
+	if($code and $dhe ){
+		my $today = COM_today(0);
+    	my $condition="DATE<=\"$today\" ORDER BY DATE DESC LIMIT 1";
+		my $day=MSH_GetValueFirst($dhe,$code,"DATE",$condition); 
+		return $day; 
+	}
+	return undef;
+}
 sub DBT_get_earlier_exchange_days{
 	my ($dhe,$code,$last_day,$day_cnt)=@_;
 	if($code && $last_day && defined $day_cnt){
@@ -33,9 +44,7 @@ sub DBT_get_earlier_exchange_days{
 	return undef;
 }
 sub DBT_get_fore_exchange_day{
-	my $code=shift;
-	my $date=shift;
-	my $dhe=shift;
+	my ($code,$date,$dhe) = @_;
     my $condition="DATE<\"$date\" ORDER BY DATE DESC LIMIT 1";
 	if(my @days=MSH_GetValue($dhe,$code,"DATE",$condition)){
 		return $days[0];
@@ -88,6 +97,36 @@ sub DBT_get_season_exchage_days{
 		my $condition="DATE<=\"$season_end\" && DATE>=\"$season_start\" ORDER BY DATE ASC";
 		@exchange_days=MSH_GetValue($dhe,$code,"DATE",$condition);
 		return @exchange_days;
+	}
+	return undef;
+}
+sub DBT_get_exchange_days{
+	my ($code,$dhe,$from,$to)=@_;	
+	if ($code && $dhe && $from ){
+		if(!$to){
+			$to = DBT_get_last_exchange_day($dhe,$code);	
+			if(COM_is_earlier_than($to,$from)){
+				$to = $from;
+			}
+		}
+		my $condition="DATE<=\"$to\" && DATE>=\"$from\" ORDER BY DATE ASC";
+		my @exchange_days=MSH_GetValue($dhe,$code,"DATE",$condition);
+		return @exchange_days;
+	}
+	return undef;
+}
+sub DBT_get_max_closing_price{
+	my ($code,$dhe,$from,$to)=@_;	
+	if($code && $dhe && $from){
+		my @days = DBT_get_exchange_days($code,$dhe,$from,$to);	
+		my $max = 0;
+		foreach my $day(@days){
+			my $price = DBT_get_closing_price($code,$day,$dhe);	
+			if ($price > $max){
+				$max = $price;
+			}
+		}
+		return $max;
 	}
 	return undef;
 }
