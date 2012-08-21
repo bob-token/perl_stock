@@ -395,7 +395,7 @@ sub _select_codes{
 	my $dhe=MSH_OpenDB($StockExDb);
 	my $dhi=MSH_OpenDB($StockInfoDb);
 	#流通市值限制
-	my $circulation_value_limit=0;
+	my $circulation_value_limit=1;
 	my $codeiterator;
 	SCOM_start_code_iterate(\$codeiterator,COM_get_fromcode());
 	while($code = SCOM_iterator_get_code(\$codeiterator)){
@@ -406,9 +406,11 @@ sub _select_codes{
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
 		my $yesterday=$last_exchange_data_day[1];
+		my $last_exchange_day = DBT_get_last_exchange_day($dhe,$code);
+		next if(!$last_exchange_day);
 		if($circulation_value_limit){
 			#对流通市值做限制
-			my $cur_price=SN_get_stock_cur_price($code);
+			my $cur_price=DBT_get_closing_price($code,$last_exchange_day,$dhe);
 			my $liutongshizhi=$cur_price*DBT_get_exchange_stockts($code,$dhi);
 			my $billion=1000000000 ;
 			my $million=1000000 ;
@@ -856,7 +858,8 @@ sub _monitor_exchange_stocks
 		sleep 10;
 	}
 	print "start:"."\n";
-	while(@monitor_stocks){
+	my $dhp = MSH_OpenDB($StockProfitDb);
+	while(@monitor_stocks || @prepare_stocks){
 		foreach $code(@monitor_stocks){
 			if(SN_get_stock_cur_rise($code)>9.7){
 				push @prepare_stocks,$code;	
@@ -864,19 +867,18 @@ sub _monitor_exchange_stocks
 			}
 		}
 		sleep 1;
-		my $dhp = MSH_OpenDB($StockProfitDb);
 		foreach $code(@prepare_stocks){
 			my $rise =  SN_get_stock_cur_rise($code);
 			printf "monitor prepare $code:$rise"."\n";
-			if(!_is_exchange_info_loged($code,_construct_code_day_header($code,'buytip')) && $rise<=9.7){
+			if(!_is_exchange_info_loged($code,_construct_code_day_header($code,'buytip')) && $rise<=9.7 && $rise<=8.0){
 				my $profit = DBT_get_profit($code,$dhp);
 				my $reportstr=_construct_code_day_header($code,'buytip').":rise($rise)"."profit:$profit:";
 			    _report_code($code,$reportstr);
 				COM_remove(\@prepare_stocks,$code);
 			}
 		}
-		$dhp->disconnect;
 	}
+	$dhp->disconnect;
 }
 sub _DMI{
 	my $code=shift;
