@@ -767,9 +767,9 @@ sub _monitor_bought_stock{
 				${$average}=(${$average}+$cur_price)/2;
 			}
 			$$fore_price=$cur_price;
-			printf("\naverage:$$average");
-			printf("\nfore_price:$$fore_price");
-			printf("\nreported_price:$$reported_price");
+			printf("\n$code:average:$$average");
+			printf("\n$code:fore_price:$$fore_price");
+			printf("\n$code:reported_price:$$reported_price");
 		}else{
 			#中午休市提示
 			if( $hour >=11&& $hour <13&&!_is_exchange_info_loged($code,_construct_code_day_header($code,'AM'))){
