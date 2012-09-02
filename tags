@@ -34,6 +34,7 @@ CookieJar	pywapfetion/PyWapFetion/Fetion.py	/^from cookielib import CookieJar$/;
 DBT_get_closing_price	perl_database_tools.pl	/^sub DBT_get_closing_price{$/;"	s
 DBT_get_days_rise	perl_database_tools.pl	/^sub DBT_get_days_rise{$/;"	s
 DBT_get_earlier_exchange_days	perl_database_tools.pl	/^sub DBT_get_earlier_exchange_days{$/;"	s
+DBT_get_exchange_days	perl_database_tools.pl	/^sub DBT_get_exchange_days{$/;"	s
 DBT_get_exchange_info	perl_database_tools.pl	/^sub DBT_get_exchange_info{$/;"	s
 DBT_get_exchange_stockts	perl_database_tools.pl	/^sub DBT_get_exchange_stockts{$/;"	s
 DBT_get_fore_date_closing_price	perl_database_tools.pl	/^sub DBT_get_fore_date_closing_price{$/;"	s

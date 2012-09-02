@@ -61,6 +61,9 @@ sub _login{
 	_init($mobile,$password,$loginstatus,0);
 	my $page = &_open('/im5/login/loginHtml5.action');
 	my $codekey_re = qr(name="codekey" value="(.*?)">);
+	my $codekey_url_re = qr(<img src="(.*?)");
+	my @tmp = _find_all(\$page,$codekey_url_re);
+	my $codekey_url = $tmp[0];
 	my @chkcodes = _find_all(\$page,$codekey_re);
 	my $chkcode = $chkcodes[0];
 	my $decode = decode_base64($chkcode);
