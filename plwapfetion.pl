@@ -56,21 +56,36 @@ sub _string_in{
 	}
 	return 0;
 }
+sub _construct_codekey_url{
+	my ($url) = @_;
+	return "http://f.10086.cn".$url;
+}
 sub _login{
 	my ($mobile,$password,$loginstatus) = @_;
 	_init($mobile,$password,$loginstatus,0);
 	my $page = &_open('/im5/login/loginHtml5.action');
+	#my $page = &_open('im/login/login.action');
+	if(_string_in("正在登录",$page)){
+		return 1;
+	}
 	my $codekey_re = qr(name="codekey" value="(.*?)">);
-	my $codekey_url_re = qr(<img src="(.*?)");
+	#my $codekey_url_re = qr(<img src="([\w\/]*?verifycode.*?)");
+	my $codekey_url_re = qr(<img src="(/im5/systemimage/verifycode(.*?).jpeg)" alt="f" />);
 	my @tmp = _find_all(\$page,$codekey_url_re);
-	my $codekey_url = $tmp[0];
-	my @chkcodes = _find_all(\$page,$codekey_re);
-	my $chkcode = $chkcodes[0];
-	my $decode = decode_base64($chkcode);
-	#my $ret = &_open('im/login/inputpasssubmit1.action',['m' => $mobile,'pass' => $password, 'checkCode' => $decode,'codekey' => $chkcode]);
-	my $ret = &_open('/im5/login/loginHtml5.action',['m' => $mobile,'pass' => $password, 'checkCode' => $decode,'codekey' => $chkcode]);
-	if(_string_in("验证码错误!",$ret)){
-		print "验证码错误"."\n";
+	my $codekey_url = _construct_codekey_url($tmp[0]);
+	my $download_pic="wget $codekey_url";
+	my $log =`$download_pic`;
+	print "code pic url:$codekey_url","\n";
+	print "please input code:";
+	my $chkcode = <STDIN>;
+	chomp($chkcode);
+	my $decode = ($chkcode);
+	my @login_url=($page =~ m/action="(.*?)">/g);
+	my $login_url="/im5/login/loginHtml5.action";
+	#my $login_url="im/login/inputpasssubmit1.action";
+	my $ret = &_open($login_url,['m' => $mobile,'pass' => $password, 'captchaCode' => $chkcode]);
+	if(_string_in("图形验证码错误!",$ret)){
+		print "图形验证码错误"."\n";
 		return 0;
 	}
 	$ret = &_open('/im/login/cklogin.action');
@@ -82,6 +97,7 @@ sub _get_id_from_cache{
 sub _get_id_from_serv{
 	my ($mobile) = @_;
     my $htm = _open('im/index/searchOtherInfoList.action',['searchText' => $mobile]);
+#    my $htm = _open('im/index/indexcenter.action');
 	if ($htm and $htm =~ m/touserid=(\d*)/){
 		return $1;
 	}
@@ -169,8 +185,9 @@ sub main{
 	my $flag0=COM_get_flag(0,"flag");
 	my $flag1=COM_get_flag(1,"flag");
 	_login($flag0,$flag1,'4');
-	&PWF_Send2Self('你上飞信了没？');
+	&PWF_Send2Self('wq');
 	#&PWF_Send2Friend(15989589076,'你上飞信了没？');
+	#&PWF_Send2Friend(13590216192,'你上飞信了没？');
 	while(1){
 		if (my $msgs=_get_message()){
 			foreach my $id ( keys %$msgs ){
