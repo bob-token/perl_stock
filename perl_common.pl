@@ -21,6 +21,8 @@
 use strict;
 use warnings;
 our $g_fromcode;
+our $logfile = 0;
+our $customlogfile;
 $|=1;
 sub COM_get_string{
 	my ($flag)=@_;
@@ -67,6 +69,20 @@ sub COM_get_property{
 		unshift @$param,reverse(@others);
 		return $find;
 }
+sub COM_command_line_filter_codes
+{
+	my ($param)=@_;
+	my @codes;
+	my $code;
+	my $find=0;
+	while($code=shift $param and SCOM_is_valid_code($code) ){
+		push @codes,$code;
+	}
+	if($code){
+		unshift @$param,$code;
+	}
+	return @codes;
+}
 sub COM_get_command_line_property{
 	my ($param,$key,$ref_value)=@_;
 	my @others;
@@ -100,6 +116,10 @@ sub COM_filter_param{
 	while(my $opt=shift @$param){
 		if($opt =~ /-fc\b/){
 			$g_fromcode=shift @$param;
+			next;
+		}
+		if($opt =~ /-log\b/){
+			$logfile = 1;
 			next;
 		}
 		unshift @others,$opt;
@@ -136,7 +156,23 @@ sub COM_is_valid_attribute{
 	}
 	return 0;
 }
-
+sub COM_download
+{
+	my ($url,$path,$max_try_times)=@_;
+	if($url && $path){
+		if (!$max_try_times){
+			$max_try_times = 3;
+		}
+		my $page = COM_get_page_content($url,$max_try_times);
+		if ($page){
+			open(OUT,">$path");
+			syswrite(OUT,$$page);
+			close(OUT);
+			return 1;
+		}
+	}
+	return 0;
+}
 sub COM_get_page_content{
 	my ($url,$max_try_times)=@_;
     my $browser = LWP::UserAgent->new;
@@ -247,4 +283,28 @@ sub COM_find{
 		}
 	}
 	return 0;
+}
+sub COM_log_init{
+	unlink COM_get_file_name("log");	
+}
+sub COM_log{
+	my ($string)=@_;
+	my $logfilename = COM_get_file_name("log");
+	if ($string){
+		if ($logfile){
+			open(OUT,">>$logfilename");
+			foreach my $str(@_){
+				print OUT $str;
+			}
+			close OUT;
+		}
+		print $string;
+	}
+}
+sub COM_get_file_name{
+	my ($flag)=@_;
+	if($flag=~/\blog\b/){
+		return "log_txt";		
+	}
+	return undef;
 }

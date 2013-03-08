@@ -77,7 +77,27 @@ sub _clear_stock_db{
 	#close db
 	$dbh->disconnect;
 }
-
+#获取上证指数
+sub _get_stock_sh_index{
+	my $code=shift;
+	my $year=shift;
+	my $jidu=shift;
+	my $url=sprintf("http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/000001/type/S.phtml?year=%s&jidu=%s", $year,$jidu);
+	my $content = COM_get_page_content($url,5);
+	my @stock;
+	if($content){
+		my @date=($$content =~ /(?<=date=)(\d{4}.*)(?='>)/g);
+		my @exchangeinfo=($$content =~ /(?<=center">)(\d{1,7}.*)(?=<\/div>)/g);
+		for( my $idd=0;$idd<(@date);$idd++){
+			my $start=$idd*6;
+			my $info=join(',',join('"','',$date[$idd],''),$exchangeinfo[$start+0],$exchangeinfo[$start+1],$exchangeinfo[$start+2],$exchangeinfo[$start+3],$exchangeinfo[$start+4],$exchangeinfo[$start+5]);
+			$info=sprintf("%s$info%s",'(',')');
+			push (@stock,$info);
+		}
+		return  @stock;
+	}
+	return undef;
+}
 sub _get_stock_exchange{
 	my $code=shift;
 	my $year=shift;
@@ -136,7 +156,7 @@ sub _get_stock_base_info{
 		}
 	}
 }
-sub _update_stock_season_exchange_info{
+sub _update_stock_season_profit_info{
 	my ($code,$dhp)=@_;
 	my $index = SCOM_get_part($code,'index');
 	my $url = "http://money.finance.sina.com.cn/corp/go.php/vFD_FinanceSummary/stockid/$index/displaytype/4.phtml";
@@ -158,7 +178,7 @@ sub _update_stock_season_exchange_info{
 	}
 	close IN;
 }
-sub _update_stocks_season_exchange_info{
+sub _update_stocks_season_profit_info{
 	my $dhp = MSH_OpenDB($StockProfitDb);
 	my $tablesname=MSH_GetAllTablesName($dhp,$StockProfitDb);
 	my $codeiterator;
@@ -172,7 +192,7 @@ sub _update_stocks_season_exchange_info{
 			MSH_CreateTableIfNotExist($dhp,$code,$table_p);
 			MSH_SetUniqueKey($dhp,$code,"DATE");
 		}
-		_update_stock_season_exchange_info($code,$dhp);
+		_update_stock_season_profit_info($code,$dhp);
 	}
 	$dhp->disconnect;
 }
@@ -209,6 +229,67 @@ sub _update_stocks_base_info{
 	close(IN);
 	$dbh->disconnect;
 	return 1;	
+}
+sub _USHI{
+	my ($ref_years,$ref_seasons)=@_;
+	my $dbh=_open_stock_db();
+	my $tablesname=MSH_GetAllTablesName($dbh,$StockExDb);
+	my $code='sh000001';
+	my $year;
+	my $csec;
+	my $cmin;
+	my $chour;
+	my $cday;
+	my $cmon;
+	my $cyear;
+	my $cwday;
+	my $cyday;
+	my $cisdst;
+	my $start = 1;
+	($csec, $cmin, $chour, $cday, $cmon, $cyear, $cwday, $cyday, $cisdst) = localtime();
+	$cyear=$cyear+1900;
+	$cmon+=1;
+	foreach $year(@$ref_years){
+		if($cyear >= $year){
+			my $total=4;
+			my $start=1;
+			if($cyear == $year){
+				$total=int(($cmon-1)/3)+1;
+			}
+			if(index (uc($tablesname),uc($code)) < 0){
+				#create tables;
+				my $table_p="DATE DATE,KAIPANJIA FLOAT,ZUIGAOJIA FLOAT,SHOUPANJIA FLOAT,ZUIDIJIA FLOAT,JIAOYIGUSHU BIGINT,JIAOYIJINE BIGINT";
+				MSH_CreateTableIfNotExist($dbh,$code,$table_p);
+				MSH_SetUniqueKey($dbh,$code,"DATE");
+			}
+			foreach my $jd(@$ref_seasons){
+				_update_stock_sh_index($dbh,$code,$year,$jd,1);
+			}
+		}
+	}
+	$dbh->disconnect;
+	return 1;	
+}
+sub _update_stock_sh_index{
+	my $dbh=shift;
+	my $code=shift;
+	my $nStartYear=shift;
+	my $nStartJidu=shift;
+	my $nTotalJidu=shift;
+	my $tbl_name=$code;
+	my $sql;
+	foreach my $i(0..$nTotalJidu-1){
+		my $year=$nStartYear+int(($nStartJidu-1+$i)/4);
+		my $jidu=1+($nStartJidu-1+$i)%4;
+		print $code," ",$year," year ",$jidu," season\n";
+		my @info=_get_stock_sh_index($code,$year,$jidu);
+		if(@info){
+			my $str_info=join(',',@info,'');
+			chop $str_info;
+			$sql=sprintf("INSERT IGNORE INTO  %s VALUES %s ;",$tbl_name,$str_info);
+			$dbh->do($sql) or print $!;			
+		}
+	}
 }
 sub _update_stock_exchange{
 	my $dbh=shift;
@@ -496,6 +577,14 @@ sub _update_last_exchange{
 	close IN;
 	return 1;	
 }
+sub _clear_stock{
+	my ($code)=@_;
+	my $dbh=MSH_OpenDB($StockExDb);
+	if(SCOM_is_valid_code($code)){
+		MSH_DropTableIfExist($dbh,$code);	
+	}
+	$dbh->disconnect;
+}
 sub main{
 	my @years;
 	my $flag_ude=0;
@@ -509,19 +598,21 @@ sub main{
 		-cdi: create  database for stock base info
 		-cri: drop stock base info database
 		-udi: update stock base info
-		-cdsi: create  database for stock season exchange info
-		-crsi: drop stock season exchange database
+		-cdsi: create  database for stock season profit exchange info
+		-crsi: drop stock season profit exchange database
 		-udsi: update stock season exchange  info
 		-cde: create  database for stock daily exchange
 		-cre: drop stock daily excange database
+		-crc: drop stock excange database
 		-dde: delete exchange info in date
 		-ude[year1 [year2...]]: update stock year(s) exchange
 		-ulde: update stock last daily excange
 		-sude[year1 [year2...]]: smart update stock daily exchange,before get data from internet ,query database;
 		-ucye code [year1 [year2...]]: update stock year(s) exchange
-		-usde[season1 [season2...]]: update stock season exchange
+		-ushi[year[years[...]]] [season1 [season2...]]: update stock sh index 
+		-usde[year[years[...]]] [season1 [season2...]]: update stock season exchange
 		-ufc:<code> from code
-		-clearexdb:clear exchange database
+		-clearexdb:clear invalid exchange data
 END
 	}
 		#clear exchange database
@@ -545,7 +636,7 @@ END
 		#-crsi: drop stock season exchange database
 		$opt =~ /-crsi\b/ &&_clear_stock_db($StockProfitDb)&& print "$StockProfitDb cleared!\n";
 		#-udsi: update stock season exchange  info
-		$opt =~ /-udsi\b/ &&  _update_stocks_season_exchange_info()&& print "update stock profit info success\n";
+		$opt =~ /-udsi\b/ &&  _update_stocks_season_profit_info()&& print "update stock profit info success\n";
 		#update from the code
 		if($opt =~ /-ufc\b/){
 			$fromcode=shift @ARGV;
@@ -567,7 +658,37 @@ END
 			_UCYE($code,@years);
 			print $code." ",join(":",@years)," exchange data update success !","\n";
 		}
-		#-usde[season1 [season2...]]: update stock season exchange
+		#-crc: drop stock excange database
+		if($opt =~ /-crc\b/){
+			my $year;
+			my $code=shift @ARGV;
+			if(!SCOM_is_valid_code($code)){
+				unshift(@ARGV,$year);
+			}else{
+				_clear_stock($code);
+			}
+			print "clear ".$code." exchange info success !","\n";
+		}
+		#-ushi[year[years[...]]] [season1 [season2...]]: update stock sh index 
+		if($opt =~ /-ushi\b/){
+			my $year;
+			my @season;
+			while($year=shift @ARGV and $year =~ /\b\d{4}\b/){
+				push @years,$year;
+			}
+			if(defined $year){
+				unshift(@ARGV,$year);
+			}
+			while($year=shift @ARGV and $year =~ /\b\d\b/){
+				push @season,$year;
+			}
+			if(defined $year){
+				unshift(@ARGV,$year);
+			}
+			 _USHI(\@years,\@season);
+			print join(":",@years,@season)," sh index update success !","\n";
+		}
+		#-usde[year[years[...]]] [season1 [season2...]]: update stock season exchange
 		if($opt =~ /-usde\b/){
 			my $year;
 			my @season;

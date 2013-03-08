@@ -19,7 +19,9 @@ our $code_property_separator='@';
 our $code_property_assignment=':';
 #选择股票代码的技术指标开关
 our $g_selectcode_date;
-our $gflag_selectcode_lift=0;#拉升
+our $g_selectcode_mode;
+our $gflag_selectcode_mode=0;#模式
+our $gflag_selectcode_level=0;#级别(越低越严格)
 our $gflag_selectcode_dig=0;#挖坑
 our $gflag_selectcode_macd=0;#macd指数
 our $gflag_selectcode_kdj=0;#kdj指数
@@ -333,49 +335,6 @@ sub _is_break_surge{
 	}
 	return 0;
 }
-sub _is_lift{
-	my ($dhe,$code,$date)=@_;
-	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
-	if(@days){
-		my $maxrise=0.05;
-		my $durationrise = 0;
-		my $day_count=20;
-		my @durationdays= DBT_get_earlier_exchange_days($dhe,$code,$days[0],$day_count);
-		my @daysbig;
-		my @dayslittle;
-		my @daysother;
-		my @daysup;
-		my @daysdown;
-		foreach my $one(@durationdays){
-			my $rise = DBT_get_rise($code,$dhe,$one);
-			if ($rise > 0){
-				push @daysup,$rise;
-			}else{
-				push @daysdown,$rise;
-			}
-			if (abs($rise) < 0.03){
-				push @dayslittle,$rise;
-			}elsif (abs($rise < 0.05)){
-				push @daysbig,$rise;
-			}else{
-				push @daysother,$rise;
-			}
-		}
-		if (scalar(@daysother) >= $day_count/6 || scalar(@daysbig) > $day_count/4 || (($#daysup+1) < 3 * ($#daysdown+1))){
-			return 0;	
-		}
-		if (@durationdays && scalar(@durationdays) > 1){
-			$durationrise = DBT_get_days_rise($code,$dhe,$durationdays[$#durationdays],$durationdays[0]); 
-		}
-		my $todayrise = DBT_get_rise($code,$dhe,$days[0]); 
-		my $volume= DBT_get_volume($code,$dhe,$days[1]); 
-		#if($todayrise > 0.06 && $volume < 50000*100 && abs($durationrise)< 0.08){
-		if($volume < 50000*100 && abs($durationrise)< 0.08){
-			return 1;
-		}
-	}
-	return 0;
-}
 sub _is_diging{
 	my ($dhe,$code,$date)=@_;
 	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
@@ -387,7 +346,191 @@ sub _is_diging{
 	}
 	return 0;
 }
-sub _select_codes{
+#拐点日期
+sub _get_inflection_date
+{
+	my ($dhe,$code,$date)=@_;
+}
+sub _is_mode1
+{
+	my ($dhe,$code,$date,$level)=@_;
+	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,20);
+	if (@days){
+		my $last = $days[0];
+		my $start = 0;
+		my @tdays;
+		my $mindays = 3;
+		if ($level > 0){
+			$mindays = 2;
+		}
+		foreach my $day(@days){
+			my $rise = DBT_get_days_rise($code,$dhe,$last,$day);
+			my $dayrise = DBT_get_rise($code,$dhe,$day);
+			my $max = DBT_get_max_price($code,$day,$dhe);
+			my $min = DBT_get_min_price($code,$day,$dhe);
+			if ($max == $min && $dayrise < 0.03){
+				$start =1;
+				push @tdays,$day;
+				next;
+			}
+			if($start ){
+				if( scalar(@tdays)< $mindays){
+					return 0;	
+				}
+				return 1;
+			}else{
+				if($rise > 0.1){
+					return 0;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+sub _is_mode2
+{
+	my ($dhe,$code,$date,$level)=@_;
+	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
+	if (not $level){
+		$level = 0;
+	}
+	if(@days){
+		my $maxrise=0.05;
+		my $durationrise = 0;
+		my $day_count=12;
+		my @durationdays= DBT_get_earlier_exchange_days($dhe,$code,$days[0],$day_count);
+		my @daysbigvol;
+		my @dayslittlevol;
+		my @daysbig;
+		my @dayslittle;
+		my @daysother;
+		my @daysup;
+		my @daysdown;
+		my $maxVol = 50000*100;
+		my $minDurationRise = 0.06;
+		my $lastupdays=4;
+		my @lastupdays;
+		my $lastupdaysmin=0.6;
+		my $tmp = $lastupdays;
+		foreach my $one(@durationdays){
+			my $volume= DBT_get_volume($code,$dhe,$one); 
+			my $rise = DBT_get_rise($code,$dhe,$one);
+			if ($tmp> 0){
+				if ($rise > 0){
+					push @lastupdays,$rise;
+				}
+				$tmp--;
+			}
+			if ($rise > 0){
+				push @daysup,$rise;
+			}else{
+				push @daysdown,$rise;
+			}
+			if (abs($rise) < 0.03){
+				push @dayslittle,$rise;
+			}elsif (abs($rise < 0.055)){
+				push @daysbig,$rise;
+			}else{
+				push @daysother,$rise;
+			}
+			if ($volume >  $maxVol){
+				push @daysbigvol,$volume;
+			}else{
+				push @dayslittlevol,$volume;
+			}
+		}
+		if(($#daysup+1) < 3 * ($#daysdown+1)){
+			return 0;
+		}
+		if (@durationdays && scalar(@durationdays) > 1){
+			$durationrise = DBT_get_days_rise($code,$dhe,$durationdays[$#durationdays],$durationdays[0]); 
+		}
+		if ($level <=0){
+			if (scalar(@daysbig) > $day_count/4 ){
+				return 0;	
+			}
+			if (scalar(@daysother) < 1){
+				return 0;
+			}
+			if (scalar(@daysbigvol) > $day_count/7){
+				return 0;
+			}
+		}
+		if ($level <= 1){
+			if(abs($durationrise) < $minDurationRise){
+				return 0;
+			}
+			if ( scalar(@daysother) >= $day_count/6 ){
+				return 0;	
+			}
+			if (scalar(@lastupdays) < $lastupdays * $lastupdaysmin){
+				return;
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+sub _is_mode3
+{
+	my ($dhe,$code,$date,$level)=@_;
+	my $dayscount = 5;
+	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,$dayscount+1);
+	if (@days){
+		my $last = $days[0];
+		my $foredayrise = DBT_get_rise($code,$dhe,$days[$#days]);
+		if ($level < 1){
+			if($foredayrise > 0){
+				return 0;
+			}
+		}
+		foreach my $day(@days){
+			my $dayrise = DBT_get_rise($code,$dhe,$day);
+			my $rise = DBT_get_days_rise($code,$dhe,$day,$last);
+			if ($dayrise < 0){
+				return 0;
+			}
+			if ($rise < 0){
+				return 0;
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+#底部放量
+sub _is_mode4
+{
+	my ($dhe,$code,$date,$level)=@_;
+	#底部判断
+	my $dayscount = 20;
+	my $dayupcount = $dayscount/10;
+	my $tmp = $dayupcount;
+	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,$dayscount+1);
+	if (@days){
+		my @tmp;
+		foreach my $day(@days){
+			my $volume = DBT_get_volume($code,$dhe,$day);
+			push @tmp,$volume;	
+		}
+		my $last = $tmp[0];
+		my $last1 = $tmp[1];
+		my $lastday=$days[0];
+		my $lastrise = DBT_get_rise($code,$dhe,$lastday);
+		if ($lastrise < 0.03 || $lastrise > 0.08){
+			return 0;
+		}
+		foreach my $tmp(@tmp){
+			if ($last >	$tmp*10 && $last1 > $tmp*6){
+				return 1;
+			}
+		}
+	}
+	return 0;	
+}
+sub _select_codes
+{
 	my $stockcodefile=shift;
 	my $stock_cnt=shift;
 	my @codes;
@@ -403,25 +546,32 @@ sub _select_codes{
 		chomp $code;
 		my $date="2052-12-31";
 		my $data_start_day="2012-01-01";
+		if (defined $g_selectcode_date){
+			$date = $g_selectcode_date;
+		}
 		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 		$date=$last_exchange_data_day[0];
+		if(not $date){
+			print ("skip $code ,date is not suitable!","\r\n");
+			next;
+		}
 		my $yesterday=$last_exchange_data_day[1];
 		my $last_exchange_day = DBT_get_last_exchange_day($dhe,$code);
 		next if(!$last_exchange_day);
+		$code_info=join(':',$code,$date);
 		if($circulation_value_limit){
 			#对流通市值做限制
 			my $cur_price=DBT_get_closing_price($code,$last_exchange_day,$dhe);
 			my $liutongshizhi=$cur_price*DBT_get_exchange_stockts($code,$dhi);
 			my $billion=1000000000 ;
 			my $million=1000000 ;
-			 if($liutongshizhi>8*$billion or $liutongshizhi <40*$million){
+			 if($liutongshizhi>18*$billion or $liutongshizhi <40*$million){
 				 my $mb=sprintf("%.3f",$liutongshizhi/$billion);
-				 print "Skip $code:market value : $mb billion\n";
+				 print ("Skip $code:market value : $mb billion\n");
 				 next;
 			 }
 		}
 		if($gflag_selectcode_macd){
-			$code_info=join(':',$code,$date);
 			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
 			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,$data_start_day,$date,1);
 			next if(!$macd);
@@ -430,12 +580,10 @@ sub _select_codes{
 			next if($macd <$macd1 );
 			my $macd2=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[2]);
 			next if($macd1<$macd2);
-			print $code,":$date:MACD:$macd","\n";
+			COM_log($code,":$date:MACD:$macd","\n");
 			#push @codes,join(":",$code,$date,"MACD",$macd);
-			$code_info=join(":",$code_info,"MACD",$macd);
 		}
 		if($gflag_selectcode_kdj){
-			$code_info=join(':',$code,$date);
 			my $period=9;
 			my @days=DBT_get_earlier_exchange_days($dhe,$code,$date,30);
 			@days=reverse @days;
@@ -447,36 +595,34 @@ sub _select_codes{
 			my $YD=_D_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
 			my $J=_J_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
 			print join(":",$code,$date,"K:",$K,"D:",$D,"J:",$J),"\n";
-		#	if($YK<= $YD and $K >= $D){
 			if($YK - $YD < $K - $D){
 				print join(":",$code,$date,"YK:",$YK,"YD:",$YD,"J:",$J),"\n";
-				#push @codes,join(":",$code,$date,"K",$K,"D",$D,"J",$J);
 				$code_info=join(":",$code_info,"K",$K,"D",$D,"J",$J);
 			}else{
 				next;
 			}
 		}
 		if($gflag_selectcode_dig){
-			$code_info=join(':',$code,$g_selectcode_date);
-			if(!_is_diging($dhe,$code,$g_selectcode_date)){
+			if(!_is_diging($dhe,$code,$date)){
 				next;
 			}
 		}
-		if($gflag_selectcode_lift){
-			$code_info=join(':',$code,$g_selectcode_date);
-			if(!_is_lift($dhe,$code,$g_selectcode_date)){
-				next;
-			}
-		}
-
 		if($gflag_selectcode_break_surge){
-			$code_info=join(':',$code,$g_selectcode_date);
-			if(!_is_break_surge($dhe,$code,$g_selectcode_date)){
+			if(!_is_break_surge($dhe,$code,$date)){
 				next;
 			}
-
 		}
-
+		if($gflag_selectcode_mode){
+			if($g_selectcode_mode == 1 && !_is_mode1($dhe,$code,$date,$gflag_selectcode_level)){
+				next;
+			}elsif ($g_selectcode_mode == 2 && !_is_mode2($dhe,$code,$date,$gflag_selectcode_level)){
+				next;	
+			}elsif ($g_selectcode_mode == 3 && !_is_mode3($dhe,$code,$date,$gflag_selectcode_level)){
+				next;	
+			}elsif ($g_selectcode_mode == 4 && !_is_mode4($dhe,$code,$date,$gflag_selectcode_level)){
+				next;	
+			}
+		}
 		push @codes,$code_info;
 		last if(@codes >= $stock_cnt);
 	}
@@ -660,26 +806,6 @@ sub _is_today_loged{
 	}
 	close IN;
 	return 0;
-}
-sub _read_key_value{
-	my ($file,$key)=@_;
-}
-sub _write_key_value{
-	my ($file,$key,$value)=@_;
-}
-sub _update_stock_status{
-	my ($code,$cur_price)=@_;
-	my $key_max_price='max_price';
-	my $key_average_price='average_price';
-	my $statusfile=_get_code_monitor_info_file($code,'status');
-	my $max_price=_read_key_value($key_max_price);
-	my $average_price=_read_key_value($key_average_price);
-	if($max_price <$cur_price){
-		_write_key_value($key_max_price,$cur_price);
-	}
-	if(($cur_price+$average_price)/2 != $average_price){
-		_write_key_value($key_average_price,sprintf("%.2f",($cur_price+$average_price)/2));
-	}
 }
 sub _monitor_bought_stock{
 	my ($code,$ref_monitor_info)=@_;
@@ -932,8 +1058,86 @@ sub _get_exchange_info{
 	}
 	return @myinfo;
 }
-sub main{
+sub _pasre_exchange_details{
+	my($info)=@_;
+	if($info){
+		my @info = split(" ",$info);	
+		my @time;
+		if (@info and $#info > 4 ){
+			@time = split(":",$info[0]);
+			if(@time and $#time == 2){
+				return @info;	
+			}
+		}
+	}
+	return undef;
+}
+sub _get_details_volume{
+	my($info)=@_;
+	my @info ;
+	if(@info = _pasre_exchange_details($info) && $#info >=3 ){
+		return $info[3];
+	}
+	return undef;
+}
+sub _get_details_value{
+	my($info)=@_;
+	my @info = _pasre_exchange_details($info);
+	if(@info && $#info >=4 ){
+		return $info[4];
+	}
+	return undef;
+
+}
+sub _analyze_code_days{
+	my ($code,$date,$count) = @_;	
+	my $dhe=MSH_OpenDB($StockExDb);
+	if (!$date){
+		$date = DBT_get_last_exchange_day($dhe,$code);	
+	}
+	if (!$count){
+		$count = 1;
+	}
+	my @days = DBT_get_earlier_exchange_days($dhe,$code,$date,$count);
+	$dhe->disconnect;
+	foreach my $day(@days){
+		_analyze_code($code,$day);
+	}
+}
+sub _analyze_code
+{
+	my ($code,$date) = @_;	
+	my $dhe=MSH_OpenDB($StockExDb);
+	my $big = 1000000;
+	my @bigvalue;
+	if (!$date){
+		$date = DBT_get_last_exchange_day($dhe,$code);	
+	}
+	my $exchange_details_file = $code."_details_".$date;
+	if (not -e $exchange_details_file){
+		my $url = "http://market.finance.sina.com.cn/downxls.php?date=$date&symbol=$code";
+		if(!COM_download($url,$exchange_details_file)){
+			COM_log("download $exchange_details_file fail!");
+			return 0;
+		}
+	}
+	open(IN,"<$exchange_details_file");
+	while(<IN>){
+		my $val= _get_details_value($_);
+		if($val && $val > $big){
+			push @bigvalue,$val;	
+		}
+	}
+	close IN;	
+	my $bigcounts = scalar(@bigvalue);
+	COM_log("$code:$date:big exchange:$bigcounts times\n");
+	unlink $exchange_details_file; 
+	$dhe->disconnect;
+}
+sub main
+{
     my $pause=0;
+	COM_log_init();
 	#传引用
 	COM_filter_param(\@ARGV);
 	while(my $opt=shift @ARGV){
@@ -947,7 +1151,7 @@ sub main{
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
-		-select [macd][kdj][turnover][total:][date:][dig][lift][break_surge]:select stock by some flag
+		-select [macd][kdj][turnover][total:][date:][dig][lift][break_surge][mode:[1...]]:select stock by some flag
 		-fc <code> :from code
 		-buy <code> <price> <total> <stop loss order>:buy a stock 
 		-lb[code [code ..]]:list bought stock(s)
@@ -955,6 +1159,7 @@ sub main{
 		-mbs [code [code ..]]:monitor bought stock(s)
 		-mes monitor exchange stock(s)
 		-show <code> [fromdate] [todate]:show exchange info in the days
+		-analyze <code> [date:2012-10-10]:analyze exchange detials info
 END
 	}
 		#help info
@@ -1035,6 +1240,7 @@ END
 				@info=_get_exchange_info($code,$from,$to);
 				last;
 			}
+			$dhe->disconnect;
 			print join("\n",@info);
 		}
 		#buy stock
@@ -1058,18 +1264,20 @@ END
 			if(COM_get_command_line_property(\@ARGV,"dig")){
 					$gflag_selectcode_dig=1;
 			}
-			if(COM_get_command_line_property(\@ARGV,"lift")){
-					$gflag_selectcode_lift=1;
-			}
 			if(COM_get_command_line_property(\@ARGV,"break_surge")){
 					$gflag_selectcode_break_surge=1;
 			}
-			$g_selectcode_date = COM_today(0);
+			if(COM_get_command_line_property(\@ARGV,"mode",\$g_selectcode_mode)){
+					$gflag_selectcode_mode=1;
+			}
+			#$g_selectcode_date = COM_today(0);
 			COM_get_command_line_property(\@ARGV,"date",\$g_selectcode_date);
 			my $total=20;
 			COM_get_command_line_property(\@ARGV,"total",\$total);
+			my $level = 0;
+			COM_get_command_line_property(\@ARGV,"level",\$gflag_selectcode_level);
 			my @codes=_select_codes($StockCodeFile,$total);
-			print join("\n","selected:",@codes);
+			COM_log(join("\n","selected:",@codes));
 		}
         #turnover rate
         if($opt =~ /-tor/){
@@ -1173,11 +1381,25 @@ END
 				unshift(@ARGV,$code);
 			}
 		}
+		if($opt =~ /-analyze/){
+			my @codes = COM_command_line_filter_codes(\@ARGV);			
+			if (@codes){
+				my $date ;
+				my $count;
+				COM_get_command_line_property(\@ARGV,"date",\$date);
+				COM_get_command_line_property(\@ARGV,"count",\$count);
+				foreach my $code(@codes){
+					_analyze_code_days($code,$date,$count);	
+				}
+
+			}
+		}
+
 	}
 	if($pause){
 		system("pause");
 	}   
-	print "\nbye bye!\n";
+	COM_log("\nbye bye!\n");
 }
 
 main;

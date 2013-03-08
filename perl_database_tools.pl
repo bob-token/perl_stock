@@ -131,18 +131,14 @@ sub DBT_get_max_closing_price{
 	return undef;
 }
 sub DBT_get_min_price{
+	my ($code,$date,$dhe)=@_;
 	my @value;
-	my $code=shift;
-	my $date=shift;
-	my $dhe=shift;
     my $condition="DATE=\"$date\"";
 	return MSH_GetValueFirst($dhe,$code,"ZUIDIJIA",$condition); 
 }
 sub DBT_get_max_price{
+	my ($code,$date,$dhe)=@_;
 	my @value;
-	my $code=shift;
-	my $date=shift;
-	my $dhe=shift;
     my $condition="DATE=\"$date\"";
 	return MSH_GetValueFirst($dhe,$code,"ZUIGAOJIA",$condition); 
 }
@@ -181,6 +177,18 @@ sub DBT_get_days_rise{
 		return $rise;
 	}
 	return 0;
+}
+#当天振幅
+sub DBT_get_amplitude{
+	my ($code,$dhe,$date)=@_;
+	my $max_price = DBT_get_max_price($code,$date,$dhe);
+	my $min_price = DBT_get_min_price($code,$date,$dhe);
+	my $fore_close_price = DBT_get_fore_date_closing_price($code,$date,$dhe);
+	my $opening_price = DBT_get_opening_price($code,$date,$dhe);
+	if ($fore_close_price){
+		return ($max_price-$min_price)/$fore_close_price;
+	}
+	return ($max_price-$min_price)/$opening_price;
 }
 sub DBT_get_rise{
 	my ($code,$dhe,$date)=@_;

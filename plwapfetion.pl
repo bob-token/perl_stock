@@ -63,8 +63,8 @@ sub _construct_codekey_url{
 sub _login{
 	my ($mobile,$password,$loginstatus) = @_;
 	_init($mobile,$password,$loginstatus,0);
-	my $page = &_open('/im5/login/loginHtml5.action');
-	#my $page = &_open('im/login/login.action');
+	#my $page = &_open('/im5/login/loginHtml5.action');
+	my $page = &_open('im/login/login.action');
 	if(_string_in("正在登录",$page)){
 		return 1;
 	}
@@ -72,17 +72,19 @@ sub _login{
 	#my $codekey_url_re = qr(<img src="([\w\/]*?verifycode.*?)");
 	my $codekey_url_re = qr(<img src="(/im5/systemimage/verifycode(.*?).jpeg)" alt="f" />);
 	my @tmp = _find_all(\$page,$codekey_url_re);
+	my $image=&_open($tmp[0]);
+	open(OUT,">","verifycode.jpeg");
+	syswrite(OUT,$image);
+	close OUT;
 	my $codekey_url = _construct_codekey_url($tmp[0]);
-	my $download_pic="wget $codekey_url";
-	my $log =`$download_pic`;
 	print "code pic url:$codekey_url","\n";
 	print "please input code:";
 	my $chkcode = <STDIN>;
 	chomp($chkcode);
 	my $decode = ($chkcode);
 	my @login_url=($page =~ m/action="(.*?)">/g);
-	my $login_url="/im5/login/loginHtml5.action";
-	#my $login_url="im/login/inputpasssubmit1.action";
+	#my $login_url="/im5/login/loginHtml5.action";
+	my $login_url="im/login/inputpasssubmit1.action";
 	my $ret = &_open($login_url,['m' => $mobile,'pass' => $password, 'captchaCode' => $chkcode]);
 	if(_string_in("图形验证码错误!",$ret)){
 		print "图形验证码错误"."\n";
@@ -188,7 +190,7 @@ sub main{
 	&PWF_Send2Self('wq');
 	#&PWF_Send2Friend(15989589076,'你上飞信了没？');
 	#&PWF_Send2Friend(13590216192,'你上飞信了没？');
-	while(1){
+	while(0){
 		if (my $msgs=_get_message()){
 			foreach my $id ( keys %$msgs ){
 				_process_message($msgs->{$id});

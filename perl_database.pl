@@ -98,6 +98,18 @@ sub MSH_CreateTable{
 	my $sql=sprintf("CREATE TABLE %s (%s);",$TableName,$CreateDefinition);
 	return $dbh->do($sql);
 }
+sub MSH_DropTable{
+	my $dbh=shift;
+	my $TableName=shift;
+	my $sql=sprintf("DROP TABLE %s ;",$TableName);
+	return $dbh->do($sql);
+}
+sub MSH_DropTableIfExist{
+	my $dbh=shift;
+	my $TableName=shift;
+	my $sql=sprintf("DROP TABLE IF EXISTS %s ;",$TableName);
+	return $dbh->do($sql);
+}
 sub MSH_CreateTableIfNotExist{
 	my $dbh=shift;
 	my $TableName=shift;

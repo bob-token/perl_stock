@@ -6,10 +6,13 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 AliveKeeper	pywapfetion/PyWapFetion/AliveKeeper.py	/^class AliveKeeper(Thread):$/;"	c
 AliveKeeper	pywapfetion/PyWapFetion/Fetion.py	/^            from AliveKeeper import AliveKeeper$/;"	i
+COM_command_line_filter_codes	perl_common.pl	/^sub COM_command_line_filter_codes$/;"	s
+COM_download	perl_common.pl	/^sub COM_download$/;"	s
 COM_filter_param	perl_common.pl	/^sub COM_filter_param{$/;"	s
 COM_find	perl_common.pl	/^sub COM_find{$/;"	s
 COM_get_command_line_property	perl_common.pl	/^sub COM_get_command_line_property{$/;"	s
 COM_get_cur_time	perl_common.pl	/^sub COM_get_cur_time{$/;"	s
+COM_get_file_name	perl_common.pl	/^sub COM_get_file_name{$/;"	s
 COM_get_flag	perl_common.pl	/^sub COM_get_flag{$/;"	s
 COM_get_fromcode	perl_common.pl	/^sub COM_get_fromcode{$/;"	s
 COM_get_page_content	perl_common.pl	/^sub COM_get_page_content{$/;"	s
@@ -18,6 +21,8 @@ COM_get_string	perl_common.pl	/^sub COM_get_string{$/;"	s
 COM_is_earlier_than	perl_common.pl	/^sub COM_is_earlier_than{$/;"	s
 COM_is_same_day	perl_common.pl	/^sub COM_is_same_day{$/;"	s
 COM_is_valid_attribute	perl_common.pl	/^sub COM_is_valid_attribute{$/;"	s
+COM_log	perl_common.pl	/^sub COM_log{$/;"	s
+COM_log_init	perl_common.pl	/^sub COM_log_init{$/;"	s
 COM_remove	perl_common.pl	/^sub COM_remove{$/;"	s
 COM_today	perl_common.pl	/^sub COM_today{$/;"	s
 CUS_AddProperty	perl_customer.pl	/^sub CUS_AddProperty{$/;"	s
@@ -31,6 +36,7 @@ Cache	pywapfetion/PyWapFetion/Cache.py	/^class Cache(object):$/;"	c
 Cache	pywapfetion/PyWapFetion/Fetion.py	/^from Cache import Cache$/;"	i
 Check	pywapfetion/WapFetion.py	/^def Check(bool):$/;"	f
 CookieJar	pywapfetion/PyWapFetion/Fetion.py	/^from cookielib import CookieJar$/;"	i
+DBT_get_amplitude	perl_database_tools.pl	/^sub DBT_get_amplitude{$/;"	s
 DBT_get_closing_price	perl_database_tools.pl	/^sub DBT_get_closing_price{$/;"	s
 DBT_get_days_rise	perl_database_tools.pl	/^sub DBT_get_days_rise{$/;"	s
 DBT_get_earlier_exchange_days	perl_database_tools.pl	/^sub DBT_get_earlier_exchange_days{$/;"	s
@@ -63,6 +69,8 @@ MSH_CreateTable	perl_database.pl	/^sub MSH_CreateTable{$/;"	s
 MSH_CreateTableIfNotExist	perl_database.pl	/^sub MSH_CreateTableIfNotExist{$/;"	s
 MSH_Delete	perl_database.pl	/^sub MSH_Delete$/;"	s
 MSH_DropDB	perl_database.pl	/^sub MSH_DropDB{$/;"	s
+MSH_DropTable	perl_database.pl	/^sub MSH_DropTable{$/;"	s
+MSH_DropTableIfExist	perl_database.pl	/^sub MSH_DropTableIfExist{$/;"	s
 MSH_GetAllTablesName	perl_database.pl	/^sub MSH_GetAllTablesName{$/;"	s
 MSH_GetAllTablesName1	perl_database.pl	/^sub MSH_GetAllTablesName1{$/;"	s
 MSH_GetAllTablesNameArrary	perl_database.pl	/^sub MSH_GetAllTablesNameArrary{$/;"	s
@@ -116,6 +124,7 @@ _MACD_DIFFLITTLETHANZERO	perl_stocktools.pl	/^sub _MACD_DIFFLITTLETHANZERO{$/;"	
 _RSV_OF_KDJ	perl_stocktools.pl	/^sub _RSV_OF_KDJ{$/;"	s
 _UCYE	perl_stock.pl	/^sub _UCYE{$/;"	s
 _USDE	perl_stock.pl	/^sub _USDE{$/;"	s
+_USHI	perl_stock.pl	/^sub _USHI{$/;"	s
 __all__	pywapfetion/PyWapFetion/AliveKeeper.py	/^__all__ = ['AliveKeeper']$/;"	v
 __all__	pywapfetion/PyWapFetion/Cache.py	/^__all__ = ['Cache']$/;"	v
 __all__	pywapfetion/PyWapFetion/Fetion.py	/^__all__ = ['Fetion']$/;"	v
@@ -139,13 +148,17 @@ _add_cus_stock_info	customer_stocktools.pl	/^sub _add_cus_stock_info{$/;"	s
 _add_property	customer_stocktools.pl	/^sub _add_property{$/;"	s
 _add_property	perl_stocktools.pl	/^sub _add_property{$/;"	s
 _add_stock	plwapfetion.pl	/^sub _add_stock{$/;"	s
+_analyze_code	perl_stocktools.pl	/^sub _analyze_code$/;"	s
+_analyze_code_days	perl_stocktools.pl	/^sub _analyze_code_days{$/;"	s
 _buy	perl_stocktools.pl	/^sub _buy{$/;"	s
 _clean_exchange_db	perl_stock.pl	/^sub _clean_exchange_db{$/;"	s
+_clear_stock	perl_stock.pl	/^sub _clear_stock{$/;"	s
 _clear_stock_db	perl_stock.pl	/^sub _clear_stock_db{$/;"	s
 _construct_code_day_header	customer_stocktools.pl	/^sub _construct_code_day_header{$/;"	s
 _construct_code_day_header	perl_stocktools.pl	/^sub _construct_code_day_header{$/;"	s
 _construct_code_header	customer_stocktools.pl	/^sub _construct_code_header{$/;"	s
 _construct_code_header	perl_stocktools.pl	/^sub _construct_code_header{$/;"	s
+_construct_codekey_url	plwapfetion.pl	/^sub _construct_codekey_url{$/;"	s
 _create_stock_db	perl_stock.pl	/^sub _create_stock_db{$/;"	s
 _delete_buy_code	perl_stocktools.pl	/^sub _delete_buy_code{$/;"	s
 _delete_cus_stock_info	customer_stocktools.pl	/^sub _delete_cus_stock_info{$/;"	s
@@ -160,15 +173,19 @@ _get_buy_code_info	perl_stocktools.pl	/^sub _get_buy_code_info{$/;"	s
 _get_code_monitor_info_file	customer_stocktools.pl	/^sub _get_code_monitor_info_file{$/;"	s
 _get_code_monitor_info_file	perl_stocktools.pl	/^sub _get_code_monitor_info_file{$/;"	s
 _get_cus_code_info	customer_stocktools.pl	/^sub _get_cus_code_info{$/;"	s
+_get_details_value	perl_stocktools.pl	/^sub _get_details_value{$/;"	s
+_get_details_volume	perl_stocktools.pl	/^sub _get_details_volume{$/;"	s
 _get_dir_modified_time	perl_backup.pl	/^sub _get_dir_modified_time{$/;"	s
 _get_exchange_info	perl_stocktools.pl	/^sub _get_exchange_info{$/;"	s
 _get_file_modified_time	perl_backup.pl	/^sub _get_file_modified_time{$/;"	s
 _get_flag	customer_stocktools.pl	/^sub _get_flag{$/;"	s
 _get_id_from_cache	plwapfetion.pl	/^sub _get_id_from_cache{$/;"	s
 _get_id_from_serv	plwapfetion.pl	/^sub _get_id_from_serv{$/;"	s
+_get_inflection_date	perl_stocktools.pl	/^sub _get_inflection_date$/;"	s
 _get_message	plwapfetion.pl	/^sub _get_message{$/;"	s
 _get_stock_base_info	perl_stock.pl	/^sub _get_stock_base_info{$/;"	s
 _get_stock_exchange	perl_stock.pl	/^sub _get_stock_exchange{$/;"	s
+_get_stock_sh_index	perl_stock.pl	/^sub _get_stock_sh_index{$/;"	s
 _get_surge_days	perl_stocktools.pl	/^sub _get_surge_days{$/;"	s
 _get_turnover	perl_stocktools.pl	/^sub _get_turnover{$/;"	s
 _getid	pywapfetion/PyWapFetion/Fetion.py	/^    def _getid(self,mobile):$/;"	m	class:Fetion
@@ -178,7 +195,10 @@ _is_break_surge	perl_stocktools.pl	/^sub _is_break_surge{$/;"	s
 _is_diging	perl_stocktools.pl	/^sub _is_diging{$/;"	s
 _is_exchange_info_loged	customer_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
 _is_exchange_info_loged	perl_stocktools.pl	/^sub _is_exchange_info_loged{$/;"	s
-_is_lift	perl_stocktools.pl	/^sub _is_lift{$/;"	s
+_is_mode1	perl_stocktools.pl	/^sub _is_mode1$/;"	s
+_is_mode2	perl_stocktools.pl	/^sub _is_mode2$/;"	s
+_is_mode3	perl_stocktools.pl	/^sub _is_mode3$/;"	s
+_is_mode4	perl_stocktools.pl	/^sub _is_mode4$/;"	s
 _is_today_loged	customer_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _is_today_loged	perl_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _log	customer_stocktools.pl	/^sub _log{$/;"	s
@@ -194,13 +214,13 @@ _monitor_exchange_stocks	perl_stocktools.pl	/^sub _monitor_exchange_stocks$/;"	s
 _new_than	perl_backup.pl	/^sub _new_than{$/;"	s
 _open	plwapfetion.pl	/^sub _open{$/;"	s
 _open_stock_db	perl_stock.pl	/^sub _open_stock_db{$/;"	s
+_pasre_exchange_details	perl_stocktools.pl	/^sub _pasre_exchange_details{$/;"	s
 _process_message	plwapfetion.pl	/^sub _process_message{$/;"	s
-_read_key_value	perl_stocktools.pl	/^sub _read_key_value{$/;"	s
 _remove_property	customer_stocktools.pl	/^sub _remove_property{$/;"	s
 _remove_property	perl_stocktools.pl	/^sub _remove_property{$/;"	s
 _report_code	customer_stocktools.pl	/^sub _report_code{$/;"	s
 _report_code	perl_stocktools.pl	/^sub _report_code{$/;"	s
-_select_codes	perl_stocktools.pl	/^sub _select_codes{$/;"	s
+_select_codes	perl_stocktools.pl	/^sub _select_codes$/;"	s
 _smart_update_stocks_exchange	perl_stock.pl	/^sub _smart_update_stocks_exchange{$/;"	s
 _sms	customer_stocktools.pl	/^sub _sms{$/;"	s
 _sms	perl_stocktools.pl	/^sub _sms{$/;"	s
@@ -210,12 +230,11 @@ _update_last_exchange	perl_stock.pl	/^sub _update_last_exchange{$/;"	s
 _update_stock_base_info	perl_stock.pl	/^sub _update_stock_base_info{$/;"	s
 _update_stock_code	perl_stock.pl	/^sub _update_stock_code{$/;"	s
 _update_stock_exchange	perl_stock.pl	/^sub _update_stock_exchange{$/;"	s
-_update_stock_season_exchange_info	perl_stock.pl	/^sub _update_stock_season_exchange_info{$/;"	s
-_update_stock_status	perl_stocktools.pl	/^sub _update_stock_status{$/;"	s
+_update_stock_season_profit_info	perl_stock.pl	/^sub _update_stock_season_profit_info{$/;"	s
+_update_stock_sh_index	perl_stock.pl	/^sub _update_stock_sh_index{$/;"	s
 _update_stocks_base_info	perl_stock.pl	/^sub _update_stocks_base_info{$/;"	s
 _update_stocks_exchange	perl_stock.pl	/^sub _update_stocks_exchange{$/;"	s
-_update_stocks_season_exchange_info	perl_stock.pl	/^sub _update_stocks_season_exchange_info{$/;"	s
-_write_key_value	perl_stocktools.pl	/^sub _write_key_value{$/;"	s
+_update_stocks_season_profit_info	perl_stock.pl	/^sub _update_stocks_season_profit_info{$/;"	s
 addblacklist	pywapfetion/PyWapFetion/Fetion.py	/^    addblacklist = lambda self,id: '加入黑名单成功!' in self.open('im\/user\/Addblacklist.action?touserid=%s' % id)$/;"	v	class:Fetion
 alive	pywapfetion/PyWapFetion/Fetion.py	/^    alive = lambda self:'心情' in self.open('im\/index\/indexcenter.action')$/;"	v	class:Fetion
 allstatus	pywapfetion/example.py	/^allstatus=myfetion.getallusersstatus() #返回一个dict，格式{用户ID：用户状态}$/;"	v
@@ -257,7 +276,7 @@ load	pywapfetion/PyWapFetion/Cache.py	/^from marshal import dump,load$/;"	i
 main	customer_stocktools.pl	/^sub main$/;"	s
 main	perl_backup.pl	/^sub main{$/;"	s
 main	perl_stock.pl	/^sub main{$/;"	s
-main	perl_stocktools.pl	/^sub main{$/;"	s
+main	perl_stocktools.pl	/^sub main$/;"	s
 main	plwapfetion.pl	/^sub main{$/;"	s
 markread	pywapfetion/PyWapFetion/Fetion.py	/^    markread = lambda self,id:' ' in self.open('im\/box\/deleteMessages.action',{'fromIdUser':id})$/;"	v	class:Fetion
 msg_re	pywapfetion/PyWapFetion/Fetion.py	/^msg_re = {$/;"	v
