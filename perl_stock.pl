@@ -28,6 +28,20 @@ sub _clean_exchange_db{
 	$dbh->disconnect;
 	return 1;	
 }
+sub _clean_base_info_db{
+	my $dbh=_open_stock_db();
+	my @tablesname=MSH_GetAllTablesNameArrary($dbh,$StockInfoDb);
+	foreach my $code (@tablesname) {
+		chomp $code;
+		my $count = MSH_CountRows($dbh,$code);
+		if($count == 0){
+			MSH_DropTableIfExist($dbh,$code);
+			print "$code cleared","\n";
+		}
+	}
+	$dbh->disconnect;
+	return 1;	
+}
 sub _update_stock_code{
 	my $browser = LWP::UserAgent->new;
 	my $i=1;
@@ -577,7 +591,8 @@ sub _update_last_exchange{
 	close IN;
 	return 1;	
 }
-sub _clear_stock{
+sub _clear_stock
+{
 	my ($code)=@_;
 	my $dbh=MSH_OpenDB($StockExDb);
 	if(SCOM_is_valid_code($code)){
@@ -612,11 +627,14 @@ sub main{
 		-ushi[year[years[...]]] [season1 [season2...]]: update stock sh index 
 		-usde[year[years[...]]] [season1 [season2...]]: update stock season exchange
 		-ufc:<code> from code
-		-clearexdb:clear invalid exchange data
+		-clearexdb:clear invalid daily exchange data
+		-clearebdb:clear invalid base info
 END
 	}
 		#clear exchange database
 		$opt =~ /-clearexdb\b/ && _clean_exchange_db()&&print "clear exchange database success\n";
+		#clear invalid base info
+		$opt =~ /-clearbdb\b/ && _clean_base_info_db()&&print "clear invalid base info database success\n";
 		#update sotck code
 		$opt =~ /-uc\b/ && _update_stock_code($StockCodeFile)&&print "update socks code success\n";
 		#create  database for stock base info

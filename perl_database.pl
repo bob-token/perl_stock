@@ -117,6 +117,29 @@ sub MSH_CreateTableIfNotExist{
 	my $sql=sprintf("CREATE TABLE IF NOT EXISTS %s (%s);",$TableName,$CreateDefinition);
 	return $dbh->do($sql);
 }
+sub _array_value
+{
+
+	my ($sth)=@_;
+	my @value=();
+	while(my @code=$sth->fetchrow_array){
+		push @value,@code;
+	}
+	return @value;
+}
+sub MSH_CountRows{
+	my $dbh=shift;
+	my $TableName=shift;
+	my $Key=shift;
+	my $sql=sprintf("SELECT COUNT(*) FROM %s;",$TableName);
+	my $sth =$dbh->prepare($sql);
+	$sth->execute();
+	my @value=_array_value($sth);
+	if(@value){
+		return $value[0];
+	}
+	return 0;
+}
 sub MSH_SetUniqueKey{
 	my $dbh=shift;
 	my $TableName=shift;
