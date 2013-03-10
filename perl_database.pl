@@ -28,12 +28,11 @@ sub MSH_GetValue{
 		$sql=sprintf("select %s from %s",$column,$table);		
 	}
 	my $sth =$dbh->prepare($sql);
-	$sth->execute();
-	my @value=();
-	while(my @code=$sth->fetchrow_array){
-		push @value,@code;
+	if($sth){
+		$sth->execute();
+		return _array_value($sth);
 	}
-	return @value;
+	return undef;
 }
 sub MSH_GetValueFirst{
 	my $dh=shift;
@@ -119,13 +118,15 @@ sub MSH_CreateTableIfNotExist{
 }
 sub _array_value
 {
-
 	my ($sth)=@_;
-	my @value=();
-	while(my @code=$sth->fetchrow_array){
-		push @value,@code;
+	if($sth){
+		my @value=();
+		while(my @code=$sth->fetchrow_array){
+			push @value,@code;
+		}
+		return @value;
 	}
-	return @value;
+	return undef;
 }
 sub MSH_CountRows{
 	my $dbh=shift;
