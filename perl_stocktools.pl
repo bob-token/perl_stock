@@ -73,7 +73,7 @@ sub _DEA{
 	my $day_exchange_start=shift;
 	my $dea_day=shift;
 	my $dea_day_cnt=shift;
-    my $condition="DATE<=\"$dea_day\" ORDER BY DATE DESC LIMIT $dea_day_cnt";
+	my $condition="DATE<=\"$dea_day\" ORDER BY DATE DESC LIMIT $dea_day_cnt";
 	#获取需要计算diff的日期
 	my @diff_days= DBT_get_earlier_exchange_days($dhe,$code,$dea_day,$dea_day_cnt);
 	my $sum_diff;
@@ -211,7 +211,7 @@ sub _D_OF_KDJ{
 	#第一天的值默认
 	my $D=2/3*50+1/3*_K_OF_KDJ($code,$date,$period,$dhe,$day_exchange_start);
 	if(COM_is_same_day($date,$day_exchange_start)){
-			return $D;
+		return $D;
 	}
 	#计算前面的值
 	while(my $day=DBT_get_next_exchange_day($code,$day_exchange_start,$dhe)){
@@ -232,9 +232,9 @@ sub _K_OF_KDJ{
 	#第一天的k值默认
 	my $K=2/3*50+1/3*_RSV_OF_KDJ($code,$date,$dhe,$period);
 	if(COM_is_same_day($date,$day_exchange_start)){
-			return $K;
+		return $K;
 	}
-	
+
 	#计算前面的k值
 	while(my $day=DBT_get_next_exchange_day($code,$day_exchange_start,$dhe)){
 		$day_exchange_start=$day;	
@@ -274,44 +274,44 @@ sub _RSV_OF_KDJ{
 	return undef;
 }
 sub _get_turnover{
-    my $date=shift;
-    my $code=shift;
-    my $deh=shift;
-    my $dih=shift;
-    my $condition="DATE=\"$date\"";
-    my @liutogu=MSH_GetValue($dih,$code,"LIUTONGGU");
-    my @jiaoyigushu=MSH_GetValue($deh,$code,"JIAOYIGUSHU",$condition);
-    if(defined $jiaoyigushu[0] and defined $liutogu[0]){
-	return $jiaoyigushu[0]/$liutogu[0];	
-    }
-    return 0;
+	my $date=shift;
+	my $code=shift;
+	my $deh=shift;
+	my $dih=shift;
+	my $condition="DATE=\"$date\"";
+	my @liutogu=MSH_GetValue($dih,$code,"LIUTONGGU");
+	my @jiaoyigushu=MSH_GetValue($deh,$code,"JIAOYIGUSHU",$condition);
+	if(defined $jiaoyigushu[0] and defined $liutogu[0]){
+		return $jiaoyigushu[0]/$liutogu[0];	
+	}
+	return 0;
 }
 sub _turnover_get_codes{
-	    my $datefrom=shift;
-	    my $dateto=shift;
-	    my $min=shift;
-	    my $max=shift;
-	    my $daymin=shift;
-	    my $codemax=shift;
-	    my $deh=MSH_OpenDB($StockExDb);
-	    my $dih=MSH_OpenDB($StockInfoDb);
-	    my $condition="DATE>=\"$datefrom\" && DATE<=\"$dateto\" ";
-	    my @code =MSH_GetAllTablesName1($deh);	
-		my @codes;
-	    foreach my $code(@code){
-			my @date=MSH_GetValue($deh,$code,"DATE",$condition);
-			my $total=0;
-   			foreach my $date(@date){
-		    	my $turnover=_get_turnover($date,$code,$deh,$dih);
-		    	if($turnover >= $min && $turnover <= $max){
-					if(++$total >= $daymin){
-						push @codes,$code;
-					}
-		    	}		
-			}	
-	    }
-	    $deh->disconnect;
-	    $dih->disconnect;
+	my $datefrom=shift;
+	my $dateto=shift;
+	my $min=shift;
+	my $max=shift;
+	my $daymin=shift;
+	my $codemax=shift;
+	my $deh=MSH_OpenDB($StockExDb);
+	my $dih=MSH_OpenDB($StockInfoDb);
+	my $condition="DATE>=\"$datefrom\" && DATE<=\"$dateto\" ";
+	my @code =MSH_GetAllTablesName1($deh);	
+	my @codes;
+	foreach my $code(@code){
+		my @date=MSH_GetValue($deh,$code,"DATE",$condition);
+		my $total=0;
+		foreach my $date(@date){
+			my $turnover=_get_turnover($date,$code,$deh,$dih);
+			if($turnover >= $min && $turnover <= $max){
+				if(++$total >= $daymin){
+					push @codes,$code;
+				}
+			}		
+		}	
+	}
+	$deh->disconnect;
+	$dih->disconnect;
 	return @codes;
 }
 sub _get_surge_days{
@@ -634,7 +634,7 @@ sub _is_valid_KDJ_cross{
 		if($J_last <= $D_last || $J_start > $D_start){
 			return 0;
 		}
-		
+
 		#确定K线是否与D线交叉
 		my $K_start = _day_K_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
 		my $K_last = _day_K_OF_KDJ($code,$dhe,$date,$KDJ_duration);
@@ -659,10 +659,10 @@ sub _is_mode5
 	$date = $date[0];
 	#检测是平均值否一直在上升状态
 	if(!_is_MA_UP($dhe,$code,$date,$min_day_count,$duration)){
-			return 0;
+		return 0;
 	}
 	if(!_is_MA_UP($dhe,$code,$date,$max_day_count,$duration)){
-			return 0;
+		return 0;
 	}
 	#检测小均值是否大于大均值
 	my $tmp_min = _MA($code,$dhe,$date,$min_day_count);	
@@ -674,7 +674,7 @@ sub _is_mode5
 	if(!_is_MA_cross($dhe,$code,$date,$min_day_count,$max_day_count,$duration)){
 		return 0;
 	}
-	#检测是否KDJ有效交叉
+	#检测是否KDJ有效交叉 
 	if(!_is_valid_KDJ_cross($code,$dhe,$date,$duration+5)){
 		return 0;
 	}
@@ -696,92 +696,92 @@ sub _select_codes
 	my $circulation_value_limit=1;
 	my $codeiterator;
 	SCOM_start_code_iterate(\$codeiterator,COM_get_fromcode());
-	while($code = SCOM_iterator_get_code(\$codeiterator)){
-		my $code_info=();
-		chomp $code;
-		my $date="2052-12-31";
-		my $data_start_day="2012-01-01";
-		if (defined $g_selectcode_date){
-			$date = $g_selectcode_date;
-		}
-		my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
-		$date=$last_exchange_data_day[0];
-		if(not $date){
-			print ("skip $code ,date is not suitable!","\r\n");
-			next;
-		}
-		my $yesterday=$last_exchange_data_day[1];
-		my $last_exchange_day = DBT_get_last_exchange_day($dhe,$code);
-		next if(!$last_exchange_day);
-		$code_info=join(':',$code,$date);
-		if($circulation_value_limit){
-			#对流通市值做限制
-			my $cur_price=DBT_get_closing_price($code,$last_exchange_day,$dhe);
-			my $liutongshizhi=$cur_price*DBT_get_exchange_stockts($code,$dhi);
-			my $billion=1000000000 ;
-			my $million=1000000 ;
-			 if($liutongshizhi>18*$billion or $liutongshizhi <40*$million){
-				 my $mb=sprintf("%.3f",$liutongshizhi/$billion);
-				 print ("Skip $code:market value : $mb billion\n");
-				 next;
-			 }
-		}
-		if($gflag_selectcode_macd){
-			#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
-			my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,$data_start_day,$date,1);
-			next if(!$macd);
-			my $macd1=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[1]);
-			#next if($macd < 0.03 || $macd <$macd1 );
-			next if($macd <$macd1 );
-			my $macd2=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[2]);
-			next if($macd1<$macd2);
-			COM_log($code,":$date:MACD:$macd","\n");
-			#push @codes,join(":",$code,$date,"MACD",$macd);
-		}
-		if($gflag_selectcode_kdj){
-			my $period=9;
-			my @days=DBT_get_earlier_exchange_days($dhe,$code,$date,30);
-			@days=reverse @days;
-			#$date="2012-03-15";
-			my $kdj_start_day=$days[0];
-			my $K=_K_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
-			my $YK=_K_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
-			my $D=_D_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
-			my $YD=_D_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
-			my $J=_J_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
-			print join(":",$code,$date,"K:",$K,"D:",$D,"J:",$J),"\n";
-			if($YK - $YD < $K - $D){
-				print join(":",$code,$date,"YK:",$YK,"YD:",$YD,"J:",$J),"\n";
-				$code_info=join(":",$code_info,"K",$K,"D",$D,"J",$J);
-			}else{
-				next;
-			}
-		}
-		if($gflag_selectcode_dig){
-			if(!_is_diging($dhe,$code,$date)){
-				next;
-			}
-		}
-		if($gflag_selectcode_break_surge){
-			if(!_is_break_surge($dhe,$code,$date)){
-				next;
-			}
-		}
-		if($gflag_selectcode_mode){
-			if($g_selectcode_mode == 1 && !_is_mode1($dhe,$code,$date,$gflag_selectcode_level)){
-				next;
-			}elsif ($g_selectcode_mode == 2 && !_is_mode2($dhe,$code,$date,$gflag_selectcode_level)){
-				next;	
-			}elsif ($g_selectcode_mode == 3 && !_is_mode3($dhe,$code,$date,$gflag_selectcode_level)){
-				next;	
-			}elsif ($g_selectcode_mode == 4 && !_is_mode4($dhe,$code,$date,$gflag_selectcode_level)){
-				next;	
-			}elsif ($g_selectcode_mode == 5 && !_is_mode5($dhe,$code,$date,$gflag_selectcode_level)){
-				next;	
-			}
-		}
-		push @codes,$code_info;
-		last if(@codes >= $stock_cnt);
+while($code = SCOM_iterator_get_code(\$codeiterator)){
+my $code_info=();
+chomp $code;
+my $date="2052-12-31";
+my $data_start_day="2012-01-01";
+if (defined $g_selectcode_date){
+	$date = $g_selectcode_date;
+}
+my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
+$date=$last_exchange_data_day[0];
+if(not $date){
+	print ("skip $code ,date is not suitable!","\r\n");
+	next;
+}
+my $yesterday=$last_exchange_data_day[1];
+my $last_exchange_day = DBT_get_last_exchange_day($dhe,$code);
+next if(!$last_exchange_day);
+$code_info=join(':',$code,$date);
+if($circulation_value_limit){
+	#对流通市值做限制
+	my $cur_price=DBT_get_closing_price($code,$last_exchange_day,$dhe);
+	my $liutongshizhi=$cur_price*DBT_get_exchange_stockts($code,$dhi);
+	my $billion=1000000000 ;
+	my $million=1000000 ;
+	if($liutongshizhi>18*$billion or $liutongshizhi <40*$million){
+		my $mb=sprintf("%.3f",$liutongshizhi/$billion);
+		print ("Skip $code:market value : $mb billion\n");
+		next;
+	}
+}
+if($gflag_selectcode_macd){
+	#my $macd=_MACD(12,26,9,$code,$dhe,"2011-01-01",$date);
+	my $macd= _MACD_DEALITTLETHAN(12,26,9,$code,$dhe,$data_start_day,$date,1);
+	next if(!$macd);
+	my $macd1=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[1]);
+	#next if($macd < 0.03 || $macd <$macd1 );
+	next if($macd <$macd1 );
+	my $macd2=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[2]);
+	next if($macd1<$macd2);
+	COM_log($code,":$date:MACD:$macd","\n");
+	#push @codes,join(":",$code,$date,"MACD",$macd);
+}
+if($gflag_selectcode_kdj){
+	my $period=9;
+	my @days=DBT_get_earlier_exchange_days($dhe,$code,$date,30);
+	@days=reverse @days;
+	#$date="2012-03-15";
+	my $kdj_start_day=$days[0];
+	my $K=_K_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+	my $YK=_K_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
+	my $D=_D_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+	my $YD=_D_OF_KDJ($code,$yesterday,$period,$dhe,$kdj_start_day);
+	my $J=_J_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+	print join(":",$code,$date,"K:",$K,"D:",$D,"J:",$J),"\n";
+	if($YK - $YD < $K - $D){
+		print join(":",$code,$date,"YK:",$YK,"YD:",$YD,"J:",$J),"\n";
+		$code_info=join(":",$code_info,"K",$K,"D",$D,"J",$J);
+	}else{
+		next;
+	}
+}
+if($gflag_selectcode_dig){
+	if(!_is_diging($dhe,$code,$date)){
+		next;
+	}
+}
+if($gflag_selectcode_break_surge){
+	if(!_is_break_surge($dhe,$code,$date)){
+		next;
+	}
+}
+if($gflag_selectcode_mode){
+	if($g_selectcode_mode == 1 && !_is_mode1($dhe,$code,$date,$gflag_selectcode_level)){
+		next;
+	}elsif ($g_selectcode_mode == 2 && !_is_mode2($dhe,$code,$date,$gflag_selectcode_level)){
+		next;	
+	}elsif ($g_selectcode_mode == 3 && !_is_mode3($dhe,$code,$date,$gflag_selectcode_level)){
+		next;	
+	}elsif ($g_selectcode_mode == 4 && !_is_mode4($dhe,$code,$date,$gflag_selectcode_level)){
+		next;	
+	}elsif ($g_selectcode_mode == 5 && !_is_mode5($dhe,$code,$date,$gflag_selectcode_level)){
+		next;	
+	}
+}
+push @codes,$code_info;
+last if(@codes >= $stock_cnt);
 	}
 	$dhe->disconnect;
 	$dhi->disconnect;
@@ -795,8 +795,8 @@ sub _get_all_bought_stocks{
 		my @codeinfo=split($code_property_separator,$_);
 		my $code;
 		if(@codeinfo and COM_get_property(\@codeinfo,'code',\$code) and SCOM_is_valid_code($code)){
-			push @codes,$code;
-		}
+	push @codes,$code;
+}
 	}
 	close IN;	
 	return @codes;
@@ -811,10 +811,10 @@ sub _delete_buy_code{
 			my @info=split($code_property_separator,$_);
 			my $value;
 			if(@info && COM_get_property(\@info,'code',\$value) && index($code,$value)!=0){
-				push @buycodes,$_;
-			}
-		}
-		close IN;	
+		push @buycodes,$_;
+	}
+}
+close IN;	
 	}
 #保存到文件
 	open OUT,">",$BuyStockCode;
@@ -840,8 +840,8 @@ sub _get_buy_code_info{
 		@info=split($code_property_separator,$_);
 		my $value;
 		if(@info && COM_get_property(\@info,'code',\$value) && index($code,$value)==0){
-			last;	
-		}
+	last;	
+}
 	}
 	close IN;	
 
@@ -850,7 +850,7 @@ sub _get_buy_code_info{
 	}
 	my $value;
 	if(COM_get_property(\@info,$flag,\$value)){
-		return $value;	
+return $value;	
 	}
 	return undef;
 }
@@ -861,8 +861,8 @@ sub _add_property{
 sub _remove_property{
 	my ($ref_info,$key,$value)=@_;
 	if($ref_info and $key){
-		 COM_get_command_line_property(\@{$ref_info},$key);
-	}
+		COM_get_command_line_property(\@{$ref_info},$key);
+}
 }
 sub _buy{
 	my ($code,$price,$total,$stoploss,$importantprice)=@_;
@@ -876,16 +876,16 @@ sub _buy{
 	my @codeinfo;
 	#push @codeinfo,$code;
 	_add_property(\@codeinfo,'code',$code);
-	#push @codeinfo,$price;
-	_add_property(\@codeinfo,'price',$price);
+#push @codeinfo,$price;
+_add_property(\@codeinfo,'price',$price);
 	#push @codeinfo,$total;
 	_add_property(\@codeinfo,'total',$total);
-	#push @codeinfo,$stoploss;
-	_add_property(\@codeinfo,'stoploss',$stoploss);
+#push @codeinfo,$stoploss;
+_add_property(\@codeinfo,'stoploss',$stoploss);
 	#push @codeinfo,$importantprice;
 	_add_property(\@codeinfo,'importantprice',$importantprice);
-	_AMI($code);
-	return _add_buy_code_info(@codeinfo);
+_AMI($code);
+return _add_buy_code_info(@codeinfo);
 }
 sub _get_code_monitor_info_file{
 	my ($code,$flag)=@_;
@@ -984,8 +984,8 @@ sub _monitor_bought_stock{
 		my $minute=COM_get_cur_time('minute');
 		my $income= SCOM_calc_income($code,$buyprice,$cur_price,$total);
 		my $average=\$ref_monitor_info->{average_price};
-		my $fore_price=\$ref_monitor_info->{fore_price};
-		my $reported_price=\$ref_monitor_info->{reported_price};
+	my $fore_price=\$ref_monitor_info->{fore_price};
+my $reported_price=\$ref_monitor_info->{reported_price};
 		$income=sprintf("%.2f",$income);
 		chomp $stoploss;
 		#交易期间检测
@@ -993,12 +993,12 @@ sub _monitor_bought_stock{
 			#为了减少SCOM_is_suspension函数的联网先判断$cur_price是否为0
 			if($cur_price==0){
 				if( SCOM_is_suspension($code)){
-					 my $last_close_price=SN_get_stock_last_close_price($code);
-					 $income= SCOM_calc_income($code,$buyprice,$last_close_price,$total);
-					 $income=sprintf("%.2f",$income);
+					my $last_close_price=SN_get_stock_last_close_price($code);
+					$income= SCOM_calc_income($code,$buyprice,$last_close_price,$total);
+					$income=sprintf("%.2f",$income);
 					if( !_is_exchange_info_loged($code,_construct_code_day_header($code,'suspension'))){
 						my $reportstr=_construct_code_day_header($code,'suspension').":($buyprice:$last_close_price:$income)";
-						 _report_code($code,$reportstr);
+						_report_code($code,$reportstr);
 						$$reported_price=$cur_price;
 					}
 				}
@@ -1018,32 +1018,32 @@ sub _monitor_bought_stock{
 			if(abs($average_diff)>=$tip_percent_average_diff){
 				$average_diff=sprintf("%.4f",$average_diff);
 				my $reportstr=_construct_code_header($code,'ave_dif').":($buyprice:$cur_price:$income):ave_dif:($average_diff))";
-				 _report_code($code,$reportstr);
+				_report_code($code,$reportstr);
 				$$reported_price=$cur_price;
 			}
 			my $fore_diff=($cur_price-${$fore_price})/$$fore_price;
 			if(abs($fore_diff)>=$tip_percent_fore_diff){
 				$fore_diff=sprintf("%.4f",$fore_diff);
 				my $reportstr=_construct_code_header($code,'f_dif').":($buyprice:$cur_price:$income):f_dif:($fore_diff))";
-				 _report_code($code,$reportstr);
+				_report_code($code,$reportstr);
 				$$reported_price=$cur_price;
 			}
-					
+
 			if($stoploss>=$cur_price && ! _is_exchange_info_loged($code,_construct_code_day_header($code,'stoploss'))){
 				my $reportstr=_construct_code_day_header($code,'stoploss').":($buyprice:$cur_price:$income):stoploss:($stoploss)";
-				 _report_code($code,$reportstr);
+				_report_code($code,$reportstr);
 				$$reported_price=$cur_price;
 			}
 			if($K*$percent*($cur_price)<=$cur_price&& !_is_exchange_info_loged($code,_construct_code_header($code,"$K*importantprice"))){
 				my $reportstr=_construct_code_header($code,"$K*importantprice").":($buyprice:$cur_price:$income))";
-				 _report_code($code,$reportstr);
+				_report_code($code,$reportstr);
 				$$reported_price=$cur_price;
 			}
 			my $reported_price_diff=(($cur_price-$$reported_price)/$$reported_price);
 			if(abs($reported_price_diff)>$tip_percent_reported_diff){
 				$reported_price_diff=sprintf("%.4f",$reported_price_diff);
 				my $reportstr=_construct_code_header($code,'rep_dif').":($buyprice:$cur_price:$income):rep_dif:$reported_price_diff";
-				 _report_code($code,$reportstr);
+				_report_code($code,$reportstr);
 				$$reported_price=$cur_price;
 			}
 			if(($cur_price+${$average})/2 != ${$average}){
@@ -1057,12 +1057,12 @@ sub _monitor_bought_stock{
 			#中午休市提示
 			if( $hour >=11&& $hour <13&&!_is_exchange_info_loged($code,_construct_code_day_header($code,'AM'))){
 				my $reportstr=_construct_code_day_header($code,'AM').":($buyprice:$cur_price:$income)";
-				 _report_code($code,$reportstr);
+				_report_code($code,$reportstr);
 			}
 			#下午休市提示
 			if( $hour >=15&& !_is_exchange_info_loged($code,_construct_code_day_header($code,'PM'))){
 				my $reportstr=_construct_code_day_header($code,'PM').":($buyprice:$cur_price:$income)";
-				 _report_code($code,$reportstr);
+				_report_code($code,$reportstr);
 			}
 		}
 	}
@@ -1125,7 +1125,7 @@ sub _monitor_exchange_stocks
 			}
 			print "$one  "; 
 		}
-		
+
 	}else{
 		print "no code(s) meet requirements"."\n";
 		return 1;
@@ -1147,19 +1147,19 @@ sub _monitor_exchange_stocks
 			if(SN_get_stock_cur_rise($code)>9.7){
 				push @prepare_stocks,$code;	
 				COM_remove(\@monitor_stocks,$code);
-			}
 		}
-		sleep 1;
-		foreach $code(@prepare_stocks){
-			my $rise =  SN_get_stock_cur_rise($code);
-			printf "monitor prepare $code:$rise"."\n";
-			if(!_is_exchange_info_loged($code,_construct_code_day_header($code,'buytip')) && $rise<=9.7 && $rise<=8.0){
-				my $profit = DBT_get_profit($code,$dhp);
-				my $reportstr=_construct_code_day_header($code,'buytip').":rise($rise)"."profit:$profit:";
-			    _report_code($code,$reportstr);
-				COM_remove(\@prepare_stocks,$code);
-			}
-		}
+	}
+	sleep 1;
+	foreach $code(@prepare_stocks){
+		my $rise =  SN_get_stock_cur_rise($code);
+		printf "monitor prepare $code:$rise"."\n";
+		if(!_is_exchange_info_loged($code,_construct_code_day_header($code,'buytip')) && $rise<=9.7 && $rise<=8.0){
+			my $profit = DBT_get_profit($code,$dhp);
+			my $reportstr=_construct_code_day_header($code,'buytip').":rise($rise)"."profit:$profit:";
+			_report_code($code,$reportstr);
+			COM_remove(\@prepare_stocks,$code);
+	}
+}
 	}
 	$dhp->disconnect;
 }
@@ -1293,18 +1293,17 @@ sub _analyze_code
 }
 sub main
 {
-    my $pause=0;
+	my $pause=0;
 	COM_log_init();
 	#传引用
 	COM_filter_param(\@ARGV);
 	while(my $opt=shift @ARGV){
-		#help infomation
-		if ($opt =~ /-h/){			 
+	if ($opt =~ /-h/){			 
 		print <<"END";
 		-p(windows system only):pause before exit
-        -scp[ code[ code[ ...]]]: show current stock exchange price -dmi[ code[ code[ ...]]]: delete monitor stock from file
-        -ami[ code[ code[ ...]]]: add monitor stock ,save to file
-        -mcp[ code[ code[ ...]]]: monitor stock;if omit code ,read in file
+		-scp[ code[ code[ ...]]]: show current stock exchange price -dmi[ code[ code[ ...]]]: delete monitor stock from file
+		-ami[ code[ code[ ...]]]: add monitor stock ,save to file
+		-mcp[ code[ code[ ...]]]: monitor stock;if omit code ,read in file
 		-ema code exchange_start_day calculated_ema_day ema_delta_day eg:-ema sz002432 2012-01-01 2012-03-06 10
 		-macd code exchange_start_day calculated_macd_day eg:-macd sz002432 2012-01-01 2012-03-06 
 		-tor datefrom dateto turnover_min turnover_max daytotal shownum:show match condition of turnover rate stock codes
@@ -1319,238 +1318,238 @@ sub main
 		-analyze <code> [date:2012-10-10]:analyze exchange detials info
 END
 	}
-		#help info
-		if ($opt =~ /-p\b/){
-           $pause=1;
-        }
-		#monitor bought stock(s)
-		if ($opt =~ /-mbs\b/){
-			my $code;
-			my @codes;
-			my @tmpcodes;
-			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-				push @tmpcodes , $code;
-			}
-			if(@tmpcodes){
-				foreach $code(@tmpcodes){
-					my @info=_get_buy_code_info($code,'code');
-					if(@info){
-						push @codes,$code;		
-					}
-				}
-			}else{
-				@codes=_get_all_bought_stocks();	
-			}
-			if(@codes){
-				_monitor_bought_stocks(@codes);
-			}
+	#help info
+	if ($opt =~ /-p\b/){
+		$pause=1;
+	}
+	#monitor bought stock(s)
+	if ($opt =~ /-mbs\b/){
+		my $code;
+		my @codes;
+		my @tmpcodes;
+		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+			push @tmpcodes , $code;
 		}
-		if ($opt =~ /-mes\b/){
-			_monitor_exchange_stocks();
-		}
-		#sell stock
-		if ($opt =~ /-sell\b/){
-			my $code;
-			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-					_DMI($code);
-					_delete_buy_code($code);
-					#删除log信息
-					my $log=_get_code_monitor_info_file($code,'log');
-					if($log){
-						unlink($log);
-					}
-			}
-		}
-		#list buy stock
-		if ($opt =~ /-lb\b/){
-			my $code;
-			my @codes;
-			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-				push @codes,$code;	
-			}
-			if(!@codes){
-				@codes=_get_all_bought_stocks();
-			}
-			foreach $code(@codes){
-				my @info=_get_buy_code_info($code);
+		if(@tmpcodes){
+			foreach $code(@tmpcodes){
+				my @info=_get_buy_code_info($code,'code');
 				if(@info){
-					printf join(':',@info),"\n";
+					push @codes,$code;		
 				}
 			}
+		}else{
+			@codes=_get_all_bought_stocks();	
 		}
-		#show exhcange info
-		if ($opt =~ /-show\b/){
-			my $code;
-			my @info;
-			my $dhe=MSH_OpenDB($StockExDb);
-			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-				my $from=shift @ARGV;
-				my $to=shift @ARGV;
-				my $date=COM_today(0);
-				my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,1);
-				if(!$from){
-					$from=$last_exchange_data_day[0];
-				}
-				if(!$to){
-					$to=$last_exchange_data_day[0];
-				}
-				@info=_get_exchange_info($code,$from,$to);
-				last;
-			}
-			$dhe->disconnect;
-			print join("\n",@info);
+		if(@codes){
+			_monitor_bought_stocks(@codes);
 		}
-		#buy stock
-		if ($opt =~ /-buy\b/){
-			my $code;
-			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-				_buy($code,shift @ARGV,shift @ARGV,shift @ARGV);
+	}
+	if ($opt =~ /-mes\b/){
+		_monitor_exchange_stocks();
+	}
+	#sell stock
+	if ($opt =~ /-sell\b/){
+		my $code;
+		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+			_DMI($code);
+			_delete_buy_code($code);
+			#删除log信息
+			my $log=_get_code_monitor_info_file($code,'log');
+			if($log){
+				unlink($log);
 			}
 		}
-		#select codes for exchange
-		if ($opt =~ /-select/){
-			if(COM_get_command_line_property(\@ARGV,"turnover")){
-					$gflag_selectcode_turnover=1;
+	}
+	#list buy stock
+	if ($opt =~ /-lb\b/){
+		my $code;
+		my @codes;
+		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+			push @codes,$code;	
+		}
+		if(!@codes){
+			@codes=_get_all_bought_stocks();
+		}
+		foreach $code(@codes){
+			my @info=_get_buy_code_info($code);
+			if(@info){
+				printf join(':',@info),"\n";
 			}
-			if(COM_get_command_line_property(\@ARGV,"kdj")){
-					$gflag_selectcode_kdj=1;
+		}
+	}
+	#show exhcange info
+	if ($opt =~ /-show\b/){
+		my $code;
+		my @info;
+		my $dhe=MSH_OpenDB($StockExDb);
+		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+			my $from=shift @ARGV;
+			my $to=shift @ARGV;
+			my $date=COM_today(0);
+			my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,1);
+			if(!$from){
+				$from=$last_exchange_data_day[0];
 			}
-			if(COM_get_command_line_property(\@ARGV,"macd")){
-					$gflag_selectcode_macd=1;
+			if(!$to){
+				$to=$last_exchange_data_day[0];
+			}
+			@info=_get_exchange_info($code,$from,$to);
+			last;
+		}
+		$dhe->disconnect;
+		print join("\n",@info);
+	}
+	#buy stock
+	if ($opt =~ /-buy\b/){
+		my $code;
+		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+			_buy($code,shift @ARGV,shift @ARGV,shift @ARGV);
+		}
+	}
+	#select codes for exchange
+	if ($opt =~ /-select/){
+		if(COM_get_command_line_property(\@ARGV,"turnover")){
+		$gflag_selectcode_turnover=1;
+	}
+	if(COM_get_command_line_property(\@ARGV,"kdj")){
+	$gflag_selectcode_kdj=1;
+}
+if(COM_get_command_line_property(\@ARGV,"macd")){
+$gflag_selectcode_macd=1;
 			}
 			if(COM_get_command_line_property(\@ARGV,"dig")){
-					$gflag_selectcode_dig=1;
-			}
-			if(COM_get_command_line_property(\@ARGV,"break_surge")){
-					$gflag_selectcode_break_surge=1;
-			}
-			if(COM_get_command_line_property(\@ARGV,"mode",\$g_selectcode_mode)){
-					$gflag_selectcode_mode=1;
+			$gflag_selectcode_dig=1;
+		}
+		if(COM_get_command_line_property(\@ARGV,"break_surge")){
+		$gflag_selectcode_break_surge=1;
+	}
+	if(COM_get_command_line_property(\@ARGV,"mode",\$g_selectcode_mode)){
+$gflag_selectcode_mode=1;
 			}
 			#$g_selectcode_date = COM_today(0);
 			COM_get_command_line_property(\@ARGV,"date",\$g_selectcode_date);
-			my $total=20;
-			COM_get_command_line_property(\@ARGV,"total",\$total);
+	my $total=20;
+	COM_get_command_line_property(\@ARGV,"total",\$total);
 			my $level = 0;
 			COM_get_command_line_property(\@ARGV,"level",\$gflag_selectcode_level);
-			my @codes=_select_codes($StockCodeFile,$total);
-			COM_log(join("\n","selected:",@codes));
+	my @codes=_select_codes($StockCodeFile,$total);
+	COM_log(join("\n","selected:",@codes));
+}
+#turnover rate
+if($opt =~ /-tor/){
+	my $datefrom=shift @ARGV;
+	my $dateto=shift @ARGV;
+	my $min=shift @ARGV;
+	my $max=shift @ARGV;
+	my $daytotal=shift @ARGV;
+	my $num=shift @ARGV;
+	my @codes = _turnover_get_codes($datefrom,$dateto,$min,$max,$daytotal,$num);
+	print split("\n",@codes); 
+}
+if($opt =~ /-macd/){
+	my $code=shift @ARGV ;
+	my $dhe=MSH_OpenDB($StockExDb);
+	my $day_exchange_start=shift @ARGV;
+	my $macd_day=shift @ARGV;
+	my $macd=_MACD(12,26,9,$code,$dhe,$day_exchange_start,$macd_day);	
+	print $code," macd:",$macd,"\n";
+}
+if($opt =~ /-ema/){
+	my $code=shift @ARGV ;
+	my $dhe=MSH_OpenDB($StockExDb);
+	my $day_exchange_start=shift @ARGV;
+	my $ema_day=shift @ARGV;
+	my $day_cnt=shift @ARGV;
+	my $ema=_EMA($code,$dhe,$day_exchange_start,$ema_day,$day_cnt);	
+	print $code,$ema_day,$ema,"\n";
+}
+if($opt =~ /-cdtor/){
+	my $code=shift @ARGV;
+	my $date=shift @ARGV;
+	my $deh=MSH_OpenDB($StockExDb);
+	my $dih=MSH_OpenDB($StockInfoDb);
+	print _get_turnover($date,$code,$deh,$dih);
+	$deh->disconnect;
+	$dih->disconnect;
+}
+#show current stock exchange price
+if($opt =~ /-scp/){
+	my $code;
+	while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+		my @info =SN_get_stock_cur_exchange_info($code);
+		my $percent =($info[3]-$info[2])*100/$info[2];
+		my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
+		print $str;
+	}
+	if(defined $code){
+		unshift(@ARGV,$code);
+	}
+};
+if($opt =~ /-dmi/){
+	my $code;
+	while($code=shift @ARGV){
+		if(SCOM_is_valid_code($code)){
+			_DMI($code);
 		}
-        #turnover rate
-        if($opt =~ /-tor/){
-	        my $datefrom=shift @ARGV;
-   		    my $dateto=shift @ARGV;
-       		my $min=shift @ARGV;
-        	my $max=shift @ARGV;
-        	my $daytotal=shift @ARGV;
-        	my $num=shift @ARGV;
-       		my @codes = _turnover_get_codes($datefrom,$dateto,$min,$max,$daytotal,$num);
-			print split("\n",@codes); 
-         }
-		 if($opt =~ /-macd/){
-		 	my $code=shift @ARGV ;
-		    my $dhe=MSH_OpenDB($StockExDb);
-			my $day_exchange_start=shift @ARGV;
-			my $macd_day=shift @ARGV;
-		 	my $macd=_MACD(12,26,9,$code,$dhe,$day_exchange_start,$macd_day);	
-			print $code," macd:",$macd,"\n";
-		 }
-		 if($opt =~ /-ema/){
-		 	my $code=shift @ARGV ;
-		    my $dhe=MSH_OpenDB($StockExDb);
-			my $day_exchange_start=shift @ARGV;
-			my $ema_day=shift @ARGV;
-			my $day_cnt=shift @ARGV;
-		 	my $ema=_EMA($code,$dhe,$day_exchange_start,$ema_day,$day_cnt);	
-			print $code,$ema_day,$ema,"\n";
-		 }
-		 if($opt =~ /-cdtor/){
-		    my $code=shift @ARGV;
-            my $date=shift @ARGV;
-		    my $deh=MSH_OpenDB($StockExDb);
-		    my $dih=MSH_OpenDB($StockInfoDb);
-		    print _get_turnover($date,$code,$deh,$dih);
-		    $deh->disconnect;
-		    $dih->disconnect;
-        }
-		#show current stock exchange price
-		if($opt =~ /-scp/){
-			my $code;
-			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-				my @info =SN_get_stock_cur_exchange_info($code);
-					my $percent =($info[3]-$info[2])*100/$info[2];
-					my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
-					print $str;
-			}
-			if(defined $code){
-				unshift(@ARGV,$code);
-			}
-		};
-		if($opt =~ /-dmi/){
-			my $code;
-			while($code=shift @ARGV){
-				if(SCOM_is_valid_code($code)){
-					_DMI($code);
-				}
-			}
-			if($code){
-				push @ARGV,$code;
-			}
-        }
-	   if($opt =~ /-ami/){
-			my $code;
-			while($code=shift @ARGV){
-				if(SCOM_is_valid_code($code)){
-					_AMI($code);
-				}
-			}
-			if($code){
-				push @ARGV,$code;
+	}
+	if($code){
+		push @ARGV,$code;
+	}
+}
+if($opt =~ /-ami/){
+	my $code;
+	while($code=shift @ARGV){
+		if(SCOM_is_valid_code($code)){
+			_AMI($code);
+		}
+	}
+	if($code){
+		push @ARGV,$code;
+	}
+}
+if($opt =~ /-mcp/){
+	my $code;
+	my @codes;
+	while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+		push @codes,$code;
+	}
+	if(!@codes){
+		open(IN,$monitor_code);
+		foreach my $tmp(<IN>){
+			chomp $tmp;
+			if(SCOM_is_valid_code($tmp)){
+				push @codes,$tmp;         
 			}
 		}
-		if($opt =~ /-mcp/){
-			my $code;
-            my @codes;
-			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-            	push @codes,$code;
-			}
-            if(!@codes){
-            	open(IN,$monitor_code);
-                foreach my $tmp(<IN>){
-					chomp $tmp;
-					if(SCOM_is_valid_code($tmp)){
-						push @codes,$tmp;         
-					}
-                }
-                close IN;
-            }
-            foreach $code(@codes){
-					my @info =SN_get_stock_cur_exchange_info($code);
-					my $percent =($info[3]-$info[2])*100/$info[2];
-					if($info[3]==0) {
-						$percent=0;
-					}
-					my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
-					print $str;                            
-			}
+		close IN;
+	}
+	foreach $code(@codes){
+		my @info =SN_get_stock_cur_exchange_info($code);
+		my $percent =($info[3]-$info[2])*100/$info[2];
+		if($info[3]==0) {
+			$percent=0;
+		}
+		my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
+		print $str;                            
+	}
 
-			if(defined $code){
-				unshift(@ARGV,$code);
-			}
-		}
-		if($opt =~ /-analyze/){
-			my @codes = COM_command_line_filter_codes(\@ARGV);			
-			if (@codes){
-				my $date ;
-				my $count;
-				COM_get_command_line_property(\@ARGV,"date",\$date);
+	if(defined $code){
+		unshift(@ARGV,$code);
+	}
+}
+if($opt =~ /-analyze/){
+	my @codes = COM_command_line_filter_codes(\@ARGV);			
+if (@codes){
+	my $date ;
+	my $count;
+	COM_get_command_line_property(\@ARGV,"date",\$date);
 				COM_get_command_line_property(\@ARGV,"count",\$count);
-				foreach my $code(@codes){
-					_analyze_code_days($code,$date,$count);	
-				}
-
-			}
+		foreach my $code(@codes){
+			_analyze_code_days($code,$date,$count);	
 		}
+
+	}
+}
 
 	}
 	if($pause){

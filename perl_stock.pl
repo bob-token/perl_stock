@@ -626,7 +626,7 @@ sub main{
 		-ucye code [year1 [year2...]]: update stock year(s) exchange
 		-ushi[year[years[...]]] [season1 [season2...]]: update stock sh index 
 		-usde[year[years[...]]] [season1 [season2...]]: update stock season exchange
-		-ufc:<code> from code
+		-fc:<code> from code
 		-clearexdb:clear invalid daily exchange data
 		-clearebdb:clear invalid base info
 END
@@ -655,10 +655,6 @@ END
 		$opt =~ /-crsi\b/ &&_clear_stock_db($StockProfitDb)&& print "$StockProfitDb cleared!\n";
 		#-udsi: update stock season exchange  info
 		$opt =~ /-udsi\b/ &&  _update_stocks_season_profit_info()&& print "update stock profit info success\n";
-		#update from the code
-		if($opt =~ /-ufc\b/){
-			$fromcode=shift @ARGV;
-		}
 		#update stock last daily excange
 		if($opt =~ /-ulde\b/){
 			_update_last_exchange();
