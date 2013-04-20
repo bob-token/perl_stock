@@ -100,6 +100,15 @@ sub DBT_get_season_exchage_days{
 	}
 	return undef;
 }
+sub DBT_get_exchange_days_ext{
+	my ($code,$dhe,$from,$count)=@_;	
+	if ($code && $dhe && $from && $count){
+		my $condition=" DATE>=\"$from\" ORDER BY DATE ASC LIMIT $count";
+		my @exchange_days=MSH_GetValue($dhe,$code,"DATE",$condition);
+		return @exchange_days;
+	}
+	return undef;
+}
 sub DBT_get_exchange_days{
 	my ($code,$dhe,$from,$to)=@_;	
 	if ($code && $dhe && $from ){

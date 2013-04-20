@@ -29,14 +29,29 @@ our $gflag_selectcode_break_surge=0;#突破平台振荡
 our $gflag_selectcode_turnover=0;#换手率
 $|=1;
 
+# calculate volume moving average
+sub _MA_volume{
+	my ($code,$dhe,$date,$day_count)=@_;
+	my $total=0;
+	my @days;
+	if(@days=DBT_get_earlier_exchange_days($dhe,$code,$date,$day_count)){
+		foreach my $day(@days){
+			$total+=DBT_get_volume($code,$dhe,$day);
+		}
+	}
+	return $total/@days;
+}
 # calculate moving average
 sub _MA{
-	my @v_days=shift;
+	my ($code,$dhe,$date,$day_count)=@_;
 	my $total=0;
-	for my $tmp(@v_days){
-		$total+=$tmp;
+	my @days;
+	if(@days=DBT_get_earlier_exchange_days($dhe,$code,$date,$day_count)){
+		foreach my $day(@days){
+			$total+=DBT_get_closing_price($code,$day,$dhe);
+		}
 	}
-	return $total/@v_days;
+	return $total/@days;
 }
 sub _DIFF{
 	my $diff_s_day=shift;
@@ -351,6 +366,7 @@ sub _get_inflection_date
 {
 	my ($dhe,$code,$date)=@_;
 }
+#在一定时间里股价持续上升 
 sub _is_mode1
 {
 	my ($dhe,$code,$date,$level)=@_;
@@ -529,6 +545,145 @@ sub _is_mode4
 	}
 	return 0;	
 }
+sub _is_MA_UP{
+	my ($dhe,$code,$last_day,$MA_day_count,$duration)=@_;
+	if(my @days  = DBT_get_earlier_exchange_days($dhe,$code,$last_day,$duration)){
+		my $max_val=10000000;
+		foreach my $day(@days){
+			my $tmp = _MA($code,$dhe,$day,$MA_day_count);	
+			if($tmp > $max_val){
+				return 0;
+			}
+			$max_val = $tmp;
+		}
+		return 1;
+	}
+	return 0;
+}
+sub _is_MA_volume_cross{
+	my ($dhe,$code,$last_day,$min_MA_day_count,$max_MA_day_count,$duration)=@_;
+	if(my @days  = DBT_get_earlier_exchange_days($dhe,$code,$last_day,$duration)){
+		my $last_exchange_day = $days[0];
+		my $first_exchange_day = $days[$#days];
+		my $last_min_MA = _MA_volume($code,$dhe,$last_exchange_day,$min_MA_day_count);
+		my $last_max_MA = _MA_volume($code,$dhe,$last_exchange_day,$max_MA_day_count);
+		my $first_min_MA = _MA_volume($code,$dhe,$first_exchange_day,$min_MA_day_count);
+		my $first_max_MA = _MA_volume($code,$dhe,$first_exchange_day,$max_MA_day_count);
+		if($last_min_MA >= $last_max_MA && $first_min_MA <= $first_max_MA){
+			return 1;
+		}
+		if($last_min_MA <= $last_max_MA && $first_min_MA >= $first_max_MA){
+			return 1;
+		}
+	}
+	return 0;
+}
+sub _is_MA_cross{
+	my ($dhe,$code,$last_day,$min_MA_day_count,$max_MA_day_count,$duration)=@_;
+	if(my @days  = DBT_get_earlier_exchange_days($dhe,$code,$last_day,$duration)){
+		my $last_exchange_day = $days[0];
+		my $first_exchange_day = $days[$#days];
+		my $last_min_MA = _MA($code,$dhe,$last_exchange_day,$min_MA_day_count);
+		my $last_max_MA = _MA($code,$dhe,$last_exchange_day,$max_MA_day_count);
+		my $first_min_MA = _MA($code,$dhe,$first_exchange_day,$min_MA_day_count);
+		my $first_max_MA = _MA($code,$dhe,$first_exchange_day,$max_MA_day_count);
+		if($last_min_MA >= $last_max_MA && $first_min_MA <= $first_max_MA){
+			return 1;
+		}
+		if($last_min_MA <= $last_max_MA && $first_min_MA >= $first_max_MA){
+			return 1;
+		}
+	}
+	return 0;
+}
+sub _day_J_OF_KDJ{
+	my ($code,$dhe,$date,$KDJ_duration)=@_;
+	my @tmp_day = DBT_get_earlier_exchange_days($dhe,$code,$date,$KDJ_duration);
+	my $kdj_start_day = $tmp_day[$#tmp_day];
+	my $period=9;
+	return _J_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+
+}
+sub _day_D_OF_KDJ{
+	my ($code,$dhe,$date,$KDJ_duration)=@_;
+	my @tmp_day = DBT_get_earlier_exchange_days($dhe,$code,$date,$KDJ_duration);
+	my $kdj_start_day = $tmp_day[$#tmp_day];
+	my $period=9;
+	return _D_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+
+}
+sub _day_K_OF_KDJ{
+	my ($code,$dhe,$date,$KDJ_duration)=@_;
+	my @tmp_day = DBT_get_earlier_exchange_days($dhe,$code,$date,$KDJ_duration);
+	my $kdj_start_day = $tmp_day[$#tmp_day];
+	my $period=9;
+	return _K_OF_KDJ($code,$date,$period,$dhe,$kdj_start_day);
+
+}
+sub _is_valid_KDJ_cross{
+	my ($code,$dhe,$date,$duration)=@_;
+	my $KDJ_duration = 30;
+	my @tmp_day = DBT_get_earlier_exchange_days($dhe,$code,$date,$duration);
+	if(@tmp_day){
+		my $start_day = $tmp_day[$#tmp_day];
+		my $D_start = _day_D_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
+		my $D_last = _day_D_OF_KDJ($code,$dhe,$date,$KDJ_duration);
+		#确定J线是否与D线交叉
+		my $J_start = _day_J_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
+		my $J_last = _day_J_OF_KDJ($code,$dhe,$date,$KDJ_duration);
+		if($J_last <= $D_last || $J_start > $D_start){
+			return 0;
+		}
+		
+		#确定K线是否与D线交叉
+		my $K_start = _day_K_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
+		my $K_last = _day_K_OF_KDJ($code,$dhe,$date,$KDJ_duration);
+		if($K_last <= $D_last || $K_start > $D_start){
+			return 0;
+		}
+		return 1;
+	}
+	return 0;
+}
+#金叉
+sub _is_mode5
+{
+	my ($dhe,$code,$date,$level)=@_;
+	my $min_day_count=5;
+	my $max_day_count=10;
+	my $duration=5;
+	my @date = DBT_get_earlier_exchange_days($dhe,$code,$date,1);
+	if(!@date){
+		return 0;
+	}
+	$date = $date[0];
+	#检测是平均值否一直在上升状态
+	if(!_is_MA_UP($dhe,$code,$date,$min_day_count,$duration)){
+			return 0;
+	}
+	if(!_is_MA_UP($dhe,$code,$date,$max_day_count,$duration)){
+			return 0;
+	}
+	#检测小均值是否大于大均值
+	my $tmp_min = _MA($code,$dhe,$date,$min_day_count);	
+	my $tmp_max = _MA($code,$dhe,$date,$max_day_count);	
+	if($tmp_max >= $tmp_min){
+		return 0;
+	}
+	#检测平均值是否有交叉
+	if(!_is_MA_cross($dhe,$code,$date,$min_day_count,$max_day_count,$duration)){
+		return 0;
+	}
+	#检测是否KDJ有效交叉
+	if(!_is_valid_KDJ_cross($code,$dhe,$date,$duration+5)){
+		return 0;
+	}
+	#检测交易量是否有交叉
+	if(!_is_MA_volume_cross($dhe,$code,$date,$min_day_count,$max_day_count,$duration)){
+		return 0;
+	}
+	return 1;
+}
 sub _select_codes
 {
 	my $stockcodefile=shift;
@@ -620,6 +775,8 @@ sub _select_codes
 			}elsif ($g_selectcode_mode == 3 && !_is_mode3($dhe,$code,$date,$gflag_selectcode_level)){
 				next;	
 			}elsif ($g_selectcode_mode == 4 && !_is_mode4($dhe,$code,$date,$gflag_selectcode_level)){
+				next;	
+			}elsif ($g_selectcode_mode == 5 && !_is_mode5($dhe,$code,$date,$gflag_selectcode_level)){
 				next;	
 			}
 		}
