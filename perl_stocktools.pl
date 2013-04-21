@@ -535,6 +535,10 @@ sub _is_MA_volume_cross{
 		my $last_max_MA = _MA_volume($code,$dhe,$last_exchange_day,$max_MA_day_count);
 		my $first_min_MA = _MA_volume($code,$dhe,$first_exchange_day,$min_MA_day_count);
 		my $first_max_MA = _MA_volume($code,$dhe,$first_exchange_day,$max_MA_day_count);
+		#有正斜角
+		if(($last_min_MA - $last_max_MA)> ($first_min_MA - $first_max_MA)){
+			return 1;
+		}
 		if($last_min_MA >= $last_max_MA && $first_min_MA <= $first_max_MA){
 			return 1;
 		}
@@ -543,6 +547,15 @@ sub _is_MA_volume_cross{
 		}
 	}
 	return 0;
+}
+sub acos { atan2( sqrt(1 - $_[0] * $_[0]), $_[0] ) }
+#夹角 = acos(  (dx1*dx2+dy1*dy2)/sqrt((dx1*dx1++dy1*dy1)*(dx2*dx2+dy2*dy2)) )
+#还没有找正确的计算方法
+sub _angle{
+	my ($dx1,$dy1,$dx2,$dy2)=@_;
+	#my $angle = acos(($dx1*$dx2+$dy1*$dy2)/sqrt(($dx1*$dx1+$dy1*$dy1)*($dx2*$dx2+$dy2*$dy2)));
+	#$angle = ($dy1-$dy2)/($dx1-$dx2);
+	#return $angle;
 }
 sub _is_MA_cross{
 	my ($dhe,$code,$last_day,$min_MA_day_count,$max_MA_day_count,$duration)=@_;
@@ -553,6 +566,10 @@ sub _is_MA_cross{
 		my $last_max_MA = _MA($code,$dhe,$last_exchange_day,$max_MA_day_count);
 		my $first_min_MA = _MA($code,$dhe,$first_exchange_day,$min_MA_day_count);
 		my $first_max_MA = _MA($code,$dhe,$first_exchange_day,$max_MA_day_count);
+		#有正斜角
+		if(($last_min_MA - $last_max_MA)> ($first_min_MA - $first_max_MA)){
+			return 1;
+		}
 		if($last_min_MA >= $last_max_MA && $first_min_MA <= $first_max_MA){
 			return 1;
 		}
@@ -594,12 +611,18 @@ sub _is_valid_KDJ_cross{
 		my $start_day = $tmp_day[$#tmp_day];
 		my $D_start = _day_D_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
 		my $D_last = _day_D_OF_KDJ($code,$dhe,$date,$KDJ_duration);
-		if(($D_start+$D_last)/2 > 50 ){
+		if($D_last <= $D_start){
 			return 0;
 		}
 		#确定J线是否与D线交叉
 		my $J_start = _day_J_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
 		my $J_last = _day_J_OF_KDJ($code,$dhe,$date,$KDJ_duration);
+		if($J_last <= $J_start){
+			return 0;
+		}
+		if(($J_last - $D_last)< ($J_start - $D_start)){
+			return 0;
+		}
 		if($J_last <= $D_last || $J_start > $D_start){
 			return 0;
 		}
@@ -607,6 +630,12 @@ sub _is_valid_KDJ_cross{
 		#确定K线是否与D线交叉
 		my $K_start = _day_K_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
 		my $K_last = _day_K_OF_KDJ($code,$dhe,$date,$KDJ_duration);
+		if($K_last <= $K_start){
+			return 0;
+		}
+		if(($K_last - $D_last)< ($K_start - $D_start)){
+			return 0;
+		}
 		if($K_last <= $D_last || $K_start > $D_start){
 			return 0;
 		}
@@ -643,12 +672,12 @@ sub _is_mode3
 	if(!_is_MA_cross($dhe,$code,$date,$min_day_count,$max_day_count,$duration)){
 		return 0;
 	}
-	#检测是否KDJ有效交叉 
-	if(!_is_valid_KDJ_cross($code,$dhe,$date,$duration+5)){
-		return 0;
-	}
 	#检测交易量是否有交叉
 	if(!_is_MA_volume_cross($dhe,$code,$date,$min_day_count,$max_day_count,$duration)){
+		return 0;
+	}
+	#检测是否KDJ有效交叉 
+	if(!_is_valid_KDJ_cross($code,$dhe,$date,$duration+5)){
 		return 0;
 	}
 	return 1;
