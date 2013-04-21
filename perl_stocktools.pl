@@ -370,43 +370,6 @@ sub _get_inflection_date
 sub _is_mode1
 {
 	my ($dhe,$code,$date,$level)=@_;
-	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,20);
-	if (@days){
-		my $last = $days[0];
-		my $start = 0;
-		my @tdays;
-		my $mindays = 3;
-		if ($level > 0){
-			$mindays = 2;
-		}
-		foreach my $day(@days){
-			my $rise = DBT_get_days_rise($code,$dhe,$last,$day);
-			my $dayrise = DBT_get_rise($code,$dhe,$day);
-			my $max = DBT_get_max_price($code,$day,$dhe);
-			my $min = DBT_get_min_price($code,$day,$dhe);
-			if ($max == $min && $dayrise < 0.03){
-				$start =1;
-				push @tdays,$day;
-				next;
-			}
-			if($start ){
-				if( scalar(@tdays)< $mindays){
-					return 0;	
-				}
-				return 1;
-			}else{
-				if($rise > 0.1){
-					return 0;
-				}
-			}
-		}
-	}
-
-	return 0;
-}
-sub _is_mode2
-{
-	my ($dhe,$code,$date,$level)=@_;
 	my @days= DBT_get_earlier_exchange_days($dhe,$code,$date,2);
 	if (not $level){
 		$level = 0;
@@ -414,7 +377,7 @@ sub _is_mode2
 	if(@days){
 		my $maxrise=0.05;
 		my $durationrise = 0;
-		my $day_count=12;
+		my $day_count=15;
 		my @durationdays= DBT_get_earlier_exchange_days($dhe,$code,$days[0],$day_count);
 		my @daysbigvol;
 		my @dayslittlevol;
@@ -481,14 +444,14 @@ sub _is_mode2
 				return 0;	
 			}
 			if (scalar(@lastupdays) < $lastupdays * $lastupdaysmin){
-				return;
+				return 0;
 			}
 		}
 		return 1;
 	}
 	return 0;
 }
-sub _is_mode3
+sub _is_mode2
 {
 	my ($dhe,$code,$date,$level)=@_;
 	my $dayscount = 5;
@@ -510,6 +473,9 @@ sub _is_mode3
 			if ($rise < 0){
 				return 0;
 			}
+		}
+		if(!_is_valid_KDJ_cross($code,$dhe,$date,$dayscount)){
+			return 0;
 		}
 		return 1;
 	}
@@ -628,6 +594,9 @@ sub _is_valid_KDJ_cross{
 		my $start_day = $tmp_day[$#tmp_day];
 		my $D_start = _day_D_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
 		my $D_last = _day_D_OF_KDJ($code,$dhe,$date,$KDJ_duration);
+		if(($D_start+$D_last)/2 > 50 ){
+			return 0;
+		}
 		#确定J线是否与D线交叉
 		my $J_start = _day_J_OF_KDJ($code,$dhe,$start_day,$KDJ_duration);
 		my $J_last = _day_J_OF_KDJ($code,$dhe,$date,$KDJ_duration);
@@ -646,11 +615,11 @@ sub _is_valid_KDJ_cross{
 	return 0;
 }
 #金叉
-sub _is_mode5
+sub _is_mode3
 {
 	my ($dhe,$code,$date,$level)=@_;
-	my $min_day_count=5;
-	my $max_day_count=10;
+	my $min_day_count=8;
+	my $max_day_count=15;
 	my $duration=5;
 	my @date = DBT_get_earlier_exchange_days($dhe,$code,$date,1);
 	if(!@date){
@@ -775,8 +744,6 @@ if($gflag_selectcode_mode){
 	}elsif ($g_selectcode_mode == 3 && !_is_mode3($dhe,$code,$date,$gflag_selectcode_level)){
 		next;	
 	}elsif ($g_selectcode_mode == 4 && !_is_mode4($dhe,$code,$date,$gflag_selectcode_level)){
-		next;	
-	}elsif ($g_selectcode_mode == 5 && !_is_mode5($dhe,$code,$date,$gflag_selectcode_level)){
 		next;	
 	}
 }

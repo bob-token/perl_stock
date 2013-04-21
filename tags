@@ -210,7 +210,6 @@ _is_mode1	perl_stocktools.pl	/^sub _is_mode1$/;"	s
 _is_mode2	perl_stocktools.pl	/^sub _is_mode2$/;"	s
 _is_mode3	perl_stocktools.pl	/^sub _is_mode3$/;"	s
 _is_mode4	perl_stocktools.pl	/^sub _is_mode4$/;"	s
-_is_mode5	perl_stocktools.pl	/^sub _is_mode5$/;"	s
 _is_today_loged	customer_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _is_today_loged	perl_stocktools.pl	/^sub _is_today_loged{$/;"	s
 _is_valid_KDJ_cross	perl_stocktools.pl	/^sub _is_valid_KDJ_cross{$/;"	s
