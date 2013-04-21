@@ -1428,7 +1428,7 @@ $gflag_selectcode_mode=1;
 			}
 			#$g_selectcode_date = COM_today(0);
 			COM_get_command_line_property(\@ARGV,"date",\$g_selectcode_date);
-	my $total=20;
+	my $total=10;
 	COM_get_command_line_property(\@ARGV,"total",\$total);
 			my $level = 0;
 			COM_get_command_line_property(\@ARGV,"level",\$gflag_selectcode_level);
