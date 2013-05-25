@@ -451,7 +451,7 @@ sub _is_mode1
 	}
 	return 0;
 }
-sub _is_mode2
+sub _is_mode3
 {
 	my ($dhe,$code,$date,$level)=@_;
 	my $dayscount = 5;
@@ -644,12 +644,14 @@ sub _is_valid_KDJ_cross{
 	return 0;
 }
 #金叉
-sub _is_mode3
+sub _is_mode2
 {
 	my ($dhe,$code,$date,$level)=@_;
-	my $min_day_count=8;
-	my $max_day_count=15;
+	my $min_day_count=5;
+	my $max_day_count=10;
 	my $duration=5;
+	#离当前最多天中必有交叉
+	my $max_cross_day=3;
 	my @date = DBT_get_earlier_exchange_days($dhe,$code,$date,1);
 	if(!@date){
 		return 0;
@@ -669,15 +671,15 @@ sub _is_mode3
 		return 0;
 	}
 	#检测平均值是否有交叉
-	if(!_is_MA_cross($dhe,$code,$date,$min_day_count,$max_day_count,$duration)){
+	if(!_is_MA_cross($dhe,$code,$date,$min_day_count,$max_day_count,$max_cross_day)){
 		return 0;
 	}
 	#检测交易量是否有交叉
-	if(!_is_MA_volume_cross($dhe,$code,$date,$min_day_count,$max_day_count,$duration)){
+	if(!_is_MA_volume_cross($dhe,$code,$date,$min_day_count,$max_day_count,$max_cross_day)){
 		return 0;
 	}
 	#检测是否KDJ有效交叉 
-	if(!_is_valid_KDJ_cross($code,$dhe,$date,$duration+5)){
+	if(!_is_valid_KDJ_cross($code,$dhe,$date,$max_cross_day)){
 		return 0;
 	}
 	return 1;
