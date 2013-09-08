@@ -89,6 +89,7 @@ sub DBT_get_next_date_closing_price{
 	return MSH_GetValue($dhe,$code,"DATE,SHOUPANJIA",$condition); 
 }
 sub DBT_get_season_exchage_days{
+	COM_DEBUG ("DBT_get_season_exchage_days");
 	my ($dhe,$code,$year,$season)=@_;
 	if($dhe && $code && $year && defined $season){
 		my @exchange_days;

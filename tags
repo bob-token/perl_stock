@@ -6,6 +6,9 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 AliveKeeper	pywapfetion/PyWapFetion/AliveKeeper.py	/^class AliveKeeper(Thread):$/;"	c
 AliveKeeper	pywapfetion/PyWapFetion/Fetion.py	/^            from AliveKeeper import AliveKeeper$/;"	i
+COM_DEBUG	perl_common.pl	/^sub COM_DEBUG{$/;"	s
+COM_ERROR	perl_common.pl	/^sub COM_ERROR{$/;"	s
+COM_WARN	perl_common.pl	/^sub COM_WARN{$/;"	s
 COM_command_line_filter_codes	perl_common.pl	/^sub COM_command_line_filter_codes$/;"	s
 COM_download	perl_common.pl	/^sub COM_download$/;"	s
 COM_filter_param	perl_common.pl	/^sub COM_filter_param{$/;"	s
@@ -24,6 +27,7 @@ COM_is_valid_attribute	perl_common.pl	/^sub COM_is_valid_attribute{$/;"	s
 COM_log	perl_common.pl	/^sub COM_log{$/;"	s
 COM_log_init	perl_common.pl	/^sub COM_log_init{$/;"	s
 COM_remove	perl_common.pl	/^sub COM_remove{$/;"	s
+COM_set_log_level	perl_common.pl	/^sub COM_set_log_level{$/;"	s
 COM_today	perl_common.pl	/^sub COM_today{$/;"	s
 CUS_AddProperty	perl_customer.pl	/^sub CUS_AddProperty{$/;"	s
 CUS_AddUser	perl_customer.pl	/^sub CUS_AddUser{$/;"	s
@@ -153,6 +157,7 @@ _add_property	perl_stocktools.pl	/^sub _add_property{$/;"	s
 _add_stock	plwapfetion.pl	/^sub _add_stock{$/;"	s
 _analyze_code	perl_stocktools.pl	/^sub _analyze_code$/;"	s
 _analyze_code_days	perl_stocktools.pl	/^sub _analyze_code_days{$/;"	s
+_angle	perl_stocktools.pl	/^sub _angle{$/;"	s
 _array_value	perl_database.pl	/^sub _array_value$/;"	s
 _buy	perl_stocktools.pl	/^sub _buy{$/;"	s
 _clean_base_info_db	perl_stock.pl	/^sub _clean_base_info_db{$/;"	s
@@ -193,6 +198,7 @@ _get_inflection_date	perl_stocktools.pl	/^sub _get_inflection_date$/;"	s
 _get_message	plwapfetion.pl	/^sub _get_message{$/;"	s
 _get_stock_base_info	perl_stock.pl	/^sub _get_stock_base_info{$/;"	s
 _get_stock_exchange	perl_stock.pl	/^sub _get_stock_exchange{$/;"	s
+_get_stock_exchange11	perl_stock.pl	/^sub _get_stock_exchange11{$/;"	s
 _get_stock_sh_index	perl_stock.pl	/^sub _get_stock_sh_index{$/;"	s
 _get_surge_days	perl_stocktools.pl	/^sub _get_surge_days{$/;"	s
 _get_turnover	perl_stocktools.pl	/^sub _get_turnover{$/;"	s
@@ -247,6 +253,7 @@ _update_stock_sh_index	perl_stock.pl	/^sub _update_stock_sh_index{$/;"	s
 _update_stocks_base_info	perl_stock.pl	/^sub _update_stocks_base_info{$/;"	s
 _update_stocks_exchange	perl_stock.pl	/^sub _update_stocks_exchange{$/;"	s
 _update_stocks_season_profit_info	perl_stock.pl	/^sub _update_stocks_season_profit_info{$/;"	s
+acos	perl_stocktools.pl	/^sub acos { atan2( sqrt(1 - $_[0] * $_[0]), $_[0] ) }$/;"	s
 addblacklist	pywapfetion/PyWapFetion/Fetion.py	/^    addblacklist = lambda self,id: '加入黑名单成功!' in self.open('im\/user\/Addblacklist.action?touserid=%s' % id)$/;"	v	class:Fetion
 alive	pywapfetion/PyWapFetion/Fetion.py	/^    alive = lambda self:'心情' in self.open('im\/index\/indexcenter.action')$/;"	v	class:Fetion
 allstatus	pywapfetion/example.py	/^allstatus=myfetion.getallusersstatus() #返回一个dict，格式{用户ID：用户状态}$/;"	v

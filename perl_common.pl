@@ -20,6 +20,8 @@
 
 use strict;
 use warnings;
+use Log::Log4perl qw(:easy);
+
 our $g_fromcode;
 our $logfile = 0;
 our $customlogfile;
@@ -110,9 +112,22 @@ sub COM_get_command_line_property{
 		unshift @$param,reverse(@others);
 		return $find;
 }
+sub COM_set_log_level{
+	my ($level)=@_;
+	if($level =~ /debug\b/i){
+		Log::Log4perl::easy_init($DEBUG);
+	}
+	if($level =~ /warn\b/i){
+		Log::Log4perl::easy_init($WARN);
+	}
+	if($level =~ /ERROR\b/i){
+		Log::Log4perl::easy_init($ERROR);
+	}
+}
 sub COM_filter_param{
 	my ($param)=@_;
 	my @others;
+	COM_set_log_level("warn");
 	while(my $opt=shift @$param){
 		if($opt =~ /-fc\b/){
 			$g_fromcode=shift @$param;
@@ -120,6 +135,9 @@ sub COM_filter_param{
 		}
 		if($opt =~ /-log\b/){
 			$logfile = 1;
+			my $level;
+			COM_get_command_line_property($param,"level",\$level);
+			COM_set_log_level($level);
 			next;
 		}
 		unshift @others,$opt;
@@ -174,19 +192,29 @@ sub COM_download
 	return 0;
 }
 sub COM_get_page_content{
-	my ($url,$max_try_times)=@_;
+	my ($url,$max_try_times,$timeout)=@_;
     my $browser = LWP::UserAgent->new;
 	if(!$max_try_times){
 		$max_try_times=0;
 	}
+	if(!$timeout){
+		$timeout = 180;
+	}
+	$browser->timeout($timeout);
+	my $try = $max_try_times;
+	COM_WARN("COM_get_page_content($url,$max_try_times,$timeout)");
+
     while(1){
             my $response = $browser->get($url);
             if($response->is_success and 'null' ne $response->content){
                     return \$response->content;
             }
-            if ($max_try_times--){
+            if ($try--){
+					my $tims = $max_try_times-$try;
+				    COM_WARN("try $tims get $url");
                     sleep 1;			
             }else {
+					COM_ERROR("Error get $url");
                     last;
             }
     }
@@ -286,6 +314,21 @@ sub COM_find{
 }
 sub COM_log_init{
 	unlink COM_get_file_name("log");	
+}
+sub COM_DEBUG{
+	my ($string)=@_;
+	DEBUG $string;
+	
+}
+sub COM_WARN{
+	my ($string)=@_;
+	WARN $string;
+	
+}
+sub COM_ERROR{
+	my ($string)=@_;
+	ERROR $string;
+	
 }
 sub COM_log{
 	my ($string)=@_;

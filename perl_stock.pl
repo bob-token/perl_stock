@@ -16,6 +16,7 @@ our $StockCodeFile="stock_code.txt";
 our $fromcode;
 
 $|=1;
+
 sub _clean_exchange_db{
 	my $dbh=_open_stock_db();
 	my @tablesname=MSH_GetAllTablesNameArrary($dbh,$StockExDb);
@@ -112,10 +113,33 @@ sub _get_stock_sh_index{
 	}
 	return undef;
 }
+sub _get_stock_exchange11{
+	my $code=shift;
+	my $year=shift;
+	my $jidu=shift;
+	if($code=~ /s[hz]/){
+		$code=substr($code,2);
+	}
+	my $url=sprintf("http://money.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/%s.phtml?year=%s&jidu=%s", $code,$year,$jidu);
+	my @stock;
+	my $content= COM_get_page_content($url,10,10);
+	if($content and 'null' ne $$content){
+		my @date=($$content =~ /(?<=date=)(\d{4}.*)(?='>)/g);
+		my @exchangeinfo=($$content =~ /(?<=center">)(\d{1,7}.*)(?=<\/div>)/g);
+		for( my $idd=0;$idd<(@date);$idd++){
+			my $start=$idd*6;
+			my $info=join(',',join('"','',$date[$idd],''),$exchangeinfo[$start+0],$exchangeinfo[$start+1],$exchangeinfo[$start+2],$exchangeinfo[$start+3],$exchangeinfo[$start+4],$exchangeinfo[$start+5]);
+			$info=sprintf("%s$info%s",'(',')');
+			push (@stock,$info);
+		}
+		return  @stock;
+	}
+}
 sub _get_stock_exchange{
 	my $code=shift;
 	my $year=shift;
 	my $jidu=shift;
+	return _get_stock_exchange11($code,$year,$jidu);
 	if($code=~ /s[hz]/){
 		$code=substr($code,2);
 	}
@@ -316,7 +340,8 @@ sub _update_stock_exchange{
 	foreach my $i(0..$nTotalJidu-1){
 		my $year=$nStartYear+int(($nStartJidu-1+$i)/4);
 		my $jidu=1+($nStartJidu-1+$i)%4;
-		print $code," ",$year," year ",$jidu," season\n";
+		#print $code," ",$year," year ",$jidu," season\n";
+		COM_WARN("$code $year year $jidu season");
 		my @info=_get_stock_exchange($code,$year,$jidu);
 		if(@info){
 			my $str_info=join(',',@info,'');
@@ -354,6 +379,7 @@ sub _smart_update_stocks_exchange{
 				next if(index(COM_get_fromcode(),$code)==-1);
 				$start=1;
 			}
+			COM_DEBUG ("$code start...");
 			if(index (uc($tablesname),uc($code)) < 0){
 				#create tables;
 				my $table_p="DATE DATE,KAIPANJIA FLOAT,ZUIGAOJIA FLOAT,SHOUPANJIA FLOAT,ZUIDIJIA FLOAT,JIAOYIGUSHU BIGINT,JIAOYIJINE BIGINT";
@@ -371,6 +397,7 @@ sub _smart_update_stocks_exchange{
 					}
 				}
 			}
+			DEBUG ("$code end...");
 		}
 	}
 	close(IN);
@@ -631,6 +658,7 @@ sub main{
 		-clearebdb:clear invalid base info
 END
 	}
+		#log lever
 		#clear exchange database
 		$opt =~ /-clearexdb\b/ && _clean_exchange_db()&&print "clear exchange database success\n";
 		#clear invalid base info
