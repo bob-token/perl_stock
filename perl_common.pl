@@ -194,6 +194,7 @@ sub COM_download
 sub COM_get_page_content{
 	my ($url,$max_try_times,$timeout)=@_;
     my $browser = LWP::UserAgent->new;
+	$browser->agent('Mozilla/5.0 (X11; Linux i686; rv:22.0) Gecko/20100101 Firefox/22.0');
 	if(!$max_try_times){
 		$max_try_times=0;
 	}

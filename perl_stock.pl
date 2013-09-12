@@ -122,7 +122,7 @@ sub _get_stock_exchange11{
 	}
 	my $url=sprintf("http://money.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/%s.phtml?year=%s&jidu=%s", $code,$year,$jidu);
 	my @stock;
-	my $content= COM_get_page_content($url,10,10);
+	my $content= COM_get_page_content($url,10,5);
 	if($content and 'null' ne $$content){
 		my @date=($$content =~ /(?<=date=)(\d{4}.*)(?='>)/g);
 		my @exchangeinfo=($$content =~ /(?<=center">)(\d{1,7}.*)(?=<\/div>)/g);
@@ -347,6 +347,7 @@ sub _update_stock_exchange{
 			my $str_info=join(',',@info,'');
 			chop $str_info;
 			$sql=sprintf("INSERT IGNORE INTO  %s VALUES %s ;",$tbl_name,$str_info);
+			COM_DEBUG("sql->do($sql)");
 			$dbh->do($sql) or print $!;			
 		}
 	}
