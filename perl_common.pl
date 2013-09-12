@@ -202,7 +202,7 @@ sub COM_get_page_content{
 	}
 	$browser->timeout($timeout);
 	my $try = $max_try_times;
-	COM_WARN("COM_get_page_content($url,$max_try_times,$timeout)");
+	COM_DEBUG("COM_get_page_content($url,$max_try_times,$timeout)");
 
     while(1){
             my $response = $browser->get($url);
