@@ -9,6 +9,7 @@ require "perl_database.pl";
 require "perl_database_tools.pl";
 require "perl_stocknetwork.pl";
 
+
 our $StockExDb="StockExchangeDb";
 our $StockInfoDb="StockInfoDb";
 our $StockProfitDb="StockProfitDb";
