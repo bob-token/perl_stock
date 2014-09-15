@@ -20,12 +20,35 @@
 
 use strict;
 use warnings;
+use Encode qw(decode encode);
 use Log::Log4perl qw(:easy);
 
 our $g_fromcode;
-our $logfile = 0;
+our $logfile = 1;
 our $customlogfile;
 $|=1;
+sub COM_parseJson
+{
+	my ($data) = @_;
+	if(defined $data){
+		use JSON;
+		return  from_json ($data);
+	}
+	return undef;
+}
+
+sub COM_gbk_to_utf8{
+	my ($gbk_str)=@_;
+	my $rawStr = Encode::decode("gbk",$gbk_str);
+	return Encode::encode("utf8",$rawStr);
+}
+
+sub COM_utf8_to_gbk{
+	my ($gbk_str)=@_;
+	my $rawStr = Encode::decode("utf8",$gbk_str);
+	return Encode::encode("gbk",$rawStr);
+}
+
 sub COM_get_string{
 	my ($flag)=@_;
 	if($flag =~ "code_property_separator"){

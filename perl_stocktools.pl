@@ -1,8 +1,10 @@
 #!/usr/bin/perl -w
 use strict;
 use warnings;
+use 5.010;
 use LWP;
 use DBI;
+use Data::Dumper;
 require "perl_common.pl";
 require "perl_stockcommon.pl";
 require "perl_database.pl";
@@ -17,7 +19,7 @@ our $monitor_code="monitor_stock_code.txt";
 our $gall_monitor_info={};
 our $code_property_separator='@';
 our $code_property_assignment=':';
-#选择股票代码的技术指标开关
+#选择stock代码的技术指标开关
 our $g_selectcode_date;
 our $g_selectcode_mode;
 our $gflag_selectcode_mode=0;#模式
@@ -28,7 +30,6 @@ our $gflag_selectcode_kdj=0;#kdj指数
 our $gflag_selectcode_break_surge=0;#突破平台振荡
 our $gflag_selectcode_turnover=0;#换手率
 $|=1;
-
 # calculate volume moving average
 sub _MA_volume{
 	my ($code,$dhe,$date,$day_count)=@_;
@@ -1095,7 +1096,7 @@ sub _monitor_exchange_stocks
 	my @monitor_stocks;
 	my $code;
 	print "searching codes..."."\n";
-	#寻找合适的股票
+	#寻找合适的stock
 	while(<IN> ){
 		$code=$_;
 		chomp $code;
@@ -1289,6 +1290,105 @@ sub _analyze_code
 	unlink $exchange_details_file; 
 	$dhe->disconnect;
 }
+sub assertValidJson{
+	my ($data,$reson_ref) = @_;
+	if($data){
+		use JSON::Parse 'assert_valid_json';
+		eval {
+			assert_valid_json ($data);
+		};
+		if ($@) {
+			print "Your JSON was invalid: $@\n";
+			$$reson_ref = $@ if $reson_ref;
+		}else{
+			return 1;
+		}
+	}
+	return 0;
+}
+sub _sinadata2json
+{
+	my ($sina_ref) = @_;
+	return unless $sina_ref;
+	return unless $$sina_ref;
+	$$sina_ref =~ s/([a-z]+)\s*:/"$1":/g;
+	#COM_log($$sina_ref);
+}
+#http://vip.stock.finance.sina.com.cn/mkt/#new_swzz
+sub _get_industry_rate
+{
+	my ($industry_code) = @_;
+	my $url = sprintf("http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&asc=1&node=%s",$industry_code);
+	my $content = COM_get_page_content($url,3);	
+	#say $url;
+	return 0 unless $content and $$content;
+	_sinadata2json($content);
+	assertValidJson(COM_gbk_to_utf8($$content));
+	my $industry_json = COM_parseJson($$content);
+	#COM_download($url,'new_swzz',3);
+	#say "\n_get_industry_code:".(@{$industry_json});
+	my $cnt = 0;
+	foreach my $one(@{$industry_json}){
+		$cnt++ if ($one->{"pricechange"} > 0);
+	}
+	return $cnt/scalar(@{$industry_json});
+}
+
+sub _get_industries_rate
+{
+	my $industry_code_file = 'new_industry.txt';
+	open my $in,"<$industry_code_file" or die "$!";
+	my @industries_code =  grep {!/^#/} <$in>;
+	close $in;
+	my @result;
+	foreach my $one(@industries_code){
+		chomp $one;
+		my $rate = _get_industry_rate($one);
+		my %new=(
+			'indust_code' => $one,
+			'indust_rate' => $rate
+		);
+		push @result,\%new;
+	}
+	@result = sort {$b->{'indust_rate'} <=> $a->{'indust_rate'}} @result; 
+	return @result;
+}
+sub _get_industry_stocks_info
+{
+	my ($industry_code) = @_;
+	my $url = sprintf("http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&asc=1&node=%s",$industry_code);
+	my $content = COM_get_page_content($url,3);	
+#	say $url;
+	return unless $content and $$content;
+	_sinadata2json($content);
+	assertValidJson(COM_gbk_to_utf8($$content));
+	my $industry_json = COM_parseJson($$content);
+	return @{$industry_json};
+}
+sub _get_industry
+{
+	my ($code) = @_;
+	my $industry_code_file = 'new_industry.txt';
+	open my $in,"<$industry_code_file" or die "$!";
+	my @industries_code =  grep {!/^#/} <$in>;
+	close $in;
+	my $industry;
+	foreach my $one(@industries_code){
+		my @stocks = _get_industry_stocks_info($one);
+		next unless @stocks;
+		foreach my $code_info(@stocks){
+			if($code_info->{'symbol'} =~ /$code/){
+				$industry = $one;
+				last;
+			}
+		}
+		last if ($industry);
+	}
+	chomp $industry;
+	return $industry;
+	
+}
+
 sub main
 {
 	my $pause=0;
@@ -1296,8 +1396,8 @@ sub main
 	#传引用
 	COM_filter_param(\@ARGV);
 	while(my $opt=shift @ARGV){
-	if ($opt =~ /-h/){			 
-		print <<"END";
+		if ($opt =~ /-h/){			 
+			print <<"END";
 		-p(windows system only):pause before exit
 		-scp[ code[ code[ ...]]]: show current stock exchange price -dmi[ code[ code[ ...]]]: delete monitor stock from file
 		-ami[ code[ code[ ...]]]: add monitor stock ,save to file
@@ -1314,246 +1414,260 @@ sub main
 		-mes monitor exchange stock(s)
 		-show <code> [fromdate] [todate]:show exchange info in the days
 		-analyze <code> [date:2012-10-10]:analyze exchange detials info
+		-industry_rate [code [code ...]]:calculate stock industry rate 
 END
-	}
-	#help info
-	if ($opt =~ /-p\b/){
-		$pause=1;
-	}
-	#monitor bought stock(s)
-	if ($opt =~ /-mbs\b/){
-		my $code;
-		my @codes;
-		my @tmpcodes;
-		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-			push @tmpcodes , $code;
 		}
-		if(@tmpcodes){
-			foreach $code(@tmpcodes){
-				my @info=_get_buy_code_info($code,'code');
-				if(@info){
-					push @codes,$code;		
+		#help info
+		if ($opt =~ /-p\b/){
+			$pause=1;
+		}
+		#monitor bought stock(s)
+		if ($opt =~ /-mbs\b/){
+			my $code;
+			my @codes;
+			my @tmpcodes;
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+				push @tmpcodes , $code;
+			}
+			if(@tmpcodes){
+				foreach $code(@tmpcodes){
+					my @info=_get_buy_code_info($code,'code');
+					if(@info){
+						push @codes,$code;		
+					}
+				}
+			}else{
+				@codes=_get_all_bought_stocks();	
+			}
+			if(@codes){
+				_monitor_bought_stocks(@codes);
+			}
+		}
+		if ($opt =~ /-mes\b/){
+			_monitor_exchange_stocks();
+		}
+		#sell stock
+		if ($opt =~ /-sell\b/){
+			my $code;
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+				_DMI($code);
+				_delete_buy_code($code);
+				#删除log信息
+				my $log=_get_code_monitor_info_file($code,'log');
+				if($log){
+					unlink($log);
 				}
 			}
-		}else{
-			@codes=_get_all_bought_stocks();	
 		}
-		if(@codes){
-			_monitor_bought_stocks(@codes);
-		}
-	}
-	if ($opt =~ /-mes\b/){
-		_monitor_exchange_stocks();
-	}
-	#sell stock
-	if ($opt =~ /-sell\b/){
-		my $code;
-		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-			_DMI($code);
-			_delete_buy_code($code);
-			#删除log信息
-			my $log=_get_code_monitor_info_file($code,'log');
-			if($log){
-				unlink($log);
+		#list buy stock
+		if ($opt =~ /-lb\b/){
+			my $code;
+			my @codes;
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+				push @codes,$code;	
+			}
+			if(!@codes){
+				@codes=_get_all_bought_stocks();
+			}
+			foreach $code(@codes){
+				my @info=_get_buy_code_info($code);
+				if(@info){
+					printf join(':',@info),"\n";
+				}
 			}
 		}
-	}
-	#list buy stock
-	if ($opt =~ /-lb\b/){
-		my $code;
-		my @codes;
-		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-			push @codes,$code;	
+		#show exhcange info
+		if ($opt =~ /-show\b/){
+			my $code;
+			my @info;
+			my $dhe=MSH_OpenDB($StockExDb);
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+				my $from=shift @ARGV;
+				my $to=shift @ARGV;
+				my $date=COM_today(0);
+				my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,1);
+				if(!$from){
+					$from=$last_exchange_data_day[0];
+				}
+				if(!$to){
+					$to=$last_exchange_data_day[0];
+				}
+				@info=_get_exchange_info($code,$from,$to);
+				last;
+			}
+			$dhe->disconnect;
+			print join("\n",@info);
 		}
-		if(!@codes){
-			@codes=_get_all_bought_stocks();
-		}
-		foreach $code(@codes){
-			my @info=_get_buy_code_info($code);
-			if(@info){
-				printf join(':',@info),"\n";
+		#buy stock
+		if ($opt =~ /-buy\b/){
+			my $code;
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+				_buy($code,shift @ARGV,shift @ARGV,shift @ARGV);
 			}
 		}
-	}
-	#show exhcange info
-	if ($opt =~ /-show\b/){
-		my $code;
-		my @info;
-		my $dhe=MSH_OpenDB($StockExDb);
-		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-			my $from=shift @ARGV;
-			my $to=shift @ARGV;
-			my $date=COM_today(0);
-			my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,1);
-			if(!$from){
-				$from=$last_exchange_data_day[0];
+		#select codes for exchange
+		if ($opt =~ /-select/){
+			if(COM_get_command_line_property(\@ARGV,"turnover")){
+				$gflag_selectcode_turnover=1;
 			}
-			if(!$to){
-				$to=$last_exchange_data_day[0];
+			if(COM_get_command_line_property(\@ARGV,"kdj")){
+				$gflag_selectcode_kdj=1;
 			}
-			@info=_get_exchange_info($code,$from,$to);
-			last;
-		}
-		$dhe->disconnect;
-		print join("\n",@info);
-	}
-	#buy stock
-	if ($opt =~ /-buy\b/){
-		my $code;
-		while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-			_buy($code,shift @ARGV,shift @ARGV,shift @ARGV);
-		}
-	}
-	#select codes for exchange
-	if ($opt =~ /-select/){
-		if(COM_get_command_line_property(\@ARGV,"turnover")){
-		$gflag_selectcode_turnover=1;
-	}
-	if(COM_get_command_line_property(\@ARGV,"kdj")){
-	$gflag_selectcode_kdj=1;
-}
-if(COM_get_command_line_property(\@ARGV,"macd")){
-$gflag_selectcode_macd=1;
+			if(COM_get_command_line_property(\@ARGV,"macd")){
+				$gflag_selectcode_macd=1;
 			}
 			if(COM_get_command_line_property(\@ARGV,"dig")){
-			$gflag_selectcode_dig=1;
-		}
-		if(COM_get_command_line_property(\@ARGV,"break_surge")){
-		$gflag_selectcode_break_surge=1;
-	}
-	if(COM_get_command_line_property(\@ARGV,"mode",\$g_selectcode_mode)){
-$gflag_selectcode_mode=1;
+				$gflag_selectcode_dig=1;
+			}
+			if(COM_get_command_line_property(\@ARGV,"break_surge")){
+				$gflag_selectcode_break_surge=1;
+			}
+			if(COM_get_command_line_property(\@ARGV,"mode",\$g_selectcode_mode)){
+				$gflag_selectcode_mode=1;
 			}
 			#$g_selectcode_date = COM_today(0);
 			COM_get_command_line_property(\@ARGV,"date",\$g_selectcode_date);
-	my $total=10;
-	COM_get_command_line_property(\@ARGV,"total",\$total);
+			my $total=10;
+			COM_get_command_line_property(\@ARGV,"total",\$total);
 			my $level = 0;
 			COM_get_command_line_property(\@ARGV,"level",\$gflag_selectcode_level);
-	my @codes=_select_codes($StockCodeFile,$total);
-	COM_log(join("\n","selected:",@codes));
-}
+			my @codes=_select_codes($StockCodeFile,$total);
+			COM_log(join("\n","selected:",@codes));
+		}
 #turnover rate
-if($opt =~ /-tor/){
-	my $datefrom=shift @ARGV;
-	my $dateto=shift @ARGV;
-	my $min=shift @ARGV;
-	my $max=shift @ARGV;
-	my $daytotal=shift @ARGV;
-	my $num=shift @ARGV;
-	my @codes = _turnover_get_codes($datefrom,$dateto,$min,$max,$daytotal,$num);
-	print split("\n",@codes); 
-}
-if($opt =~ /-macd/){
-	my $code=shift @ARGV ;
-	my $dhe=MSH_OpenDB($StockExDb);
-	my $day_exchange_start=shift @ARGV;
-	my $macd_day=shift @ARGV;
-	my $macd=_MACD(12,26,9,$code,$dhe,$day_exchange_start,$macd_day);	
-	print $code," macd:",$macd,"\n";
-}
-if($opt =~ /-ema/){
-	my $code=shift @ARGV ;
-	my $dhe=MSH_OpenDB($StockExDb);
-	my $day_exchange_start=shift @ARGV;
-	my $ema_day=shift @ARGV;
-	my $day_cnt=shift @ARGV;
-	my $ema=_EMA($code,$dhe,$day_exchange_start,$ema_day,$day_cnt);	
-	print $code,$ema_day,$ema,"\n";
-}
-if($opt =~ /-cdtor/){
-	my $code=shift @ARGV;
-	my $date=shift @ARGV;
-	my $deh=MSH_OpenDB($StockExDb);
-	my $dih=MSH_OpenDB($StockInfoDb);
-	print _get_turnover($date,$code,$deh,$dih);
-	$deh->disconnect;
-	$dih->disconnect;
-}
+		if($opt =~ /-tor/){
+			my $datefrom=shift @ARGV;
+			my $dateto=shift @ARGV;
+			my $min=shift @ARGV;
+			my $max=shift @ARGV;
+			my $daytotal=shift @ARGV;
+			my $num=shift @ARGV;
+			my @codes = _turnover_get_codes($datefrom,$dateto,$min,$max,$daytotal,$num);
+			print split("\n",@codes); 
+		}
+		if($opt =~ /-macd/){
+			my $code=shift @ARGV ;
+			my $dhe=MSH_OpenDB($StockExDb);
+			my $day_exchange_start=shift @ARGV;
+			my $macd_day=shift @ARGV;
+			my $macd=_MACD(12,26,9,$code,$dhe,$day_exchange_start,$macd_day);	
+			print $code," macd:",$macd,"\n";
+		}
+		if($opt =~ /-ema/){
+			my $code=shift @ARGV ;
+			my $dhe=MSH_OpenDB($StockExDb);
+			my $day_exchange_start=shift @ARGV;
+			my $ema_day=shift @ARGV;
+			my $day_cnt=shift @ARGV;
+			my $ema=_EMA($code,$dhe,$day_exchange_start,$ema_day,$day_cnt);	
+			print $code,$ema_day,$ema,"\n";
+		}
+		if($opt =~ /-cdtor/){
+			my $code=shift @ARGV;
+			my $date=shift @ARGV;
+			my $deh=MSH_OpenDB($StockExDb);
+			my $dih=MSH_OpenDB($StockInfoDb);
+			print _get_turnover($date,$code,$deh,$dih);
+			$deh->disconnect;
+			$dih->disconnect;
+		}
 #show current stock exchange price
-if($opt =~ /-scp/){
-	my $code;
-	while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-		my @info =SN_get_stock_cur_exchange_info($code);
-		my $percent =($info[3]-$info[2])*100/$info[2];
-		my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
-		print $str;
-	}
-	if(defined $code){
-		unshift(@ARGV,$code);
-	}
-};
-if($opt =~ /-dmi/){
-	my $code;
-	while($code=shift @ARGV){
-		if(SCOM_is_valid_code($code)){
-			_DMI($code);
-		}
-	}
-	if($code){
-		push @ARGV,$code;
-	}
-}
-if($opt =~ /-ami/){
-	my $code;
-	while($code=shift @ARGV){
-		if(SCOM_is_valid_code($code)){
-			_AMI($code);
-		}
-	}
-	if($code){
-		push @ARGV,$code;
-	}
-}
-if($opt =~ /-mcp/){
-	my $code;
-	my @codes;
-	while($code=shift @ARGV and SCOM_is_valid_code($code) ){
-		push @codes,$code;
-	}
-	if(!@codes){
-		open(IN,$monitor_code);
-		foreach my $tmp(<IN>){
-			chomp $tmp;
-			if(SCOM_is_valid_code($tmp)){
-				push @codes,$tmp;         
+		if($opt =~ /-scp/){
+			my $code;
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+				my @info =SN_get_stock_cur_exchange_info($code);
+				my $percent =($info[3]-$info[2])*100/$info[2];
+				my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
+				print $str;
+			}
+			if(defined $code){
+				unshift(@ARGV,$code);
+			}
+		};
+		if($opt =~ /-dmi/){
+			my $code;
+			while($code=shift @ARGV){
+				if(SCOM_is_valid_code($code)){
+					_DMI($code);
+				}
+			}
+			if($code){
+				push @ARGV,$code;
 			}
 		}
-		close IN;
-	}
-	foreach $code(@codes){
-		my @info =SN_get_stock_cur_exchange_info($code);
-		my $percent =($info[3]-$info[2])*100/$info[2];
-		if($info[3]==0) {
-			$percent=0;
+		if($opt =~ /-ami/){
+			my $code;
+			while($code=shift @ARGV){
+				if(SCOM_is_valid_code($code)){
+					_AMI($code);
+				}
+			}
+			if($code){
+				push @ARGV,$code;
+			}
 		}
-		my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
-		print $str;                            
-	}
+		if($opt =~ /-mcp/){
+			my $code;
+			my @codes;
+			while($code=shift @ARGV and SCOM_is_valid_code($code) ){
+				push @codes,$code;
+			}
+			if(!@codes){
+				open(IN,$monitor_code);
+				foreach my $tmp(<IN>){
+					chomp $tmp;
+					if(SCOM_is_valid_code($tmp)){
+						push @codes,$tmp;         
+					}
+				}
+				close IN;
+			}
+			foreach $code(@codes){
+				my @info =SN_get_stock_cur_exchange_info($code);
+				my $percent =($info[3]-$info[2])*100/$info[2];
+				if($info[3]==0) {
+					$percent=0;
+				}
+				my $str=sprintf("%s,%s,%.2f,%.2f\n",$code,$info[0],$info[3],$percent);
+				print $str;                            
+			}
 
-	if(defined $code){
-		unshift(@ARGV,$code);
-	}
-}
-if($opt =~ /-analyze/){
-	my @codes = COM_command_line_filter_codes(\@ARGV);			
-if (@codes){
-	my $date ;
-	my $count;
-	COM_get_command_line_property(\@ARGV,"date",\$date);
+			if(defined $code){
+				unshift(@ARGV,$code);
+			}
+		}
+		if($opt =~ /-analyze/){
+			my @codes = COM_command_line_filter_codes(\@ARGV);			
+			if (@codes){
+				my $date ;
+				my $count;
+				COM_get_command_line_property(\@ARGV,"date",\$date);
 				COM_get_command_line_property(\@ARGV,"count",\$count);
-		foreach my $code(@codes){
-			_analyze_code_days($code,$date,$count);	
+				foreach my $code(@codes){
+					_analyze_code_days($code,$date,$count);	
+				}
+
+			}
 		}
-
+		if($opt =~ /-industry_rate/){
+			my @codes = COM_command_line_filter_codes(\@ARGV);			
+			foreach my $code (@codes){
+				my $industry = _get_industry($code);
+			        say $industry.":"._get_industry_rate($industry);		
+			}
+			if (not @codes){
+				my @result = _get_industries_rate();
+				#@result = sort {$b->{'indust_rate'} <=> $a->{'indust_rate'}} @result; 
+				foreach my $one(@result){
+					say $one->{'indust_code'}.':'.$one->{'indust_rate'};
+				}	
+			}
+		}
+		if($pause){
+			system("pause");
+		}   
+		COM_log("\nbye bye!\n");
 	}
-}
-
-	}
-	if($pause){
-		system("pause");
-	}   
-	COM_log("\nbye bye!\n");
 }
 
 main;
