@@ -21,12 +21,34 @@
 use strict;
 use warnings;
 use Encode qw(decode encode);
-use Log::Log4perl qw(:easy);
+#use Log::Log4perl qw(:easy);
+use Log::Log4perl qw(get_logger);
 
 our $g_fromcode;
 our $logfile = 1;
 our $customlogfile;
 $|=1;
+
+#define configuration 
+my $conf = q(
+	log4perl.logger			=WARN, FileApp, ScreenApp
+
+	log4perl.appender.FileApp	=Log::Log4perl::Appender::File
+	log4perl.appender.FileApp.filename=stock.log
+	log4perl.appender.FileApp.layout=PatternLayout
+	log4perl.appender.FileApp.layout.ConversionPattern=%d> %m%n
+
+	log4perl.appender.ScreenApp	=Log::Log4perl::Appender::Screen
+	log4perl.appender.ScreenApp.stderr=0
+	log4perl.appender.ScreenApp.layout=PatternLayout
+	log4perl.appender.ScreenApp.layout.ConversionPattern=%d> %m%n
+);
+
+#Initialize logging behaviour
+Log::Log4perl->init( \$conf );
+our $g_logger = get_logger("Bar::Twix");
+
+
 sub COM_parseJson
 {
 	my ($data) = @_;
@@ -138,13 +160,13 @@ sub COM_get_command_line_property{
 sub COM_set_log_level{
 	my ($level)=@_;
 	if($level =~ /debug\b/i){
-		Log::Log4perl::easy_init($DEBUG);
+		#Log::Log4perl::easy_init($DEBUG);
 	}
 	if($level =~ /warn\b/i){
-		Log::Log4perl::easy_init($WARN);
+		#Log::Log4perl::easy_init($WARN);
 	}
 	if($level =~ /ERROR\b/i){
-		Log::Log4perl::easy_init($ERROR);
+		#Log::Log4perl::easy_init($ERROR);
 	}
 }
 sub COM_filter_param{
@@ -341,18 +363,20 @@ sub COM_log_init{
 }
 sub COM_DEBUG{
 	my ($string)=@_;
-	DEBUG $string;
+	#DEBUG $string;
+	$g_logger->debug($string);	
 	
 }
 sub COM_WARN{
 	my ($string)=@_;
-	WARN $string;
+	#WARN $string;
+	$g_logger->warn($string);
 	
 }
 sub COM_ERROR{
 	my ($string)=@_;
-	ERROR $string;
-	
+	#ERROR $string;
+	$g_logger->error($string);	
 }
 sub COM_log{
 	my ($string)=@_;
@@ -365,7 +389,7 @@ sub COM_log{
 			}
 			close OUT;
 		}
-		print $string;
+	#	print $string;
 	}
 }
 sub COM_get_file_name{

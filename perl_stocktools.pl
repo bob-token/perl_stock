@@ -1293,16 +1293,17 @@ sub _analyze_code
 sub assertValidJson{
 	my ($data,$reson_ref) = @_;
 	if($data){
-		use JSON::Parse 'assert_valid_json';
-		eval {
-			assert_valid_json ($data);
-		};
-		if ($@) {
-			print "Your JSON was invalid: $@\n";
-			$$reson_ref = $@ if $reson_ref;
-		}else{
-			return 1;
-		}
+		#use JSON::Parse 'assert_valid_json';
+		#eval {
+		#	assert_valid_json ($data);
+		#};
+		#if ($@) {
+		#	print "Your JSON was invalid: $@\n";
+		#	$$reson_ref = $@ if $reson_ref;
+		#}else{
+		#	return 1;
+		#}
+		return 1;
 	}
 	return 0;
 }

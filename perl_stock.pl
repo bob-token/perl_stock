@@ -399,7 +399,7 @@ sub _smart_update_stocks_exchange{
 					}
 				}
 			}
-			DEBUG ("$code end...");
+			COM_DEBUG("$code end...");
 		}
 	}
 	close(IN);
