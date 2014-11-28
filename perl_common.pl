@@ -390,6 +390,7 @@ sub COM_log{
 			close OUT;
 		}
 	#	print $string;
+		COM_WARN($string);
 	}
 }
 sub COM_get_file_name{

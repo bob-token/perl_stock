@@ -708,7 +708,7 @@ if (defined $g_selectcode_date){
 my @last_exchange_data_day=DBT_get_earlier_exchange_days($dhe,$code,$date,3);
 $date=$last_exchange_data_day[0];
 if(not $date){
-	print ("skip $code ,date is not suitable!","\r\n");
+	COM_WARN("skip $code ,date is not suitable!","\r\n");
 	next;
 }
 my $yesterday=$last_exchange_data_day[1];
@@ -723,7 +723,7 @@ if($circulation_value_limit){
 	my $million=1000000 ;
 	if($liutongshizhi>18*$billion or $liutongshizhi <40*$million){
 		my $mb=sprintf("%.3f",$liutongshizhi/$billion);
-		print ("Skip $code:market value : $mb billion\n");
+		COM_WARN("Skip $code:market value : $mb billion\n");
 		next;
 	}
 }
@@ -736,7 +736,7 @@ if($gflag_selectcode_macd){
 	next if($macd <$macd1 );
 	my $macd2=_MACD(12,26,9,$code,$dhe,$data_start_day,$last_exchange_data_day[2]);
 	next if($macd1<$macd2);
-	COM_log($code,":$date:MACD:$macd","\n");
+	COM_WARN($code,":$date:MACD:$macd","\n");
 	#push @codes,join(":",$code,$date,"MACD",$macd);
 }
 if($gflag_selectcode_kdj){
